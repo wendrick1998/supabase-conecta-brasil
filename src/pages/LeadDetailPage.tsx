@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -513,7 +512,12 @@ const LeadDetailPage: React.FC = () => {
                     <Button 
                       variant="link" 
                       className="text-sm"
-                      onClick={() => document.querySelector('[data-value="tarefas"]')?.click()}
+                      onClick={() => {
+                        const element = document.querySelector('[data-value="tarefas"]');
+                        if (element instanceof HTMLElement) {
+                          element.click();
+                        }
+                      }}
                     >
                       Ver todas as tarefas
                     </Button>
