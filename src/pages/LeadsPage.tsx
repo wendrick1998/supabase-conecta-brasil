@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { getLeads, getCanais, getEstagios } from '@/services/leadService';
 import { Lead, Canal, EstagioPipeline } from '@/types/lead';
 import LeadsTable from '@/components/LeadsTable';
