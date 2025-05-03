@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { getLead, deleteLead, avancarEstagio } from '@/services/leadService';
+import { getLead, deleteLead, advanceLeadStage } from '@/services/leadService';
 import { Lead } from '@/types/lead';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,8 +20,7 @@ import { Separator } from "@/components/ui/separator"
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import LeadTag from '@/components/LeadTag';
-import { toast } from "@/components/ui/use-toast"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -32,7 +31,6 @@ const LeadDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { toast } = useToast()
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -52,18 +50,11 @@ const LeadDetailPage: React.FC = () => {
     try {
       if (id) {
         await deleteLead(id);
-        toast({
-          title: "Lead deletado!",
-          description: "O lead foi removido com sucesso.",
-        })
+        toast.success("Lead deletado com sucesso!");
         navigate('/leads');
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao deletar lead!",
-        description: "Houve um problema ao remover o lead. Tente novamente.",
-      })
+      toast.error("Erro ao deletar lead!");
     } finally {
       setIsDeleting(false);
     }
@@ -73,30 +64,18 @@ const LeadDetailPage: React.FC = () => {
     setIsAdvancing(true);
     try {
       if (id) {
-        const newEstagioId = await avancarEstagio(id);
-        if (newEstagioId && lead) {
-          // Atualiza o lead com o novo estágio
-          const updatedLead = { ...lead, estagio_id: newEstagioId };
+        const success = await advanceLeadStage(id);
+        if (success && lead) {
+          // Reload the lead to get the updated stage
+          const updatedLead = await getLead(id);
           setLead(updatedLead);
-
-          toast({
-            title: "Lead avançado!",
-            description: "O lead foi movido para o próximo estágio.",
-          })
+          toast.success("Lead avançado para o próximo estágio!");
         } else {
-          toast({
-            variant: "destructive",
-            title: "Erro ao avançar lead!",
-            description: "Não foi possível avançar o lead para o próximo estágio.",
-          })
+          toast.info("Lead já está no último estágio.");
         }
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao avançar lead!",
-        description: "Houve um problema ao avançar o lead. Tente novamente.",
-      })
+      toast.error("Erro ao avançar o lead para o próximo estágio!");
     } finally {
       setIsAdvancing(false);
     }
