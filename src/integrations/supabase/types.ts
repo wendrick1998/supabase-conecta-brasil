@@ -9,13 +9,261 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      canais: {
+        Row: {
+          criado_em: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      estagios_pipeline: {
+        Row: {
+          criado_em: string
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          nome: string
+          ordem: number
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: []
+      }
+      interacoes: {
+        Row: {
+          conteudo: string
+          criado_em: string
+          id: string
+          lead_id: string | null
+          tipo: string
+        }
+        Insert: {
+          conteudo: string
+          criado_em?: string
+          id?: string
+          lead_id?: string | null
+          tipo: string
+        }
+        Update: {
+          conteudo?: string
+          criado_em?: string
+          id?: string
+          lead_id?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interacoes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          atualizado_em: string
+          canal_id: string | null
+          criado_em: string
+          email: string | null
+          empresa: string | null
+          estagio_id: string | null
+          id: string
+          nome: string
+          telefone: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          canal_id?: string | null
+          criado_em?: string
+          email?: string | null
+          empresa?: string | null
+          estagio_id?: string | null
+          id?: string
+          nome: string
+          telefone?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          canal_id?: string | null
+          criado_em?: string
+          email?: string | null
+          empresa?: string | null
+          estagio_id?: string | null
+          id?: string
+          nome?: string
+          telefone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "canais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_estagio_id_fkey"
+            columns: ["estagio_id"]
+            isOneToOne: false
+            referencedRelation: "estagios_pipeline"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads_tags: {
+        Row: {
+          lead_id: string
+          tag_id: string
+        }
+        Insert: {
+          lead_id: string
+          tag_id: string
+        }
+        Update: {
+          lead_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_tags_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notas: {
+        Row: {
+          atualizado_em: string
+          conteudo: string
+          criado_em: string
+          id: string
+          lead_id: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          conteudo: string
+          criado_em?: string
+          id?: string
+          lead_id?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          conteudo?: string
+          criado_em?: string
+          id?: string
+          lead_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notas_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          cor: string
+          criado_em: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          cor?: string
+          criado_em?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          cor?: string
+          criado_em?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      tarefas: {
+        Row: {
+          atualizado_em: string
+          completa: boolean
+          criado_em: string
+          data_vencimento: string | null
+          descricao: string | null
+          id: string
+          lead_id: string | null
+          titulo: string
+        }
+        Insert: {
+          atualizado_em?: string
+          completa?: boolean
+          criado_em?: string
+          data_vencimento?: string | null
+          descricao?: string | null
+          id?: string
+          lead_id?: string | null
+          titulo: string
+        }
+        Update: {
+          atualizado_em?: string
+          completa?: boolean
+          criado_em?: string
+          data_vencimento?: string | null
+          descricao?: string | null
+          id?: string
+          lead_id?: string | null
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarefas_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      avancar_estagio_lead: {
+        Args: { lead_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
