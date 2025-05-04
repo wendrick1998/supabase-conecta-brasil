@@ -141,7 +141,7 @@ const ConversationList = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="WhatsApp">WhatsApp</SelectItem>
                 <SelectItem value="Instagram">Instagram</SelectItem>
                 <SelectItem value="Email">Email</SelectItem>
@@ -155,7 +155,7 @@ const ConversationList = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="Aberta">Aberta</SelectItem>
                 <SelectItem value="Fechada">Fechada</SelectItem>
               </SelectGroup>
