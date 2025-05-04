@@ -19,6 +19,9 @@ import PipelineConfigPage from "./pages/PipelineConfigPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import ConversationList from "./components/conversations/ConversationList";
+import ConversationDetail from "./components/conversations/ConversationDetail";
+import NewConversation from "./components/conversations/NewConversation";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,11 @@ const App = () => (
                   <Route path="leads/:id" element={<LeadDetailPage />} />
                   <Route path="pipeline" element={<PipelinePage />} />
                   <Route path="pipeline/configuracao" element={<PipelineConfigPage />} />
+                  
+                  {/* Conversation routes */}
+                  <Route path="conversations" element={<ConversationList />} />
+                  <Route path="conversations/new" element={<NewConversation />} />
+                  <Route path="conversations/:id" element={<ConversationDetail />} />
                 </Route>
               </Route>
               
