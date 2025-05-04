@@ -17,6 +17,7 @@ import EditLeadPage from "./pages/EditLeadPage";
 import PipelinePage from "./pages/PipelinePage";
 import PipelineConfigPage from "./pages/PipelineConfigPage";
 import AutomacoesPage from "./pages/AutomacoesPage";
+import AutomacaoEditorPage from "./pages/AutomacaoEditorPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -49,6 +50,8 @@ const App = () => (
                   <Route path="pipeline" element={<PipelinePage />} />
                   <Route path="pipeline/configuracao" element={<PipelineConfigPage />} />
                   <Route path="automacoes" element={<AutomacoesPage />} />
+                  <Route path="automacoes/nova" element={<AutomacaoEditorPage />} />
+                  <Route path="automacoes/:id/editar" element={<AutomacaoEditorPage />} />
                   
                   {/* Conversation routes */}
                   <Route path="conversations" element={<ConversationList />} />

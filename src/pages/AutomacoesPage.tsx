@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card } from '@/components/ui/card';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Mock data for automations
 interface Automacao {
@@ -82,6 +83,7 @@ const AutomacoesPage = () => {
   const [automacoes, setAutomacoes] = useState<Automacao[]>(automacoesMock);
   const [gatilhoFiltro, setGatilhoFiltro] = useState<string | null>(null);
   const [acaoFiltro, setAcaoFiltro] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleToggleStatus = (id: string) => {
     setAutomacoes(automacoes.map(automacao => {
@@ -118,6 +120,10 @@ const AutomacoesPage = () => {
     setAcaoFiltro(null);
   };
 
+  const handleRowClick = (automacao: Automacao) => {
+    navigate(`/automacoes/${automacao.id}/editar`);
+  };
+
   return (
     <>
       <Helmet>
@@ -132,7 +138,10 @@ const AutomacoesPage = () => {
                 Configure regras automáticas para otimizar seus processos
               </p>
             </div>
-            <Button className="bg-pink-600 hover:bg-pink-700 text-white">
+            <Button 
+              className="bg-pink-600 hover:bg-pink-700 text-white"
+              onClick={() => navigate('/automacoes/nova')}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Nova Automação
             </Button>
@@ -246,7 +255,7 @@ const AutomacoesPage = () => {
                       <TableRow 
                         key={automacao.id} 
                         className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => console.log(`Editar automação ${automacao.id}`)}
+                        onClick={() => handleRowClick(automacao)}
                       >
                         <TableCell className="font-medium">{automacao.nome}</TableCell>
                         <TableCell>
@@ -292,7 +301,11 @@ const AutomacoesPage = () => {
 
             <div className="md:hidden">
               {automacoesFiltradas.map(automacao => (
-                <div key={automacao.id} className="p-4 border-t">
+                <div 
+                  key={automacao.id}
+                  className="p-4 border-t cursor-pointer"
+                  onClick={() => handleRowClick(automacao)}
+                >
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-medium">{automacao.nome}</h3>
                     <div 

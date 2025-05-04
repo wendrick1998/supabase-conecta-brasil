@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import { Inbox, BarChart, Users, Zap } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
@@ -20,13 +20,15 @@ const DashboardLayout: React.FC = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <a 
-                  href="/leads" 
-                  className="flex items-center space-x-3 text-gray-600 hover:text-blue-700 transition-colors"
+                <NavLink 
+                  to="/leads" 
+                  className={({ isActive }) => 
+                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                  }
                 >
                   <Users size={24} />
                   <span className="hidden md:inline">Leads</span>
-                </a>
+                </NavLink>
               </TooltipTrigger>
               <TooltipContent side="right" className="md:hidden">
                 Leads
@@ -35,13 +37,15 @@ const DashboardLayout: React.FC = () => {
             
             <Tooltip>
               <TooltipTrigger asChild>
-                <a 
-                  href="/dashboard" 
-                  className="flex items-center space-x-3 text-gray-600 hover:text-blue-700 transition-colors"
+                <NavLink 
+                  to="/pipeline" 
+                  className={({ isActive }) => 
+                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                  }
                 >
                   <BarChart size={24} />
                   <span className="hidden md:inline">Pipeline</span>
-                </a>
+                </NavLink>
               </TooltipTrigger>
               <TooltipContent side="right" className="md:hidden">
                 Pipeline
@@ -50,28 +54,32 @@ const DashboardLayout: React.FC = () => {
             
             <Tooltip>
               <TooltipTrigger asChild>
-                <a 
-                  href="/inbox" 
-                  className="flex items-center space-x-3 text-gray-600 hover:text-blue-700 transition-colors"
+                <NavLink 
+                  to="/conversations" 
+                  className={({ isActive }) => 
+                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                  }
                 >
                   <Inbox size={24} />
-                  <span className="hidden md:inline">Inbox</span>
-                </a>
+                  <span className="hidden md:inline">Conversas</span>
+                </NavLink>
               </TooltipTrigger>
               <TooltipContent side="right" className="md:hidden">
-                Inbox
+                Conversas
               </TooltipContent>
             </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <a 
-                  href="/automacoes" 
-                  className="flex items-center space-x-3 text-gray-600 hover:text-blue-700 transition-colors"
+                <NavLink 
+                  to="/automacoes" 
+                  className={({ isActive }) => 
+                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                  }
                 >
                   <Zap size={24} />
                   <span className="hidden md:inline">Automações</span>
-                </a>
+                </NavLink>
               </TooltipTrigger>
               <TooltipContent side="right" className="md:hidden">
                 Automações
