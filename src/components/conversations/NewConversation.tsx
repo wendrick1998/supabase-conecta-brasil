@@ -1,7 +1,6 @@
-
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Paperclip, MessageSquarePlus, Microphone, Camera, Trash2 } from 'lucide-react';
+import { ArrowLeft, Paperclip, MessageSquarePlus, Mic, Camera, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Select, 
@@ -324,7 +323,7 @@ const NewConversation = () => {
                   onClick={() => openRecordingModal('audio')}
                   aria-label="Gravar áudio"
                 >
-                  <Microphone className="h-5 w-5" />
+                  <Mic className="h-5 w-5" />
                   <span>Gravar Áudio</span>
                 </Button>
                 
