@@ -101,6 +101,31 @@ const ConversationDetail = () => {
     toast.info('Funcionalidade de anexo em desenvolvimento');
   };
 
+  // Audio recording handler
+  const handleRecordAudio = (file: File) => {
+    setSendingMessage(true);
+    
+    setTimeout(() => {
+      const newMsg: Message = {
+        id: `audio-${Date.now()}`,
+        conversation_id: id || '',
+        content: 'Áudio enviado',
+        timestamp: new Date().toISOString(),
+        sender_type: 'user',
+        status: 'sent',
+        attachment: {
+          name: file.name,
+          url: URL.createObjectURL(file),
+          type: file.type,
+        },
+      };
+      
+      setMessages([...messages, newMsg]);
+      setSendingMessage(false);
+      toast.success('Áudio enviado');
+    }, 500);
+  };
+
   // Recording handlers
   const openRecordingModal = (type: 'audio' | 'video') => {
     setMediaType(type);
@@ -122,7 +147,7 @@ const ConversationDetail = () => {
         status: 'sent',
         attachment: {
           name: file.name,
-          url: URL.createObjectURL(file), // For demo purposes
+          url: URL.createObjectURL(file),
           type: file.type,
         },
       };
@@ -192,7 +217,7 @@ const ConversationDetail = () => {
           onSend={handleSendMessage}
           onFileUpload={handleFileUpload}
           onAddNote={() => setShowNoteForm(true)}
-          onRecordAudio={() => openRecordingModal('audio')}
+          onRecordAudio={handleRecordAudio}
           onRecordVideo={() => openRecordingModal('video')}
           isLoading={sendingMessage}
         />
