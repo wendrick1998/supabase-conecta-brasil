@@ -1,4 +1,6 @@
 
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,55 +10,59 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ReactNode, createContext, useContext, useState } from "react";
+} from '@/components/ui/alert-dialog';
 
-interface ConfirmDialogOptions {
-  title: string;
-  description: string;
+interface ConfirmOptions {
+  title?: string;
+  description?: string;
   cancelText?: string;
   confirmText?: string;
 }
 
-export async function confirm(options: ConfirmDialogOptions): Promise<boolean> {
+/**
+ * Exibe um diálogo de confirmação e retorna uma Promise que resolve com true se o usuário confirmar
+ * ou false se cancelar.
+ */
+export const confirm = ({
+  title = 'Confirmar',
+  description = 'Tem certeza de que deseja continuar?',
+  cancelText = 'Cancelar',
+  confirmText = 'Confirmar',
+}: ConfirmOptions = {}): Promise<boolean> => {
   return new Promise((resolve) => {
-    const dialog = document.createElement('div');
-    dialog.className = 'confirm-dialog-container';
-    document.body.appendChild(dialog);
-
-    const handleConfirm = () => {
-      document.body.removeChild(dialog);
-      resolve(true);
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    
+    const root = createRoot(container);
+    
+    const cleanup = () => {
+      root.unmount();
+      document.body.removeChild(container);
     };
-
+    
     const handleCancel = () => {
-      document.body.removeChild(dialog);
+      cleanup();
       resolve(false);
     };
-
-    const dialogContent = (
-      <AlertDialog open={true}>
+    
+    const handleConfirm = () => {
+      cleanup();
+      resolve(true);
+    };
+    
+    root.render(
+      <AlertDialog defaultOpen={true}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{options.title}</AlertDialogTitle>
-            <AlertDialogDescription>{options.description}</AlertDialogDescription>
+            <AlertDialogTitle>{title}</AlertDialogTitle>
+            <AlertDialogDescription>{description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancel}>
-              {options.cancelText || "Cancel"}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>
-              {options.confirmText || "Continue"}
-            </AlertDialogAction>
+            <AlertDialogCancel onClick={handleCancel}>{cancelText}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirm}>{confirmText}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     );
-
-    // @ts-ignore - This is a quick fix to render React element
-    import('react-dom/client').then(({ createRoot }) => {
-      const root = createRoot(dialog);
-      root.render(dialogContent);
-    });
   });
-}
+};
