@@ -30,16 +30,19 @@ export const confirm = ({
   confirmText = 'Confirmar',
 }: ConfirmOptions = {}): Promise<boolean> => {
   return new Promise((resolve) => {
+    // Create container element
     const container = document.createElement('div');
     document.body.appendChild(container);
     
     const root = createRoot(container);
     
+    // Function to clean up the DOM after dialog closes
     const cleanup = () => {
       root.unmount();
       document.body.removeChild(container);
     };
     
+    // Handler functions for user actions
     const handleCancel = () => {
       cleanup();
       resolve(false);
@@ -50,19 +53,34 @@ export const confirm = ({
       resolve(true);
     };
     
-    root.render(
-      <AlertDialog open={true}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{title}</AlertDialogTitle>
-            <AlertDialogDescription>{description}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancel}>{cancelText}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm}>{confirmText}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    );
+    // Create a simple component that uses the AlertDialog
+    const ConfirmDialog = () => {
+      const [open, setOpen] = React.useState(true);
+      
+      const handleOpenChange = (open: boolean) => {
+        if (!open) {
+          handleCancel();
+        }
+        setOpen(open);
+      };
+      
+      return (
+        <AlertDialog open={open} onOpenChange={handleOpenChange}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{title}</AlertDialogTitle>
+              <AlertDialogDescription>{description}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={handleCancel}>{cancelText}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirm}>{confirmText}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
+    };
+    
+    // Render the dialog component
+    root.render(<ConfirmDialog />);
   });
 };
