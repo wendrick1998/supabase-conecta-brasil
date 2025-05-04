@@ -14,10 +14,12 @@ const LockedRecording: React.FC<LockedRecordingProps> = ({
 }) => {
   return (
     <div className="flex items-center gap-2 py-1 px-2 bg-red-50 border border-red-200 rounded-md">
-      <div className="animate-pulse">
-        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+      <div className="flex items-center gap-1">
+        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse delay-75"></div>
+        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse delay-150"></div>
       </div>
-      <span className="text-xs text-red-600">Gravando...</span>
+      <span className="text-xs text-red-600 font-medium">Gravando...</span>
       <Button
         size="icon"
         variant="ghost"
