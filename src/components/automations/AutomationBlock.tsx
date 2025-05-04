@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { 
@@ -69,15 +68,16 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
     }
   };
 
+  // Fixed TypeScript type issue with position
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    position: 'absolute',
+    position: 'absolute' as const, // Cast to literal type
     top: block.position.y,
     left: block.position.x,
     width: '300px',
     zIndex: 10,
   } : {
-    position: 'absolute',
+    position: 'absolute' as const, // Cast to literal type
     top: block.position.y,
     left: block.position.x,
     width: '300px',

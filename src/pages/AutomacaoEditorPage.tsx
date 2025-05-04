@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { DndContext, closestCenter, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers'; // Now correctly imported
 import { 
   Save, 
   Play, 

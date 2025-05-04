@@ -53,6 +53,37 @@ export const AutomationFlowPreview: React.FC<AutomationFlowPreviewProps> = ({
     );
   }
   
+  // Recursively render connected blocks - moved inside the component to fix the reference error
+  const renderConnectedBlocks = (block: Block, allBlocks: Block[], depth: number = 0): React.ReactNode => {
+    if (block.connections.length === 0) {
+      return null;
+    }
+    
+    return (
+      <div className="ml-4 mt-1">
+        {block.connections.map(connId => {
+          const connectedBlock = allBlocks.find(b => b.id === connId);
+          if (!connectedBlock) return null;
+          
+          return (
+            <div key={connId} className="mt-1">
+              <div className="flex items-center">
+                <ArrowRight size={14} className="mr-1 text-gray-500" />
+                {connectedBlock.category === 'condition' ? (
+                  <span className="text-sm font-medium text-amber-700">Se:</span>
+                ) : (
+                  <span className="text-sm font-medium text-green-700">Então:</span>
+                )}
+                <span className="ml-1 text-sm">{getBlockDescription(connectedBlock)}</span>
+              </div>
+              {renderConnectedBlocks(connectedBlock, allBlocks, depth + 1)}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -69,36 +100,5 @@ export const AutomationFlowPreview: React.FC<AutomationFlowPreviewProps> = ({
         ))}
       </CardContent>
     </Card>
-  );
-};
-
-// Recursively render connected blocks
-const renderConnectedBlocks = (block: Block, allBlocks: Block[], depth: number = 0): React.ReactNode => {
-  if (block.connections.length === 0) {
-    return null;
-  }
-  
-  return (
-    <div className="ml-4 mt-1">
-      {block.connections.map(connId => {
-        const connectedBlock = allBlocks.find(b => b.id === connId);
-        if (!connectedBlock) return null;
-        
-        return (
-          <div key={connId} className="mt-1">
-            <div className="flex items-center">
-              <ArrowRight size={14} className="mr-1 text-gray-500" />
-              {connectedBlock.category === 'condition' ? (
-                <span className="text-sm font-medium text-amber-700">Se:</span>
-              ) : (
-                <span className="text-sm font-medium text-green-700">Então:</span>
-              )}
-              <span className="ml-1 text-sm">{getBlockDescription(connectedBlock)}</span>
-            </div>
-            {renderConnectedBlocks(connectedBlock, allBlocks, depth + 1)}
-          </div>
-        );
-      })}
-    </div>
   );
 };
