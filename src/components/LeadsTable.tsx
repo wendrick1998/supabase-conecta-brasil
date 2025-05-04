@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
@@ -219,14 +218,14 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, canais, estagios, onLead
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="w-full sm:w-64">
           <Select
-            value={filtroCanal || ""}
-            onValueChange={(value) => setFiltroCanal(value === "" ? null : value)}
+            value={filtroCanal || "all-channels"}
+            onValueChange={(value) => setFiltroCanal(value === "all-channels" ? null : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por canal" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os canais</SelectItem>
+              <SelectItem value="all-channels">Todos os canais</SelectItem>
               {canais.map((canal) => (
                 <SelectItem key={canal.id} value={canal.id}>
                   {canal.nome}
@@ -237,14 +236,14 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, canais, estagios, onLead
         </div>
         <div className="w-full sm:w-64">
           <Select
-            value={filtroEstagio || ""}
-            onValueChange={(value) => setFiltroEstagio(value === "" ? null : value)}
+            value={filtroEstagio || "all-stages"}
+            onValueChange={(value) => setFiltroEstagio(value === "all-stages" ? null : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por estágio" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os estágios</SelectItem>
+              <SelectItem value="all-stages">Todos os estágios</SelectItem>
               {estagios.map((estagio) => (
                 <SelectItem key={estagio.id} value={estagio.id}>
                   {estagio.nome}
