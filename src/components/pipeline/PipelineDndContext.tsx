@@ -69,10 +69,14 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
       return child;
     }
     
-    // Check if this is a PipelineContent component by comparing with the imported component
-    if (child.type === PipelineContent) {
-      // TypeScript recognized props based on the component interface
-      return React.cloneElement(child, {
+    // Use both component reference and displayName for robust type checking
+    const isPipelineContent = 
+      child.type === PipelineContent || 
+      (child.type as any)?.displayName === 'PipelineContent';
+    
+    if (isPipelineContent) {
+      // Use type assertion to help TypeScript understand the component props
+      return React.cloneElement(child as React.ReactElement<any>, {
         activeId: activeLeadId,
         overStageId: overStageId
       });
