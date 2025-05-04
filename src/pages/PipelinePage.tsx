@@ -80,7 +80,7 @@ const PipelinePage: React.FC = () => {
 
         {/* Kanban Board com scroll horizontal */}
         <div className="mt-6">
-          <ScrollArea className="w-full" orientation="horizontal">
+          <ScrollArea className="w-full">
             <div className="grid grid-flow-col auto-cols-[minmax(280px,_1fr)] gap-4 pb-4 pr-4 min-h-[calc(100vh-220px)]">
               {estagios.map((estagio) => (
                 <PipelineColumn 

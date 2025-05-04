@@ -5,16 +5,24 @@ import { Badge } from '@/components/ui/badge';
 
 interface LeadTagProps {
   tag: Tag;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export const LeadTag: React.FC<LeadTagProps> = ({ tag }) => {
+export const LeadTag: React.FC<LeadTagProps> = ({ tag, size = 'md' }) => {
+  // Tamanho da fonte baseado na prop size
+  const sizeClasses = {
+    sm: 'text-xs py-0 px-1.5',
+    md: 'text-sm py-0.5 px-2',
+    lg: 'text-base py-1 px-2.5'
+  };
+  
   return (
     <Badge 
       style={{ 
         backgroundColor: tag.cor,
         color: isLightColor(tag.cor) ? '#000' : '#fff'
       }}
-      className="mr-1 mb-1"
+      className={`mr-1 mb-1 ${sizeClasses[size]}`}
     >
       {tag.nome}
     </Badge>
