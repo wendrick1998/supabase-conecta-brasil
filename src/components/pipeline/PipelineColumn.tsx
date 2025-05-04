@@ -8,6 +8,7 @@ import { MoreHorizontal, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
+import { Conversation } from '@/types/conversation';
 
 interface PipelineColumnProps {
   estagio: EstagioPipeline;
@@ -17,6 +18,7 @@ interface PipelineColumnProps {
   isMovingLead?: boolean;
   activeId?: string | null;
   isOver?: boolean;
+  conversations?: Record<string, Conversation>;
 }
 
 const PipelineColumn: React.FC<PipelineColumnProps> = ({ 
@@ -26,7 +28,8 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
   allStages,
   isMovingLead = false,
   activeId = null,
-  isOver = false
+  isOver = false,
+  conversations = {}
 }) => {
   // Get column color style - default to blue if not set
   const columnColor = estagio.cor || '#1E40AF';
@@ -45,6 +48,19 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
   };
 
   const isActiveLeadInThisColumn = activeId && leads.some(lead => lead.id === activeId);
+
+  // Helper to convert conversation data to format needed by PipelineCard
+  const getConversationData = (leadId: string) => {
+    const conversation = conversations[leadId];
+    if (!conversation) return undefined;
+    
+    return {
+      lastMessage: conversation.ultima_mensagem,
+      timestamp: conversation.horario,
+      unreadCount: conversation.nao_lida ? 1 : 0,
+      isViewed: !conversation.nao_lida,
+    };
+  };
 
   return (
     <div 
@@ -111,6 +127,7 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
               onMove={onMoveCard}
               stages={allStages}
               isDragging={activeId === lead.id}
+              conversation={getConversationData(lead.id)}
             />
           ))
         )}
