@@ -3,13 +3,8 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAutomationEditor } from '@/hooks/useAutomationEditor';
 import { AutomationHeader } from '@/components/automations/AutomationHeader';
-import { AutomationSidebar } from '@/components/automations/AutomationSidebar';
-import { AutomationCanvas } from '@/components/automations/AutomationCanvas';
-import { AutomationCanvasControls } from '@/components/automations/AutomationCanvasControls';
-import { PreviewDialog } from '@/components/automations/PreviewDialog';
-import { TemplatesDialog } from '@/components/automations/TemplatesDialog';
-import { AutomationDndContext } from '@/components/automations/AutomationDndContext';
-import { Block } from '@/types/automation';
+import { AutomationWorkspace } from '@/components/automations/AutomationWorkspace';
+import { AutomationDialogs } from '@/components/automations/AutomationDialogs';
 
 const AutomacaoEditorPage = () => {
   const {
@@ -60,48 +55,29 @@ const AutomacaoEditorPage = () => {
           onCancel={handleCancelAutomation}
         />
 
-        <div className="flex flex-col md:flex-row flex-1 h-full">
-          {/* Sidebar with block library */}
-          <AutomationSidebar 
-            onShowTemplates={() => setShowTemplates(true)}
-            isMobile={isMobile}
-          />
-          
-          {/* Main canvas area */}
-          <AutomationDndContext
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            <main className="flex-1 overflow-hidden bg-gray-50 relative">
-              <AutomationCanvas 
-                blocks={blocks}
-                canvasRef={canvasRef}
-                onConfigureBlock={handleConfigureBlock}
-                onDeleteBlock={handleDeleteBlock}
-                onCreateConnection={handleCreateConnection}
-              />
-              
-              {/* Canvas controls */}
-              <AutomationCanvasControls
-                onShowPreview={() => setShowPreview(true)}
-              />
-            </main>
-          </AutomationDndContext>
-        </div>
+        {/* Main workspace with sidebar and canvas */}
+        <AutomationWorkspace 
+          blocks={blocks}
+          canvasRef={canvasRef}
+          isMobile={isMobile}
+          setShowTemplates={setShowTemplates}
+          setShowPreview={setShowPreview}
+          handleDragStart={handleDragStart}
+          handleDragEnd={handleDragEnd}
+          handleConfigureBlock={handleConfigureBlock}
+          handleDeleteBlock={handleDeleteBlock}
+          handleCreateConnection={handleCreateConnection}
+        />
       </div>
       
-      {/* Template dialog */}
-      <TemplatesDialog 
-        open={showTemplates} 
-        onOpenChange={setShowTemplates} 
-        onApplyTemplate={handleApplyTemplate}
-      />
-      
-      {/* Preview dialog */}
-      <PreviewDialog 
-        open={showPreview} 
-        onOpenChange={setShowPreview} 
-        blocks={blocks} 
+      {/* Dialogs */}
+      <AutomationDialogs 
+        showTemplates={showTemplates}
+        setShowTemplates={setShowTemplates}
+        showPreview={showPreview}
+        setShowPreview={setShowPreview}
+        blocks={blocks}
+        handleApplyTemplate={handleApplyTemplate}
       />
     </>
   );
