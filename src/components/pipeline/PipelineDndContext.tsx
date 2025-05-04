@@ -66,12 +66,8 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
   // Check children and pass props to PipelineContent
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
-      // We need to check if the child is PipelineContent
-      const childType = child.type;
-      if (
-        typeof childType === 'function' && 
-        childType.name === PipelineContent.name
-      ) {
+      // Check if this is a PipelineContent component
+      if (child.type === PipelineContent) {
         // Pass these props to PipelineContent
         return React.cloneElement(child, {
           activeId: activeLeadId,
