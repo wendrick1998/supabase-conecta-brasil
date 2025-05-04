@@ -5,6 +5,7 @@ import { getLeadNotes } from '@/services/notaService';
 import { getLeadInteractions } from '@/services/interacaoService';
 import TimelineItem from '@/components/TimelineItem';
 import { Nota, Interacao } from '@/types/lead';
+import AddTimelineItemForms from './AddTimelineItemForms';
 
 interface LeadTimelineProps {
   leadId: string;
@@ -15,24 +16,31 @@ const LeadTimeline: React.FC<LeadTimelineProps> = ({ leadId }) => {
   const [interactions, setInteractions] = useState<Interacao[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTimelineData = async () => {
-      setIsLoading(true);
-      const [notesData, interactionsData] = await Promise.all([
-        getLeadNotes(leadId),
-        getLeadInteractions(leadId)
-      ]);
-      setNotes(notesData);
-      setInteractions(interactionsData);
-      setIsLoading(false);
-    };
+  const fetchTimelineData = async () => {
+    setIsLoading(true);
+    const [notesData, interactionsData] = await Promise.all([
+      getLeadNotes(leadId),
+      getLeadInteractions(leadId)
+    ]);
+    setNotes(notesData);
+    setInteractions(interactionsData);
+    setIsLoading(false);
+  };
 
+  useEffect(() => {
     fetchTimelineData();
   }, [leadId]);
+
+  const handleItemAdded = () => {
+    fetchTimelineData();
+  };
 
   return (
     <div className="mt-8">
       <h2 className="text-xl font-semibold mb-4">Histórico</h2>
+      
+      <AddTimelineItemForms leadId={leadId} onSuccess={handleItemAdded} />
+      
       <Tabs defaultValue="all">
         <TabsList className="mb-4">
           <TabsTrigger value="all">Todos</TabsTrigger>
