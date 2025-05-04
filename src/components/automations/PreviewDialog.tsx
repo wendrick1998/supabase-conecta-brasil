@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Block } from '@/types/automation';
@@ -9,12 +8,14 @@ interface PreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   blocks: Block[];
+  children?: React.ReactNode;  // Added children prop as optional
 }
 
 export const PreviewDialog: React.FC<PreviewDialogProps> = ({
   open,
   onOpenChange,
-  blocks
+  blocks,
+  children  // Accept children prop
 }) => {
   // Maps block type to human-readable description
   const getBlockDescription = (block: Block): string => {
@@ -101,6 +102,9 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Visualização do Fluxo</DialogTitle>
         </DialogHeader>
+        
+        {/* Add children here, before the ScrollArea */}
+        {children}
         
         <ScrollArea className="h-[400px] mt-4 p-4 border rounded-md bg-gray-50">
           {generateTextFlow()}
