@@ -12,25 +12,37 @@ interface PipelineColumnProps {
   leads: Lead[];
   onMoveCard: (leadId: string, newStageId: string) => Promise<void>;
   allStages: EstagioPipeline[];
+  isMovingLead?: boolean;
 }
 
 const PipelineColumn: React.FC<PipelineColumnProps> = ({ 
   estagio, 
   leads, 
   onMoveCard,
-  allStages 
+  allStages,
+  isMovingLead = false
 }) => {
+  // Get column color style - default to blue if not set
+  const columnColor = estagio.cor || '#1E40AF';
+  const columnHeaderStyle = {
+    borderTop: `3px solid ${columnColor}`
+  };
+
   return (
     <div 
       className="flex flex-col bg-gray-50 rounded-lg p-4 min-h-[400px]"
       aria-label={`Estágio: ${estagio.nome}`}
       role="region"
+      style={columnHeaderStyle}
     >
       <div className="flex justify-between items-center mb-3">
         <div>
-          <h3 className="text-sm font-medium text-blue-700">
+          <h3 className="text-sm font-medium" style={{ color: columnColor }}>
             {estagio.nome} <span className="ml-1 text-gray-500">({leads.length})</span>
           </h3>
+          {estagio.descricao && (
+            <p className="text-xs text-gray-500 mt-1 line-clamp-1">{estagio.descricao}</p>
+          )}
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -40,32 +52,43 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link to="/leads/novo" className="flex items-center cursor-pointer">
+              <Link to="/leads/novo" state={{ initialStageId: estagio.id }} className="flex items-center cursor-pointer">
                 <Plus className="mr-2 h-4 w-4" />
                 <span>Adicionar lead</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Editar estágio</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/pipeline/configuracao" className="flex items-center cursor-pointer">
+                Editar estágio
+              </Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       
       <div className="flex flex-col gap-2 flex-grow">
-        {leads.map((lead) => (
-          <PipelineCard 
-            key={lead.id} 
-            lead={lead} 
-            onMove={onMoveCard}
-            stages={allStages}
-          />
-        ))}
-        {leads.length === 0 && (
+        {isMovingLead ? (
+          <div className="flex-grow flex items-center justify-center">
+            <p className="text-sm text-gray-400 text-center">
+              Movendo lead...
+            </p>
+          </div>
+        ) : leads.length === 0 ? (
           <div className="flex-grow flex items-center justify-center">
             <p className="text-sm text-gray-400 text-center">
               Não há leads neste estágio
             </p>
           </div>
+        ) : (
+          leads.map((lead) => (
+            <PipelineCard 
+              key={lead.id} 
+              lead={lead} 
+              onMove={onMoveCard}
+              stages={allStages}
+            />
+          ))
         )}
       </div>
     </div>

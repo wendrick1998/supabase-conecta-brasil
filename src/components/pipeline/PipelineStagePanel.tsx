@@ -24,7 +24,7 @@ const PipelineStagePanel: React.FC<PipelineStagePanelProps> = ({
       {selectedStage && (
         <PipelineStageForm 
           stage={selectedStage} 
-          onSave={onSave}
+          onSave={(data) => onSave(selectedStage.id, data)}
           onCancel={onCancel}
         />
       )}

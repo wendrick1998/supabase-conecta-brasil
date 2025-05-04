@@ -170,14 +170,45 @@ export const advanceLeadStage = async (id: string): Promise<boolean> => {
 // Mover múltiplos leads para um estágio específico
 export const moveLeadsToStage = async (ids: string[], estagioId: string): Promise<boolean> => {
   try {
+    // First get information about the stage
+    const { data: stageData, error: stageError } = await supabase
+      .from('estagios_pipeline')
+      .select('*')
+      .eq('id', estagioId)
+      .single();
+    
+    if (stageError) throw stageError;
+    
+    // Update the leads
     const { error } = await supabase
       .from('leads')
-      .update({ estagio_id: estagioId })
+      .update({ 
+        estagio_id: estagioId,
+        atualizado_em: new Date().toISOString()
+      })
       .in('id', ids);
     
     if (error) throw error;
     
-    toast.success(`${ids.length} leads movidos para novo estágio!`);
+    // Create an interaction for each lead to record the stage change
+    const interacoes = ids.map(id => ({
+      lead_id: id,
+      tipo: 'mudanca_estagio',
+      conteudo: `Lead movido para o estágio: ${stageData.nome}`
+    }));
+    
+    if (interacoes.length > 0) {
+      const { error: interacaoError } = await supabase
+        .from('interacoes')
+        .insert(interacoes);
+      
+      if (interacaoError) {
+        console.error('Erro ao registrar interação de mudança de estágio:', interacaoError);
+        // We don't throw here since the main operation succeeded
+      }
+    }
+    
+    toast.success(`${ids.length === 1 ? 'Lead movido' : ids.length + ' leads movidos'} para ${stageData.nome}!`);
     return true;
   } catch (error: any) {
     toast.error(`Erro ao mover leads: ${error.message}`);
