@@ -1,13 +1,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, Paperclip, FileText, MessageSquare, Phone, Mail, Instagram, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Paperclip, FileText, MessageSquare, Phone, Mail, Instagram, Loader2, Mic, Camera, Image, Square, Trash2 } from 'lucide-react';
+import { Video } from '@/components/ui/icon-components';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from "@/components/ui/sonner";
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
 import { Conversation, Message, InternalNote } from '@/types/conversation';
 
 // Mock conversation data
