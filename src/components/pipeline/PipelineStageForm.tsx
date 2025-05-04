@@ -17,7 +17,7 @@ import { EstagioPipeline } from '@/types/lead';
 
 interface PipelineStageFormProps {
   stage: EstagioPipeline;
-  onSave: (id: string, data: Partial<EstagioPipeline>) => Promise<void>;
+  onSave: (data: Partial<EstagioPipeline>) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -50,7 +50,7 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
   });
   
   const handleSubmit = async (data: Partial<EstagioPipeline>) => {
-    await onSave(stage.id, data);
+    await onSave(data);
   };
   
   return (
