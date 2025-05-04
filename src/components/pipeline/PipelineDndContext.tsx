@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import PipelineContent from './PipelineContent';
 
 interface PipelineDndContextProps {
   onMoveCard: (leadId: string, newStageId: string) => Promise<void>;
@@ -62,14 +63,21 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
     await onMoveCard(leadId, newStageId);
   };
 
-  // Clone children and pass props to PipelineContent component
+  // Check children and pass props to PipelineContent
   const childrenWithProps = React.Children.map(children, child => {
-    if (React.isValidElement(child) && child.type === React.lazy(() => import('./PipelineContent'))) {
-      // Only pass these props to PipelineContent
-      return React.cloneElement(child, {
-        activeId: activeLeadId,
-        overStageId
-      });
+    if (React.isValidElement(child)) {
+      // We need to check if the child is PipelineContent
+      const childType = child.type;
+      if (
+        typeof childType === 'function' && 
+        childType.name === PipelineContent.name
+      ) {
+        // Pass these props to PipelineContent
+        return React.cloneElement(child, {
+          activeId: activeLeadId,
+          overStageId: overStageId
+        });
+      }
     }
     return child;
   });

@@ -39,7 +39,7 @@ export function usePipelineData() {
     if (leadIds.length === 0) return;
     
     try {
-      // Using a custom query without strongly typed table name since the table might not exist yet
+      // Use raw query to avoid TypeScript errors since the table might not exist in the types yet
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
@@ -55,14 +55,13 @@ export function usePipelineData() {
       // Create a mapping of lead_id to conversation
       const conversationsMap: Record<string, Conversation> = {};
       if (data) {
-        data.forEach((conversation: any) => {
-          // Type assertion since we don't know the exact shape coming from DB
-          const typedConversation = conversation as Conversation;
+        data.forEach((item: any) => {
+          const conversation = item as Conversation;
           
           // If we already have a conversation for this lead_id, only keep the most recent one
-          if (!conversationsMap[typedConversation.lead_id] || 
-              new Date(typedConversation.horario) > new Date(conversationsMap[typedConversation.lead_id].horario)) {
-            conversationsMap[typedConversation.lead_id] = typedConversation;
+          if (!conversationsMap[conversation.lead_id] || 
+              new Date(conversation.horario) > new Date(conversationsMap[conversation.lead_id].horario)) {
+            conversationsMap[conversation.lead_id] = conversation;
           }
         });
       }
@@ -110,7 +109,7 @@ export function usePipelineData() {
             schema: 'public', 
             table: 'conversations' 
           }, 
-          (payload) => {
+          (payload: any) => {
             // Update conversations when new data arrives
             const conversation = payload.new as Conversation;
             setConversations(prev => ({
@@ -120,8 +119,8 @@ export function usePipelineData() {
           }
         )
         .subscribe((status) => {
-          if (status === 'SUBSCRIPTION_ERROR') {
-            console.log('Subscription error: conversations table might not exist yet');
+          if (status !== 'SUBSCRIBED') {
+            console.log('Subscription status:', status);
           }
         });
 

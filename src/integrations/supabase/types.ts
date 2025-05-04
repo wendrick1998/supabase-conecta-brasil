@@ -27,6 +27,50 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          avatar: string | null
+          canal: string
+          horario: string
+          id: string
+          lead_id: string | null
+          lead_nome: string
+          nao_lida: boolean
+          status: string
+          ultima_mensagem: string
+        }
+        Insert: {
+          avatar?: string | null
+          canal: string
+          horario?: string
+          id?: string
+          lead_id?: string | null
+          lead_nome: string
+          nao_lida?: boolean
+          status?: string
+          ultima_mensagem: string
+        }
+        Update: {
+          avatar?: string | null
+          canal?: string
+          horario?: string
+          id?: string
+          lead_id?: string | null
+          lead_nome?: string
+          nao_lida?: boolean
+          status?: string
+          ultima_mensagem?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estagios_pipeline: {
         Row: {
           cor: string | null
