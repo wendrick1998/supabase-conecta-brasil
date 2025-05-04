@@ -14,6 +14,7 @@ import LeadsPage from "./pages/LeadsPage";
 import LeadDetailPage from "./pages/LeadDetailPage";
 import NewLeadPage from "./pages/NewLeadPage";
 import EditLeadPage from "./pages/EditLeadPage";
+import PipelinePage from "./pages/PipelinePage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -40,6 +41,7 @@ const App = () => (
                   <Route path="leads/novo" element={<NewLeadPage />} />
                   <Route path="leads/:id/editar" element={<EditLeadPage />} />
                   <Route path="leads/:id" element={<LeadDetailPage />} />
+                  <Route path="pipeline" element={<PipelinePage />} />
                 </Route>
               </Route>
               

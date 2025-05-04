@@ -1,0 +1,102 @@
+
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { getLeads, getEstagios, moveLeadsToStage } from '@/services/leadService';
+import { Lead, EstagioPipeline } from '@/types/lead';
+import PipelineColumn from '@/components/pipeline/PipelineColumn';
+import PipelineSkeleton from '@/components/pipeline/PipelineSkeleton';
+
+const PipelinePage: React.FC = () => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [estagios, setEstagios] = useState<EstagioPipeline[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [leadsData, estagiosData] = await Promise.all([
+        getLeads(),
+        getEstagios(),
+      ]);
+      
+      setLeads(leadsData);
+      // Ordenamos os estágios pela propriedade "ordem"
+      setEstagios(estagiosData.sort((a, b) => a.ordem - b.ordem));
+    } catch (error) {
+      console.error('Erro ao carregar dados do pipeline:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleMoveCard = async (leadId: string, newStageId: string) => {
+    try {
+      const success = await moveLeadsToStage([leadId], newStageId);
+      if (success) {
+        // Atualiza o estágio do lead na interface sem precisar recarregar tudo
+        setLeads(prevLeads => 
+          prevLeads.map(lead => 
+            lead.id === leadId ? { ...lead, estagio_id: newStageId } : lead
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao mover lead:', error);
+    }
+  };
+
+  const getLeadsByStage = (stageId: string) => {
+    return leads.filter(lead => lead.estagio_id === stageId);
+  };
+
+  if (isLoading) {
+    return <PipelineSkeleton />;
+  }
+
+  return (
+    <>
+      <Helmet>
+        <title>Pipeline de Vendas</title>
+      </Helmet>
+      
+      <div className="container py-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Pipeline de Vendas</h1>
+            <p className="text-muted-foreground">Visualize e gerencie seus leads por estágios</p>
+          </div>
+          <div className="mt-4 md:mt-0">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              Configurar Pipeline
+            </Button>
+          </div>
+        </div>
+
+        {/* Kanban Board com scroll horizontal */}
+        <div className="mt-6">
+          <ScrollArea className="w-full" orientation="horizontal">
+            <div className="grid grid-flow-col auto-cols-[minmax(280px,_1fr)] gap-4 pb-4 pr-4 min-h-[calc(100vh-220px)]">
+              {estagios.map((estagio) => (
+                <PipelineColumn 
+                  key={estagio.id} 
+                  estagio={estagio}
+                  leads={getLeadsByStage(estagio.id)}
+                  onMoveCard={handleMoveCard}
+                  allStages={estagios}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default PipelinePage;
