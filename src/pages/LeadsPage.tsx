@@ -5,6 +5,9 @@ import { getLeads, getCanais, getEstagios } from '@/services/leadService';
 import { Lead, Canal, EstagioPipeline } from '@/types/lead';
 import LeadsTable from '@/components/LeadsTable';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const LeadsPage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -40,6 +43,14 @@ const LeadsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Leads</h1>
             <p className="text-muted-foreground">Gerencie todos os seus leads em um só lugar.</p>
+          </div>
+          <div className="mt-4 md:mt-0">
+            <Button asChild>
+              <Link to="/leads/novo" className="flex items-center">
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Lead
+              </Link>
+            </Button>
           </div>
         </div>
 
