@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "./components/Layout";
+import DashboardLayout from "./components/DashboardLayout";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import LeadsPage from "./pages/LeadsPage";
@@ -31,9 +32,9 @@ const App = () => (
               <Route path="/" element={<HomePage />} />
               <Route path="/auth" element={<AuthPage />} />
               
-              {/* Protected routes */}
+              {/* Protected routes with Dashboard layout */}
               <Route element={<ProtectedRoute />}>
-                <Route element={<Layout />}>
+                <Route element={<DashboardLayout />}>
                   <Route path="dashboard" element={<Index />} />
                   <Route path="leads" element={<LeadsPage />} />
                   <Route path="leads/novo" element={<NewLeadPage />} />
