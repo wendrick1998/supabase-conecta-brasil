@@ -20,19 +20,8 @@ export const formatMessageTime = (dateString: string): string => {
   }
 };
 
-// Get channel icon component
-export const getChannelIcon = (channel: Conversation['canal']) => {
-  switch (channel) {
-    case 'WhatsApp':
-      return <MessageSquare className="h-4 w-4 text-green-500" />;
-    case 'Instagram':
-      return <Instagram className="h-4 w-4 text-purple-500" />;
-    case 'Email':
-      return <Mail className="h-4 w-4 text-blue-500" />;
-    default:
-      return <MessageSquare className="h-4 w-4" />;
-  }
-};
+// Channel identifier type - move the JSX to a separate component
+export type ChannelType = 'WhatsApp' | 'Instagram' | 'Email';
 
 // Get initials for avatar fallback
 export const getInitials = (name: string): string => {
@@ -43,5 +32,3 @@ export const getInitials = (name: string): string => {
     .toUpperCase()
     .substring(0, 2);
 };
-
-import { MessageSquare, Instagram, Mail } from 'lucide-react';

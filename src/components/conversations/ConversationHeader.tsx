@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import { Conversation } from '@/types/conversation';
 import { useNavigate } from 'react-router-dom';
-import { getChannelIcon, getInitials } from '@/utils/conversationUtils';
+import { getInitials } from '@/utils/conversationUtils';
+import { getChannelIcon } from '@/components/conversations/ChannelIcons';
 
 interface ConversationHeaderProps {
   conversation: Conversation;
