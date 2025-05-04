@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, CSSProperties } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { Settings, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,16 +31,16 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   const blockInfo = getBlockInfo(block.type);
   const blockColor = getBlockColor(block.category);
 
-  // Fixed TypeScript type issue with position
-  const style = transform ? {
+  // Fixed TypeScript type issue with position by properly typing it as CSSProperties
+  const style: CSSProperties = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    position: 'absolute' as const,
+    position: 'absolute',
     top: block.position.y,
     left: block.position.x,
     width: '300px',
     zIndex: 10,
   } : {
-    position: 'absolute' as const,
+    position: 'absolute',
     top: block.position.y,
     left: block.position.x,
     width: '300px',

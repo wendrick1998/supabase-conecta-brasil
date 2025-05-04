@@ -53,7 +53,7 @@ export const AutomationFlowPreview: React.FC<AutomationFlowPreviewProps> = ({
     );
   }
   
-  // Recursively render connected blocks - moved inside the component to fix the reference error
+  // Recursively render connected blocks
   const renderConnectedBlocks = (block: Block, allBlocks: Block[], depth: number = 0): React.ReactNode => {
     if (block.connections.length === 0) {
       return null;

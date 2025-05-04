@@ -73,18 +73,18 @@ export const AutomationCanvas: React.FC<AutomationCanvasProps> = ({
     onCreateConnection(fromBlockId, toBlockId);
   };
 
-  // Fix for read-only property error by using a combined ref callback approach
+  // Fix for read-only property error by using a callback ref approach
+  const setCanvasRef = (node: HTMLDivElement | null) => {
+    setNodeRef(node);
+    if (node && canvasRef) {
+      // Using a function to update the ref value is safer than direct assignment
+      (canvasRef as any).current = node;
+    }
+  };
+
   return (
     <div
-      ref={(node) => {
-        // Handle both refs
-        setNodeRef(node);
-        if (canvasRef && node) {
-          // This is the proper way to handle a forwarded ref
-          // We're not directly assigning to .current
-          Object.assign(canvasRef, { current: node });
-        }
-      }}
+      ref={setCanvasRef}
       className="w-full h-full relative overflow-auto bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4xKSIvPjwvc3ZnPg==')]"
       tabIndex={0}
       aria-label="Área de construção da automação"
