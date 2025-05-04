@@ -4,24 +4,13 @@ import { Helmet } from 'react-helmet-async';
 import { getLead, deleteLead, advanceLeadStage } from '@/services/leadService';
 import { Lead } from '@/types/lead';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Edit, Trash2, ChevronRight, CheckCircle, Loader2 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
+import { Pencil, Trash2, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import LeadTag from '@/components/LeadTag';
-import { toast } from "@/components/ui/sonner"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { toast } from '@/components/ui/sonner';
+import { confirm } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const LeadDetailPage: React.FC = () => {
@@ -29,13 +18,13 @@ const LeadDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const [lead, setLead] = useState<Lead | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdvancing, setIsAdvancing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
 
   useEffect(() => {
     const fetchLead = async () => {
       if (!id) return;
-      
+
       setIsLoading(true);
       const leadData = await getLead(id);
       setLead(leadData);
@@ -45,224 +34,180 @@ const LeadDetailPage: React.FC = () => {
     fetchLead();
   }, [id]);
 
+  // Formatar a data de criação
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return 'Data desconhecida';
+    try {
+      const date = new Date(dateString);
+      return format(date, 'dd \'de\' MMMM \'de\' yyyy, HH:mm', { locale: ptBR });
+    } catch (error) {
+      console.error('Erro ao formatar a data:', error);
+      return 'Data inválida';
+    }
+  };
+
+  // Função para excluir o lead
   const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: 'Excluir Lead',
+      description: 'Tem certeza de que deseja excluir este lead? Esta ação não pode ser desfeita.',
+    });
+
+    if (!confirmed) return;
+
     setIsDeleting(true);
     try {
       if (id) {
         await deleteLead(id);
-        toast.success("Lead deletado com sucesso!");
+        toast.success('Lead excluído com sucesso!');
         navigate('/leads');
       }
     } catch (error) {
-      toast.error("Erro ao deletar lead!");
+      toast.error('Erro ao excluir lead.');
     } finally {
       setIsDeleting(false);
     }
   };
 
+  // Função para avançar o estágio do lead
   const handleAdvanceStage = async () => {
-    setIsAdvancing(true);
-    try {
-      if (id) {
-        const success = await advanceLeadStage(id);
-        if (success && lead) {
-          // Reload the lead to get the updated stage
-          const updatedLead = await getLead(id);
-          setLead(updatedLead);
-          toast.success("Lead avançado para o próximo estágio!");
-        } else {
-          toast.info("Lead já está no último estágio.");
-        }
+    if (lead) {
+      setIsAdvancing(true);
+      const success = await advanceLeadStage(lead.id);
+      if (success) {
+        // Recarregar o lead para mostrar o novo estágio
+        const updatedLead = await getLead(lead.id);
+        setLead(updatedLead);
       }
-    } catch (error) {
-      toast.error("Erro ao avançar o lead para o próximo estágio!");
-    } finally {
       setIsAdvancing(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="container py-6">
+        <Skeleton className="h-6 w-32 mb-4" />
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-2/3" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-10 w-32 ml-auto" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!lead) {
+    return (
+      <div className="container py-6">
+        <Helmet>
+          <title>Lead não encontrado</title>
+        </Helmet>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold tracking-tight mb-4">Lead não encontrado</h1>
+          <p className="text-muted-foreground">O lead solicitado não existe ou foi removido.</p>
+          <Link to="/leads" className="text-primary hover:underline mt-4 inline-block">
+            Voltar para a lista de leads
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Helmet>
-        <title>{lead ? `${lead.nome} - Detalhes` : 'Detalhes do Lead'}</title>
+        <title>{lead.nome} - Detalhes</title>
       </Helmet>
       <div className="container py-6">
-        {/* Breadcrumb */}
-        <div className="flex items-center text-sm text-muted-foreground mb-6">
-          <Link to="/leads" className="hover:text-foreground">Leads</Link>
-          <ChevronRight className="h-4 w-4 mx-1" />
-          <span>{lead ? lead.nome : 'Lead'}</span>
-        </div>
-        
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {isLoading ? (
-              <Skeleton className="h-10 w-48" />
-            ) : (
-              lead ? lead.nome : 'Lead não encontrado'
-            )}
-          </h1>
-          {lead && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Abrir menu</span>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigate(`/leads/${id}/editar`)}>
-                  <Edit className="mr-2 h-4 w-4" /> Editar
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem className="text-destructive focus:bg-destructive/5">
-                      <Trash2 className="mr-2 h-4 w-4" /> Deletar
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta ação irá deletar o lead permanentemente. Tem certeza que deseja continuar?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                        {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Deletar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-
-        {isLoading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-2/3" />
-          </div>
-        ) : lead ? (
-          <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
-            <div className="lg:col-span-5">
-              {/* Informações do Lead */}
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Informações do Lead</CardTitle>
-                  <CardDescription>Detalhes sobre o lead.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Nome</p>
-                    <p className="text-gray-800">{lead.nome}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Email</p>
-                    <p className="text-gray-800">{lead.email || 'Não informado'}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Telefone</p>
-                    <p className="text-gray-800">{lead.telefone || 'Não informado'}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Empresa</p>
-                    <p className="text-gray-800">{lead.empresa || 'Não informado'}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Canal de Origem</p>
-                    <p className="text-gray-800">{lead.canal?.nome || 'Não informado'}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Estágio no Pipeline</p>
-                    <div className="flex items-center">
-                      <Badge className="mr-2">{lead.estagio?.nome || 'Não informado'}</Badge>
-                      {lead.estagio && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={handleAdvanceStage}
-                          disabled={isAdvancing || lead.estagio.ordem >= 3}
-                        >
-                          {isAdvancing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Avançar Estágio
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  {lead.tags && lead.tags.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Tags</p>
-                      <div className="flex flex-wrap">
-                        {lead.tags.map(tag => (
-                          <LeadTag key={tag.id} tag={tag} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="text-sm text-muted-foreground">
-                  Criado em {format(new Date(lead.criado_em), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                  <br />
-                  Atualizado em {format(new Date(lead.atualizado_em), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                </CardFooter>
-              </Card>
+        <div className="md:flex md:items-center md:justify-between mb-4">
+          <div>
+            {/* Breadcrumb */}
+            <div className="flex items-center text-sm text-muted-foreground mb-2">
+              <Link to="/leads" className="hover:text-foreground">Leads</Link>
+              <ArrowRight className="h-4 w-4 mx-1" />
+              <span>{lead.nome}</span>
             </div>
 
-            <div className="lg:col-span-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ações</CardTitle>
-                  <CardDescription>Ações rápidas para este lead.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Concluir Lead
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Edit className="mr-2 h-4 w-4" /> Editar Lead
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" className="w-full">
-                        <Trash2 className="mr-2 h-4 w-4" /> Deletar Lead
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta ação irá deletar o lead permanentemente. Tem certeza que deseja continuar?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                          {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Deletar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </CardContent>
-              </Card>
+            <h1 className="text-3xl font-bold tracking-tight">{lead.nome}</h1>
+          </div>
+          <div className="mt-4 md:mt-0 flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/leads/${lead.id}/editar`)}
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Editar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir
+            </Button>
+          </div>
+        </div>
+
+        <Separator className="mb-4" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Informações do Lead */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Informações do Lead</h2>
+            <div className="space-y-2">
+              <div>
+                <span className="font-semibold">Email:</span> {lead.email || 'Não informado'}
+              </div>
+              <div>
+                <span className="font-semibold">Telefone:</span> {lead.telefone || 'Não informado'}
+              </div>
+              <div>
+                <span className="font-semibold">Empresa:</span> {lead.empresa || 'Não informada'}
+              </div>
+              <div>
+                <span className="font-semibold">Canal de Origem:</span> {lead.canal?.nome || 'Não informado'}
+              </div>
+              <div>
+                <span className="font-semibold">Data de Criação:</span> {formatDate(lead.criado_em)}
+              </div>
+              <div>
+                <span className="font-semibold">Estágio:</span> {lead.estagio?.nome || 'Não informado'}
+              </div>
+              {lead.tags && lead.tags.length > 0 && (
+                <div>
+                  <span className="font-semibold">Tags:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {lead.tags.map(tag => (
+                      <Badge key={tag.id} className="capitalize" style={{ backgroundColor: tag.cor, color: 'white' }}>
+                        {tag.nome}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">O lead solicitado não existe ou foi removido.</p>
-            <Link to="/leads" className="text-primary hover:underline mt-4 inline-block">
-              Voltar para a lista de leads
-            </Link>
+
+          {/* Ações e Próximo Estágio */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Ações</h2>
+            <div className="space-y-4">
+              <Button
+                className="w-full"
+                onClick={handleAdvanceStage}
+                disabled={!lead.estagio || isAdvancing}
+              >
+                {isAdvancing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Avançar para Próximo Estágio
+              </Button>
+              {/* Adicionar componentes de notas, interações e tarefas aqui */}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -99,7 +100,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ lead, isEditing = false }) => {
         navigate(`/leads/${lead.id}`);
       } else {
         // Criar novo lead
-        const newLead = await createLead(data, selectedTags);
+        // Ensure nome is provided as it's required by the database
+        if (!data.nome) {
+          toast.error('Nome é obrigatório');
+          setIsSubmitting(false);
+          return;
+        }
+        
+        const newLead = await createLead({ ...data, nome: data.nome }, selectedTags);
         if (newLead) {
           navigate(`/leads/${newLead.id}`);
         }

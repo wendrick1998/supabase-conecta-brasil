@@ -91,7 +91,7 @@ export const getLead = async (id: string): Promise<Lead | null> => {
 };
 
 // Criar um novo lead
-export const createLead = async (lead: Partial<Lead>, tagIds: string[] = []): Promise<Lead | null> => {
+export const createLead = async (lead: Partial<Lead> & { nome: string }, tagIds: string[] = []): Promise<Lead | null> => {
   try {
     const { data, error } = await supabase
       .from('leads')
