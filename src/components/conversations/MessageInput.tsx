@@ -2,16 +2,30 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Paperclip, FileText, Loader2 } from 'lucide-react';
+import { Send, Paperclip, FileText, Loader2, Mic, Video } from 'lucide-react';
+import { 
+  Popover,
+  PopoverTrigger,
+  PopoverContent
+} from '@/components/ui/popover';
 
 interface MessageInputProps {
   onSend: (message: string) => void;
   onFileUpload: () => void;
   onAddNote: () => void;
+  onRecordAudio?: () => void;
+  onRecordVideo?: () => void;
   isLoading: boolean;
 }
 
-const MessageInput = ({ onSend, onFileUpload, onAddNote, isLoading }: MessageInputProps) => {
+const MessageInput = ({ 
+  onSend, 
+  onFileUpload, 
+  onAddNote, 
+  onRecordAudio, 
+  onRecordVideo,
+  isLoading 
+}: MessageInputProps) => {
   const [message, setMessage] = useState('');
 
   const handleSend = () => {
@@ -41,14 +55,50 @@ const MessageInput = ({ onSend, onFileUpload, onAddNote, isLoading }: MessageInp
       
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onFileUpload}
-            title="Anexar arquivo"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                title="Anexar arquivo ou mídia"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48">
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="ghost"
+                  className="justify-start"
+                  onClick={onFileUpload}
+                >
+                  <Paperclip className="h-4 w-4 mr-2" />
+                  <span>Anexar arquivo</span>
+                </Button>
+                {onRecordAudio && (
+                  <Button
+                    variant="ghost"
+                    className="justify-start"
+                    onClick={onRecordAudio}
+                  >
+                    <Mic className="h-4 w-4 mr-2" />
+                    <span>Gravar áudio</span>
+                  </Button>
+                )}
+                {onRecordVideo && (
+                  <Button
+                    variant="ghost"
+                    className="justify-start"
+                    onClick={onRecordVideo}
+                  >
+                    <Video className="h-4 w-4 mr-2" />
+                    <span>Gravar vídeo</span>
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
           <Button
             variant="outline"
             size="sm"

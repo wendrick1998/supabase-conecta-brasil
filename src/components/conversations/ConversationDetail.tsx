@@ -9,6 +9,7 @@ import ConversationHeader from './ConversationHeader';
 import MessageTimeline from './MessageTimeline';
 import MessageInput from './MessageInput';
 import NoteForm from './NoteForm';
+import RecordingDialog from './RecordingDialog';
 
 const ConversationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,10 @@ const ConversationDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  
+  // Recording state
+  const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
+  const [mediaType, setMediaType] = useState<'audio' | 'video'>('audio');
 
   // Mock fetch conversation data
   useEffect(() => {
@@ -96,6 +101,38 @@ const ConversationDetail = () => {
     toast.info('Funcionalidade de anexo em desenvolvimento');
   };
 
+  // Recording handlers
+  const openRecordingModal = (type: 'audio' | 'video') => {
+    setMediaType(type);
+    setRecordingDialogOpen(true);
+  };
+
+  const handleSaveRecording = (file: File) => {
+    // Simulate sending recorded media as a message
+    setSendingMessage(true);
+    
+    setTimeout(() => {
+      const isAudio = file.name.startsWith('audio');
+      const newMsg: Message = {
+        id: `media-${Date.now()}`,
+        conversation_id: id || '',
+        content: isAudio ? 'Áudio enviado' : 'Vídeo enviado',
+        timestamp: new Date().toISOString(),
+        sender_type: 'user',
+        status: 'sent',
+        attachment: {
+          name: file.name,
+          url: URL.createObjectURL(file), // For demo purposes
+          type: file.type,
+        },
+      };
+      
+      setMessages([...messages, newMsg]);
+      setSendingMessage(false);
+      toast.success(isAudio ? 'Áudio enviado' : 'Vídeo enviado');
+    }, 500);
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col h-full max-w-4xl mx-auto bg-white items-center justify-center">
@@ -155,9 +192,19 @@ const ConversationDetail = () => {
           onSend={handleSendMessage}
           onFileUpload={handleFileUpload}
           onAddNote={() => setShowNoteForm(true)}
+          onRecordAudio={() => openRecordingModal('audio')}
+          onRecordVideo={() => openRecordingModal('video')}
           isLoading={sendingMessage}
         />
       )}
+
+      {/* Recording Dialog */}
+      <RecordingDialog
+        open={recordingDialogOpen}
+        onOpenChange={setRecordingDialogOpen}
+        mediaType={mediaType}
+        onSave={handleSaveRecording}
+      />
     </div>
   );
 };
