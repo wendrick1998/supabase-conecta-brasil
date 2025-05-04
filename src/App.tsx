@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Layout from "./components/Layout";
+import HomePage from "./pages/HomePage";
 import LeadsPage from "./pages/LeadsPage";
 import LeadDetailPage from "./pages/LeadDetailPage";
 import NewLeadPage from "./pages/NewLeadPage";
@@ -23,8 +24,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<HomePage />} />
             <Route path="/" element={<Layout />}>
-              <Route index element={<Index />} />
+              <Route path="dashboard" element={<Index />} />
               <Route path="leads" element={<LeadsPage />} />
               <Route path="leads/novo" element={<NewLeadPage />} />
               <Route path="leads/:id/editar" element={<EditLeadPage />} />

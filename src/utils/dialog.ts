@@ -51,7 +51,7 @@ export const confirm = ({
     };
     
     root.render(
-      <AlertDialog defaultOpen>
+      <AlertDialog open={true}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{title}</AlertDialogTitle>
