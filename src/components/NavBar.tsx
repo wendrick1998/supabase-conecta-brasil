@@ -7,7 +7,11 @@ import { Menu, X } from 'lucide-react';
 import { UserAccountNav } from './UserAccountNav';
 import { useAuth } from '@/contexts/AuthContext';
 
-const NavBar = () => {
+interface NavBarProps {
+  currentPath?: string;
+}
+
+const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
