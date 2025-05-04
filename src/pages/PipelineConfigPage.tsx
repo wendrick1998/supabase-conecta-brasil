@@ -96,7 +96,7 @@ const PipelineConfigPage: React.FC = () => {
     setSelectedStage(stage);
   };
 
-  const handleCreateStage = async (stage: Partial<EstagioPipeline>) => {
+  const handleCreateStage = async (id: string, stage: Partial<EstagioPipeline>) => {
     try {
       // Set the order as the last position
       const newOrder = stages.length > 0 
@@ -161,6 +161,15 @@ const PipelineConfigPage: React.FC = () => {
 
   const handleBackToPipeline = () => {
     navigate('/pipeline');
+  };
+
+  // Helper function to determine which save function to use
+  const handleSaveStage = (id: string, data: Partial<EstagioPipeline>) => {
+    if (id) {
+      return handleUpdateStage(id, data);
+    } else {
+      return handleCreateStage(id, data);
+    }
   };
 
   return (
@@ -243,7 +252,7 @@ const PipelineConfigPage: React.FC = () => {
             {selectedStage && (
               <PipelineStageForm 
                 stage={selectedStage} 
-                onSave={selectedStage.id ? handleUpdateStage : handleCreateStage}
+                onSave={handleSaveStage}
                 onCancel={handleCancel}
               />
             )}
