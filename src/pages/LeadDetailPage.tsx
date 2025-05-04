@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -10,7 +11,7 @@ import { Pencil, Trash2, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/components/ui/sonner';
-import { confirm } from '@/components/ui/alert-dialog';
+import { confirm } from '@/utils/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const LeadDetailPage: React.FC = () => {
