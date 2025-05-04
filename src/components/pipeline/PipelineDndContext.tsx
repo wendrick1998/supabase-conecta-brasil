@@ -63,25 +63,21 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
     await onMoveCard(leadId, newStageId);
   };
 
-  // Map over children and pass props only to PipelineContent components
+  // Process children and clone PipelineContent with additional props
   const childrenWithProps = React.Children.map(children, (child) => {
     if (!React.isValidElement(child)) {
       return child;
     }
-
-    // Cast child to access name property safely
-    const childType = child.type as any;
     
-    // Check if this is a PipelineContent component
-    // We need to compare by name since direct component reference might not work in all environments
-    if (childType && (childType === PipelineContent || childType.name === 'PipelineContent')) {
-      // Pass these props to PipelineContent - using the exact prop names from PipelineContent interface
+    // Check if this is a PipelineContent component by comparing with the imported component
+    if (child.type === PipelineContent) {
+      // TypeScript recognized props based on the component interface
       return React.cloneElement(child, {
-        // Pass down only props that are actually defined in PipelineContent interface
         activeId: activeLeadId,
         overStageId: overStageId
       });
     }
+    
     return child;
   });
 
