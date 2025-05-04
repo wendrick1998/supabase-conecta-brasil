@@ -3,8 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, LayoutList, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const HomePage = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center items-center p-8 lg:p-16">
       <div className="max-w-4xl w-full">
@@ -23,18 +26,29 @@ const HomePage = () => {
             </div>
 
             <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4 w-full lg:w-auto">
-              <Button
-                className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 w-full lg:w-auto"
-                asChild
-              >
-                <Link to="/leads">Login</Link>
-              </Button>
-              <Button
-                className="bg-pink-500 text-white py-3 px-6 rounded-md hover:bg-pink-600 w-full lg:w-auto"
-                asChild
-              >
-                <Link to="/leads">Cadastro</Link>
-              </Button>
+              {user ? (
+                <Button
+                  className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 w-full lg:w-auto"
+                  asChild
+                >
+                  <Link to="/dashboard">Ir para Dashboard</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 w-full lg:w-auto"
+                    asChild
+                  >
+                    <Link to="/auth?tab=login">Login</Link>
+                  </Button>
+                  <Button
+                    className="bg-pink-500 text-white py-3 px-6 rounded-md hover:bg-pink-600 w-full lg:w-auto"
+                    asChild
+                  >
+                    <Link to="/auth?tab=signup">Cadastro</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
