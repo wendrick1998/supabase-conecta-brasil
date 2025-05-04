@@ -28,15 +28,25 @@ export const AutomationHeader: React.FC<AutomationHeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
-        <Button onClick={onTest} variant="outline" className="hidden md:flex">
+        <Button 
+          onClick={onTest} 
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2"
+        >
           <Play className="mr-2 h-4 w-4" />
           Testar
         </Button>
-        <Button onClick={onSave} className="bg-pink-600 hover:bg-pink-700 text-white">
+        <Button 
+          onClick={onSave} 
+          className="bg-pink-500 hover:bg-pink-600 text-white rounded-md px-6 py-2"
+        >
           <Save className="mr-2 h-4 w-4" />
           <span className="hidden sm:inline">Salvar</span>
         </Button>
-        <Button onClick={onCancel} variant="ghost">
+        <Button 
+          onClick={onCancel} 
+          variant="ghost" 
+          className="text-gray-600 hover:text-gray-800 hover:underline"
+        >
           <X className="mr-2 h-4 w-4" />
           <span className="hidden sm:inline">Cancelar</span>
         </Button>

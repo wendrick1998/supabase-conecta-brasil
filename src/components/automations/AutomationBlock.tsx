@@ -61,6 +61,11 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
     // Connection target logic would go here
   };
 
+  // Determine status class for visual feedback
+  const blockStatusClass = !block.configured 
+    ? 'border-2 border-dashed border-red-500' 
+    : 'border';
+
   return (
     <>
       <div
@@ -68,7 +73,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         style={style}
         {...attributes}
         {...listeners}
-        className={`rounded-md shadow-md ${blockColor} ${!block.configured ? 'border-2 border-dashed border-red-500' : 'border'}`}
+        className={`rounded-md shadow-md ${blockColor} ${blockStatusClass} transition-all`}
         aria-labelledby={`block-title-${block.id}`}
       >
         <div className="p-4">
@@ -91,7 +96,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
           <div className="text-sm">
             {block.configured ? 
               <p>Bloco configurado</p> : 
-              <p className="text-red-500">Necessita configuração</p>
+              <p className="text-red-500 font-medium">Necessita configuração</p>
             }
           </div>
           
@@ -117,7 +122,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
             <Button variant="outline" onClick={() => setShowConfig(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveConfig}>
+            <Button onClick={handleSaveConfig} className="bg-pink-500 hover:bg-pink-600 text-white">
               Salvar
             </Button>
           </DialogFooter>

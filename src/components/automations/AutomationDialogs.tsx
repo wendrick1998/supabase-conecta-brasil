@@ -3,6 +3,7 @@ import React from 'react';
 import { Block } from '@/types/automation';
 import { PreviewDialog } from '@/components/automations/PreviewDialog';
 import { TemplatesDialog } from '@/components/automations/TemplatesDialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AutomationDialogsProps {
   showTemplates: boolean;
@@ -21,6 +22,9 @@ export const AutomationDialogs: React.FC<AutomationDialogsProps> = ({
   blocks,
   handleApplyTemplate
 }) => {
+  // Verifica se há blocos suficientes para exibir uma prévia
+  const hasEnoughBlocks = blocks.length > 1;
+  
   return (
     <>
       {/* Template dialog */}
@@ -35,7 +39,15 @@ export const AutomationDialogs: React.FC<AutomationDialogsProps> = ({
         open={showPreview} 
         onOpenChange={setShowPreview} 
         blocks={blocks} 
-      />
+      >
+        {!hasEnoughBlocks && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>
+              Você precisa adicionar pelo menos dois blocos conectados para visualizar a prévia da automação.
+            </AlertDescription>
+          </Alert>
+        )}
+      </PreviewDialog>
     </>
   );
 };
