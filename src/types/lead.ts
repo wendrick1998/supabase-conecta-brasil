@@ -25,6 +25,8 @@ export interface EstagioPipeline {
   nome: string;
   ordem: number;
   criado_em: string;
+  cor?: string;
+  descricao?: string;
 }
 
 export interface Tag {

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { getLeads, getEstagios, moveLeadsToStage } from '@/services/leadService';
@@ -12,6 +13,7 @@ const PipelinePage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [estagios, setEstagios] = useState<EstagioPipeline[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -54,6 +56,10 @@ const PipelinePage: React.FC = () => {
   const getLeadsByStage = (stageId: string) => {
     return leads.filter(lead => lead.estagio_id === stageId);
   };
+  
+  const handleConfigurePipeline = () => {
+    navigate('/pipeline/configuracao');
+  };
 
   if (isLoading) {
     return <PipelineSkeleton />;
@@ -72,7 +78,10 @@ const PipelinePage: React.FC = () => {
             <p className="text-muted-foreground">Visualize e gerencie seus leads por estágios</p>
           </div>
           <div className="mt-4 md:mt-0">
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={handleConfigurePipeline}
+            >
               Configurar Pipeline
             </Button>
           </div>
