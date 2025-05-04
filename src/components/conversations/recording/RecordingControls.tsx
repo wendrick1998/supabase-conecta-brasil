@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, Stop, Send, Trash2 } from "lucide-react";
+import { Mic, Square, Send, Trash2 } from "lucide-react";
 
 interface RecordingControlsProps {
   isRecording: boolean;
@@ -39,7 +39,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
           variant="destructive"
           size="lg"
         >
-          <Stop className="h-4 w-4 mr-2" />
+          <Square className="h-4 w-4 mr-2" />
           Parar Gravação
         </Button>
       )}

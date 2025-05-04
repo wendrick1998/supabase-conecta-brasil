@@ -83,6 +83,7 @@ const MessageInput = ({
           {/* Note Button */}
           <NoteButton 
             onAddNote={onAddNote}
+            disabled={isLoading}
           />
         </div>
         
