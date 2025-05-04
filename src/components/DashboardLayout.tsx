@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { Inbox, BarChart, Users } from "lucide-react";
+import { Inbox, BarChart, Users, Zap } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
 
@@ -60,6 +60,21 @@ const DashboardLayout: React.FC = () => {
               </TooltipTrigger>
               <TooltipContent side="right" className="md:hidden">
                 Inbox
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a 
+                  href="/automacoes" 
+                  className="flex items-center space-x-3 text-gray-600 hover:text-blue-700 transition-colors"
+                >
+                  <Zap size={24} />
+                  <span className="hidden md:inline">Automações</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="md:hidden">
+                Automações
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

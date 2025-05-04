@@ -16,6 +16,7 @@ import NewLeadPage from "./pages/NewLeadPage";
 import EditLeadPage from "./pages/EditLeadPage";
 import PipelinePage from "./pages/PipelinePage";
 import PipelineConfigPage from "./pages/PipelineConfigPage";
+import AutomacoesPage from "./pages/AutomacoesPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -47,6 +48,7 @@ const App = () => (
                   <Route path="leads/:id" element={<LeadDetailPage />} />
                   <Route path="pipeline" element={<PipelinePage />} />
                   <Route path="pipeline/configuracao" element={<PipelineConfigPage />} />
+                  <Route path="automacoes" element={<AutomacoesPage />} />
                   
                   {/* Conversation routes */}
                   <Route path="conversations" element={<ConversationList />} />
