@@ -26,9 +26,12 @@ const loginSchema = z.object({
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
 });
 
-// Form schema for signup with password confirmation
+// Form schema for signup with additional fields
 const signupSchema = z.object({
+  name: z.string().min(1, 'Digite seu nome'),
   email: z.string().email('Digite um e-mail válido'),
+  phone: z.string().min(1, 'Digite seu telefone'),
+  role: z.string().min(1, 'Digite sua função'),
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
   confirmPassword: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -54,7 +57,10 @@ const AuthPage = () => {
   const signupForm = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      name: '',
       email: '',
+      phone: '',
+      role: '',
       password: '',
       confirmPassword: '',
     },
@@ -94,13 +100,12 @@ const AuthPage = () => {
         <title>ResolveClick - Login</title>
       </Helmet>
       
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-700 text-center">ResolveClick</h1>
-          <p className="text-gray-600 mt-2 text-center">CRM moderno para equipes de vendas eficientes</p>
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center px-6">
+        <div className="mb-6 flex flex-col items-center">
+          <span className="text-3xl font-bold text-blue-700 w-24 text-center">ResolveClick</span>
         </div>
         
-        <Card className="w-full max-w-md mx-auto">
+        <Card className="w-full max-w-sm mx-auto shadow-md rounded-lg bg-white">
           <CardContent className="pt-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-2 mb-6">
@@ -116,9 +121,14 @@ const AuthPage = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>E-mail</FormLabel>
                           <FormControl>
-                            <Input placeholder="seu@email.com" {...field} />
+                            <Input 
+                              type="email" 
+                              placeholder="Digite seu e-mail" 
+                              className="rounded-md border p-3" 
+                              autoFocus
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -130,33 +140,108 @@ const AuthPage = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Senha</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="******" {...field} />
+                            <Input 
+                              type="password" 
+                              placeholder="Digite sua senha" 
+                              className="rounded-md border p-3"
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loginForm.formState.isSubmitting}>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-md" 
+                      disabled={loginForm.formState.isSubmitting}
+                    >
                       {loginForm.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
                     </Button>
+                    
+                    <div className="text-center">
+                      <button 
+                        type="button"
+                        onClick={() => setActiveTab('signup')} 
+                        className="text-blue-600 underline text-sm mt-4 block text-center w-full"
+                      >
+                        Criar conta
+                      </button>
+                    </div>
                   </form>
                 </Form>
               </TabsContent>
               
               <TabsContent value="signup">
+                <div className="text-lg font-semibold text-center mb-4">Crie sua conta</div>
                 <Form {...signupForm}>
                   <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
                     <FormField
                       control={signupForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <FormControl>
+                            <Input 
+                              placeholder="Digite seu nome" 
+                              className="rounded-md border p-3" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signupForm.control}
                       name="email"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>E-mail</FormLabel>
+                        <FormItem className="mb-4">
                           <FormControl>
-                            <Input placeholder="seu@email.com" {...field} />
+                            <Input 
+                              type="email" 
+                              placeholder="Digite seu e-mail" 
+                              className="rounded-md border p-3" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signupForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              placeholder="Digite seu telefone" 
+                              className="rounded-md border p-3" 
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={signupForm.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <FormControl>
+                            <Input 
+                              placeholder="Digite sua função" 
+                              className="rounded-md border p-3" 
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -167,10 +252,14 @@ const AuthPage = () => {
                       control={signupForm.control}
                       name="password"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Senha</FormLabel>
+                        <FormItem className="mb-4">
                           <FormControl>
-                            <Input type="password" placeholder="******" {...field} />
+                            <Input 
+                              type="password" 
+                              placeholder="Digite sua senha" 
+                              className="rounded-md border p-3" 
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -181,19 +270,37 @@ const AuthPage = () => {
                       control={signupForm.control}
                       name="confirmPassword"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirmar senha</FormLabel>
+                        <FormItem className="mb-4">
                           <FormControl>
-                            <Input type="password" placeholder="******" {...field} />
+                            <Input 
+                              type="password" 
+                              placeholder="Confirme sua senha" 
+                              className="rounded-md border p-3" 
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     
-                    <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={signupForm.formState.isSubmitting}>
-                      {signupForm.formState.isSubmitting ? 'Criando conta...' : 'Criar conta'}
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-md" 
+                      disabled={signupForm.formState.isSubmitting}
+                    >
+                      {signupForm.formState.isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
                     </Button>
+                    
+                    <div className="text-center">
+                      <button 
+                        type="button"
+                        onClick={() => setActiveTab('login')} 
+                        className="text-blue-600 underline text-sm mt-4 block text-center w-full"
+                      >
+                        Já tem conta? Faça login
+                      </button>
+                    </div>
                   </form>
                 </Form>
               </TabsContent>
