@@ -6,6 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useDroppable } from '@dnd-kit/core';
+import { cn } from '@/lib/utils';
 
 interface PipelineColumnProps {
   estagio: EstagioPipeline;
@@ -13,6 +15,8 @@ interface PipelineColumnProps {
   onMoveCard: (leadId: string, newStageId: string) => Promise<void>;
   allStages: EstagioPipeline[];
   isMovingLead?: boolean;
+  activeId?: string | null;
+  isOver?: boolean;
 }
 
 const PipelineColumn: React.FC<PipelineColumnProps> = ({ 
@@ -20,17 +24,36 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
   leads, 
   onMoveCard,
   allStages,
-  isMovingLead = false
+  isMovingLead = false,
+  activeId = null,
+  isOver = false
 }) => {
   // Get column color style - default to blue if not set
   const columnColor = estagio.cor || '#1E40AF';
+  
+  // Setup droppable
+  const { setNodeRef } = useDroppable({
+    id: estagio.id,
+    data: {
+      type: 'estagio',
+      estagio
+    }
+  });
+  
   const columnHeaderStyle = {
     borderTop: `3px solid ${columnColor}`
   };
 
+  const isActiveLeadInThisColumn = activeId && leads.some(lead => lead.id === activeId);
+
   return (
     <div 
-      className="flex flex-col bg-gray-50 rounded-lg p-4 min-h-[400px]"
+      ref={setNodeRef}
+      className={cn(
+        "flex flex-col rounded-lg p-4 min-h-[400px] transition-colors duration-200",
+        isOver && !isActiveLeadInThisColumn ? "bg-blue-50" : "bg-gray-50",
+        isActiveLeadInThisColumn ? "opacity-90" : ""
+      )}
       aria-label={`Estágio: ${estagio.nome}`}
       role="region"
       style={columnHeaderStyle}
@@ -87,6 +110,7 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
               lead={lead} 
               onMove={onMoveCard}
               stages={allStages}
+              isDragging={activeId === lead.id}
             />
           ))
         )}

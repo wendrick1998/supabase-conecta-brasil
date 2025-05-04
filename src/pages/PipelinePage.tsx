@@ -9,13 +9,34 @@ import { getLeads, getEstagios, moveLeadsToStage } from '@/services/leadService'
 import { Lead, EstagioPipeline } from '@/types/lead';
 import PipelineColumn from '@/components/pipeline/PipelineColumn';
 import PipelineSkeleton from '@/components/pipeline/PipelineSkeleton';
+import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 
 const PipelinePage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [estagios, setEstagios] = useState<EstagioPipeline[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMovingLead, setIsMovingLead] = useState(false);
+  const [activeLeadId, setActiveLeadId] = useState<string | null>(null);
+  const [overStageId, setOverStageId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Configure sensors for drag & drop
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+  
+  const touchSensor = useSensor(TouchSensor, {
+    // Press delay helps distinguish between a tap and a drag
+    activationConstraint: {
+      delay: 200,
+      tolerance: 8,
+    },
+  });
+  
+  const sensors = useSensors(mouseSensor, touchSensor);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -73,6 +94,43 @@ const PipelinePage: React.FC = () => {
     navigate('/leads/novo');
   };
 
+  // Drag & Drop handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveLeadId(active.id as string);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    if (over) {
+      setOverStageId(over.id as string);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    // Clear states
+    setActiveLeadId(null);
+    setOverStageId(null);
+    
+    // If no over element or same stage, no change needed
+    if (!over) return;
+    
+    const leadId = active.id as string;
+    const newStageId = over.id as string;
+    
+    // Get the current stage of the lead
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead) return;
+    
+    // If the lead is already in this stage, no need to move it
+    if (lead.estagio_id === newStageId) return;
+    
+    // Move the lead to the new stage
+    await handleMoveCard(leadId, newStageId);
+  };
+
   if (isLoading) {
     return <PipelineSkeleton />;
   }
@@ -105,36 +163,45 @@ const PipelinePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Kanban Board com scroll horizontal */}
+        {/* Kanban Board com scroll horizontal e drag and drop */}
         <div className="mt-6">
           <ScrollArea className="w-full">
-            <div className="grid grid-flow-col auto-cols-[minmax(280px,_1fr)] gap-4 pb-4 pr-4 min-h-[calc(100vh-220px)]">
-              {estagios.length === 0 ? (
-                <div className="col-span-full bg-gray-50 rounded-lg p-8 text-center">
-                  <h3 className="text-lg font-medium mb-2">Nenhum estágio configurado</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Configure os estágios do seu funil de vendas para visualizar seus leads no pipeline.
-                  </p>
-                  <Button 
-                    className="bg-blue-600 hover:bg-blue-700"
-                    onClick={handleConfigurePipeline}
-                  >
-                    Configurar Pipeline
-                  </Button>
-                </div>
-              ) : (
-                estagios.map((estagio) => (
-                  <PipelineColumn 
-                    key={estagio.id} 
-                    estagio={estagio}
-                    leads={getLeadsByStage(estagio.id)}
-                    onMoveCard={handleMoveCard}
-                    allStages={estagios}
-                    isMovingLead={isMovingLead}
-                  />
-                ))
-              )}
-            </div>
+            <DndContext
+              sensors={sensors}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="grid grid-flow-col auto-cols-[minmax(280px,_1fr)] gap-4 pb-4 pr-4 min-h-[calc(100vh-220px)]">
+                {estagios.length === 0 ? (
+                  <div className="col-span-full bg-gray-50 rounded-lg p-8 text-center">
+                    <h3 className="text-lg font-medium mb-2">Nenhum estágio configurado</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Configure os estágios do seu funil de vendas para visualizar seus leads no pipeline.
+                    </p>
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700"
+                      onClick={handleConfigurePipeline}
+                    >
+                      Configurar Pipeline
+                    </Button>
+                  </div>
+                ) : (
+                  estagios.map((estagio) => (
+                    <PipelineColumn 
+                      key={estagio.id} 
+                      estagio={estagio}
+                      leads={getLeadsByStage(estagio.id)}
+                      onMoveCard={handleMoveCard}
+                      allStages={estagios}
+                      isMovingLead={isMovingLead}
+                      activeId={activeLeadId}
+                      isOver={overStageId === estagio.id}
+                    />
+                  ))
+                )}
+              </div>
+            </DndContext>
           </ScrollArea>
         </div>
       </div>

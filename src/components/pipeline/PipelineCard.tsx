@@ -7,19 +7,40 @@ import { Lead, EstagioPipeline } from '@/types/lead';
 import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import { ChevronRight, MoreHorizontal, Move } from 'lucide-react';
 import LeadTag from '@/components/LeadTag';
+import { useDraggable } from '@dnd-kit/core';
+import { cn } from '@/lib/utils';
 
 interface PipelineCardProps {
   lead: Lead;
   onMove: (leadId: string, newStageId: string) => Promise<void>;
   stages: EstagioPipeline[];
+  isDragging?: boolean;
 }
 
-const PipelineCard: React.FC<PipelineCardProps> = ({ lead, onMove, stages }) => {
+const PipelineCard: React.FC<PipelineCardProps> = ({ lead, onMove, stages, isDragging = false }) => {
   const navigate = useNavigate();
   
-  const handleClick = () => {
+  // Setup draggable
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: lead.id,
+    data: {
+      type: 'lead',
+      lead
+    }
+  });
+  
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+  
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent navigation when dragging
+    if (isDragging) {
+      e.preventDefault();
+      return;
+    }
     navigate(`/leads/${lead.id}`);
   };
 
@@ -33,60 +54,81 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ lead, onMove, stages }) => 
 
   return (
     <Card 
-      className="bg-white cursor-pointer hover:shadow-md transition-shadow"
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "bg-white cursor-pointer transition-all",
+        isDragging ? "shadow-lg opacity-75 rotate-2 z-10" : "hover:shadow-md"
+      )}
       onClick={handleClick}
       aria-label={`Lead: ${lead.nome}`}
       role="button"
     >
       <CardContent className="p-3">
         <div className="flex justify-between items-start">
-          <h4 className="font-semibold text-sm truncate">{lead.nome}</h4>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/leads/${lead.id}`);
-              }}>
-                Ver detalhes
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/leads/${lead.id}/editar`);
-              }}>
-                Editar lead
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              
-              {/* Menu para mover para outros estágios */}
-              <DropdownMenuItem 
-                className="font-semibold"
-                disabled
-              >
-                Mover para estágio:
-              </DropdownMenuItem>
-              
-              {stages
-                .filter(stage => stage.id !== lead.estagio_id)
-                .map(stage => (
-                  <DropdownMenuItem 
-                    key={stage.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMove(lead.id, stage.id);
-                    }}
-                    className="pl-6"
-                  >
-                    {stage.nome}
-                  </DropdownMenuItem>
-                ))
-              }
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex-grow">
+            <h4 className="font-semibold text-sm truncate">{lead.nome}</h4>
+          </div>
+          
+          <div className="flex items-center space-x-1">
+            {/* Drag handle */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing" 
+              {...attributes} 
+              {...listeners}
+            >
+              <Move className="h-3 w-3 text-gray-400" />
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/leads/${lead.id}`);
+                }}>
+                  Ver detalhes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/leads/${lead.id}/editar`);
+                }}>
+                  Editar lead
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                
+                {/* Menu para mover para outros estágios */}
+                <DropdownMenuItem 
+                  className="font-semibold"
+                  disabled
+                >
+                  Mover para estágio:
+                </DropdownMenuItem>
+                
+                {stages
+                  .filter(stage => stage.id !== lead.estagio_id)
+                  .map(stage => (
+                    <DropdownMenuItem 
+                      key={stage.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMove(lead.id, stage.id);
+                      }}
+                      className="pl-6"
+                    >
+                      {stage.nome}
+                    </DropdownMenuItem>
+                  ))
+                }
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         
         <div className="mt-1 text-xs text-gray-500">
