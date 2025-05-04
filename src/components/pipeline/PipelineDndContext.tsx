@@ -62,6 +62,18 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
     await onMoveCard(leadId, newStageId);
   };
 
+  // Clone children and pass props to PipelineContent component
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child) && child.type === React.lazy(() => import('./PipelineContent'))) {
+      // Only pass these props to PipelineContent
+      return React.cloneElement(child, {
+        activeId: activeLeadId,
+        overStageId
+      });
+    }
+    return child;
+  });
+
   return (
     <DndContext
       sensors={sensors}
@@ -69,15 +81,7 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, {
-            activeId: activeLeadId,
-            overStageId
-          });
-        }
-        return child;
-      })}
+      {childrenWithProps}
     </DndContext>
   );
 };

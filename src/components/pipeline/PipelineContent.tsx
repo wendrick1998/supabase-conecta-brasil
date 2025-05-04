@@ -5,7 +5,6 @@ import { EstagioPipeline, Lead } from '@/types/lead';
 import PipelineColumn from './PipelineColumn';
 import { Button } from '@/components/ui/button';
 import { Conversation } from '@/types/conversation';
-import { PipelineDndContext } from './PipelineDndContext';
 
 interface PipelineContentProps {
   estagios: EstagioPipeline[];

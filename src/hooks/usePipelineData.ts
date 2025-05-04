@@ -39,22 +39,30 @@ export function usePipelineData() {
     if (leadIds.length === 0) return;
     
     try {
+      // Using a custom query without strongly typed table name since the table might not exist yet
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
         .in('lead_id', leadIds)
         .order('horario', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        // If the table doesn't exist, log the error but don't crash
+        console.error('Erro ao carregar conversas dos leads:', error);
+        return;
+      }
       
       // Create a mapping of lead_id to conversation
       const conversationsMap: Record<string, Conversation> = {};
       if (data) {
-        data.forEach(conversation => {
+        data.forEach((conversation: any) => {
+          // Type assertion since we don't know the exact shape coming from DB
+          const typedConversation = conversation as Conversation;
+          
           // If we already have a conversation for this lead_id, only keep the most recent one
-          if (!conversationsMap[conversation.lead_id] || 
-              new Date(conversation.horario) > new Date(conversationsMap[conversation.lead_id].horario)) {
-            conversationsMap[conversation.lead_id] = conversation as Conversation;
+          if (!conversationsMap[typedConversation.lead_id] || 
+              new Date(typedConversation.horario) > new Date(conversationsMap[typedConversation.lead_id].horario)) {
+            conversationsMap[typedConversation.lead_id] = typedConversation;
           }
         });
       }
@@ -92,29 +100,38 @@ export function usePipelineData() {
 
   // Setup realtime subscription for conversation updates
   useEffect(() => {
-    const channel = supabase
-      .channel('public:conversations')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'conversations' 
-        }, 
-        (payload) => {
-          // Update conversations when new data arrives
-          const conversation = payload.new as Conversation;
-          setConversations(prev => ({
-            ...prev,
-            [conversation.lead_id]: conversation
-          }));
-        }
-      )
-      .subscribe();
+    // We wrap this in try/catch to prevent errors if the table doesn't exist
+    try {
+      const channel = supabase
+        .channel('public:conversations')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'conversations' 
+          }, 
+          (payload) => {
+            // Update conversations when new data arrives
+            const conversation = payload.new as Conversation;
+            setConversations(prev => ({
+              ...prev,
+              [conversation.lead_id]: conversation
+            }));
+          }
+        )
+        .subscribe((status) => {
+          if (status === 'SUBSCRIPTION_ERROR') {
+            console.log('Subscription error: conversations table might not exist yet');
+          }
+        });
 
-    return () => {
-      // Cleanup subscription
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        // Cleanup subscription
+        supabase.removeChannel(channel);
+      };
+    } catch (error) {
+      console.error('Error setting up realtime subscription:', error);
+    }
   }, []);
 
   useEffect(() => {
