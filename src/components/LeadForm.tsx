@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -26,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import LeadTagSelect from './LeadTagSelect';
 import { Loader2 } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 // Esquema de validação
 const leadFormSchema = z.object({
@@ -56,9 +56,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ lead, isEditing = false }) => {
     resolver: zodResolver(leadFormSchema),
     defaultValues: {
       nome: lead?.nome || '',
-      email: lead?.email || '',
-      telefone: lead?.telefone || '',
-      empresa: lead?.empresa || '',
+      email: lead?.email || null,
+      telefone: lead?.telefone || null,
+      empresa: lead?.empresa || null,
       canal_id: lead?.canal_id || null,
       estagio_id: lead?.estagio_id || null,
     },

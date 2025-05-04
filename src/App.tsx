@@ -26,9 +26,9 @@ const App = () => (
             <Route path="/" element={<Layout />}>
               <Route index element={<Index />} />
               <Route path="leads" element={<LeadsPage />} />
-              <Route path="leads/:id" element={<LeadDetailPage />} />
               <Route path="leads/novo" element={<NewLeadPage />} />
               <Route path="leads/:id/editar" element={<EditLeadPage />} />
+              <Route path="leads/:id" element={<LeadDetailPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
