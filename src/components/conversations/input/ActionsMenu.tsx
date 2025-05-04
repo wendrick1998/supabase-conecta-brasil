@@ -7,14 +7,12 @@ interface ActionsMenuProps {
   onFileUpload: () => void;
   onStartRecording: () => void;
   onRecordVideo?: () => void;
-  isRecording: boolean;
 }
 
 const ActionsMenu = ({ 
   onFileUpload, 
   onStartRecording, 
-  onRecordVideo,
-  isRecording 
+  onRecordVideo
 }: ActionsMenuProps) => {
   return (
     <Popover>
@@ -23,7 +21,6 @@ const ActionsMenu = ({
           variant="outline"
           size="icon"
           title="Anexar arquivo ou mídia"
-          disabled={isRecording}
         >
           <Paperclip className="h-4 w-4" />
         </Button>
@@ -43,7 +40,6 @@ const ActionsMenu = ({
             variant="ghost"
             className="justify-start"
             onClick={onStartRecording}
-            disabled={isRecording}
           >
             <Mic className="h-4 w-4 mr-2" />
             <span>Gravar áudio</span>

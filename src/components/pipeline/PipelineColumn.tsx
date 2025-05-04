@@ -51,7 +51,7 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
       ref={setNodeRef}
       className={cn(
         "flex flex-col rounded-lg p-4 min-h-[400px] transition-colors duration-200",
-        isOver && !isActiveLeadInThisColumn ? "bg-blue-50" : "bg-gray-50",
+        isOver && !isActiveLeadInThisColumn ? "bg-blue-50 border border-blue-200" : "bg-gray-50",
         isActiveLeadInThisColumn ? "opacity-90" : ""
       )}
       aria-label={`Estágio: ${estagio.nome}`}

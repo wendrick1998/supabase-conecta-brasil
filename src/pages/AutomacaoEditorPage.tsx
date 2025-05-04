@@ -1,10 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAutomationEditor } from '@/hooks/useAutomationEditor';
 import { AutomationHeader } from '@/components/automations/AutomationHeader';
 import { AutomationWorkspace } from '@/components/automations/AutomationWorkspace';
 import { AutomationDialogs } from '@/components/automations/AutomationDialogs';
+import AutomationGuide from '@/components/automations/AutomationGuide';
 
 const AutomacaoEditorPage = () => {
   const {
@@ -29,6 +30,9 @@ const AutomacaoEditorPage = () => {
     handleApplyTemplate
   } = useAutomationEditor();
 
+  // State for first visit detection
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
+
   // Handle window resize for mobile detection
   useEffect(() => {
     const handleResize = () => {
@@ -38,6 +42,18 @@ const AutomacaoEditorPage = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [setIsMobile]);
+
+  // Check if this is user's first visit to automation editor
+  useEffect(() => {
+    const hasVisitedAutomations = localStorage.getItem('hasVisitedAutomationEditor');
+    
+    if (!hasVisitedAutomations) {
+      setIsFirstVisit(true);
+      localStorage.setItem('hasVisitedAutomationEditor', 'true');
+    } else {
+      setIsFirstVisit(false);
+    }
+  }, []);
 
   return (
     <>
@@ -56,18 +72,22 @@ const AutomacaoEditorPage = () => {
         />
 
         {/* Main workspace with sidebar and canvas */}
-        <AutomationWorkspace 
-          blocks={blocks}
-          canvasRef={canvasRef}
-          isMobile={isMobile}
-          setShowTemplates={setShowTemplates}
-          setShowPreview={setShowPreview}
-          handleDragStart={handleDragStart}
-          handleDragEnd={handleDragEnd}
-          handleConfigureBlock={handleConfigureBlock}
-          handleDeleteBlock={handleDeleteBlock}
-          handleCreateConnection={handleCreateConnection}
-        />
+        <div className="relative flex-grow">
+          <AutomationGuide isFirstVisit={isFirstVisit} />
+          
+          <AutomationWorkspace 
+            blocks={blocks}
+            canvasRef={canvasRef}
+            isMobile={isMobile}
+            setShowTemplates={setShowTemplates}
+            setShowPreview={setShowPreview}
+            handleDragStart={handleDragStart}
+            handleDragEnd={handleDragEnd}
+            handleConfigureBlock={handleConfigureBlock}
+            handleDeleteBlock={handleDeleteBlock}
+            handleCreateConnection={handleCreateConnection}
+          />
+        </div>
       </div>
       
       {/* Dialogs */}

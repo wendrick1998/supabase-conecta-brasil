@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useConversationData } from '@/hooks/useConversationData';
 import ConversationHeader from './ConversationHeader';
 import MessageTimeline from './MessageTimeline';
-import RecordingDialog from './RecordingDialog';
 import ConversationLoading from './ConversationLoading';
 import ConversationNotFound from './ConversationNotFound';
 import ConversationInteraction from './ConversationInteraction';
@@ -13,10 +12,6 @@ const ConversationDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // Recording state
-  const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
-  const [mediaType, setMediaType] = useState<'audio' | 'video'>('audio');
-
   // Use conversation data hook
   const {
     conversation,
@@ -32,17 +27,11 @@ const ConversationDetail = () => {
 
   // Recording handlers
   const openRecordingModal = (type: 'audio' | 'video') => {
-    setMediaType(type);
-    setRecordingDialogOpen(true);
+    // This is now handled directly in ConversationInteraction
   };
 
   const handleRecordAudio = (file: File) => {
     handleSendMediaMessage(file, 'Áudio enviado');
-  };
-
-  const handleSaveRecording = (file: File) => {
-    const isAudio = file.type.includes('audio');
-    handleSendMediaMessage(file, isAudio ? 'Áudio enviado' : 'Vídeo enviado');
   };
 
   if (loading) {
@@ -70,14 +59,6 @@ const ConversationDetail = () => {
         onRecordVideo={() => openRecordingModal('video')}
         openRecordingModal={openRecordingModal}
         sendingMessage={sendingMessage}
-      />
-
-      {/* Recording Dialog */}
-      <RecordingDialog
-        open={recordingDialogOpen}
-        onOpenChange={setRecordingDialogOpen}
-        mediaType={mediaType}
-        onSave={handleSaveRecording}
       />
     </div>
   );

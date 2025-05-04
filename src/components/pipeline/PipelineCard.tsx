@@ -58,7 +58,7 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ lead, onMove, stages, isDra
       style={style}
       className={cn(
         "bg-white cursor-pointer transition-all",
-        isDragging ? "shadow-lg opacity-75 rotate-2 z-10" : "hover:shadow-md"
+        isDragging ? "shadow-lg scale-105 border-2 border-blue-400 rotate-1 z-10" : "hover:shadow-md"
       )}
       onClick={handleClick}
       aria-label={`Lead: ${lead.nome}`}
@@ -75,7 +75,7 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ lead, onMove, stages, isDra
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing" 
+              className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing hover:bg-blue-50" 
               {...attributes} 
               {...listeners}
             >

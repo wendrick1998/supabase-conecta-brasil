@@ -1,10 +1,11 @@
 
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
-import RecordingButton from './input/RecordingButton';
 import ActionsMenu from './input/ActionsMenu';
 import NoteButton from './input/NoteButton';
 import SendButton from './input/SendButton';
+import { Button } from '@/components/ui/button';
+import { Mic } from 'lucide-react';
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -24,7 +25,7 @@ const MessageInput = ({
   isLoading 
 }: MessageInputProps) => {
   const [message, setMessage] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
+  const [showAudioRecording, setShowAudioRecording] = useState(false);
   
   const handleSend = () => {
     if (message.trim()) {
@@ -40,9 +41,10 @@ const MessageInput = ({
     }
   };
 
-  // Audio button handlers now separated into RecordingButton component
-  const handleStartRecording = () => {
-    setIsRecording(true);
+  const handleOpenAudioRecording = () => {
+    if (onRecordAudio) {
+      setShowAudioRecording(true);
+    }
   };
 
   return (
@@ -54,36 +56,40 @@ const MessageInput = ({
         onKeyDown={handleKeyDown}
         className="min-h-[80px] mb-2 resize-none"
         autoFocus
-        disabled={isRecording}
       />
       
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
-          {/* Audio Recording Button */}
-          <RecordingButton 
-            onRecordAudio={onRecordAudio}
-            isRecording={isRecording}
-          />
+          {/* Simple Audio Button */}
+          {onRecordAudio && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleOpenAudioRecording}
+              className="hover:bg-blue-50"
+              title="Gravar áudio"
+            >
+              <Mic className="h-4 w-4" />
+            </Button>
+          )}
 
           {/* Actions Menu */}
           <ActionsMenu 
             onFileUpload={onFileUpload}
-            onStartRecording={handleStartRecording}
+            onStartRecording={handleOpenAudioRecording}
             onRecordVideo={onRecordVideo}
-            isRecording={isRecording}
           />
 
           {/* Note Button */}
           <NoteButton 
             onAddNote={onAddNote}
-            disabled={isRecording}
           />
         </div>
         
         {/* Send Button */}
         <SendButton 
           onClick={handleSend}
-          disabled={(!message.trim() && !isRecording) || isLoading}
+          disabled={!message.trim() || isLoading}
           isLoading={isLoading}
         />
       </div>

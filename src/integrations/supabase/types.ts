@@ -29,19 +29,25 @@ export type Database = {
       }
       estagios_pipeline: {
         Row: {
+          cor: string | null
           criado_em: string
+          descricao: string | null
           id: string
           nome: string
           ordem: number
         }
         Insert: {
+          cor?: string | null
           criado_em?: string
+          descricao?: string | null
           id?: string
           nome: string
           ordem: number
         }
         Update: {
+          cor?: string | null
           criado_em?: string
+          descricao?: string | null
           id?: string
           nome?: string
           ordem?: number

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ const RecordingDialog = ({
   mediaType, 
   onSave 
 }: RecordingDialogProps) => {
+  const [recordingTime, setRecordingTime] = useState(0);
   const { 
     isRecording, 
     recordedMedia, 
@@ -43,6 +44,10 @@ const RecordingDialog = ({
     onOpenChange(false);
   };
 
+  const handleTimeUpdate = (seconds: number) => {
+    setRecordingTime(seconds);
+  };
+
   const handleSaveRecording = () => {
     if (recordedMedia && recordedMedia.blob) {
       const file = new File([recordedMedia.blob], recordedMedia.fileName, {
@@ -54,10 +59,15 @@ const RecordingDialog = ({
     }
   };
 
+  const handleReset = () => {
+    resetRecording();
+  };
+
   React.useEffect(() => {
     // Reset state when dialog opens
     if (open) {
       resetRecording();
+      setRecordingTime(0);
     } else {
       stopMediaStream();
     }
@@ -86,7 +96,9 @@ const RecordingDialog = ({
           <DialogTitle>
             {isRecording 
               ? `Gravando ${mediaType === 'audio' ? 'áudio' : 'vídeo'}...` 
-              : `Gravar ${mediaType === 'audio' ? 'áudio' : 'vídeo'}`}
+              : recordedMedia 
+                ? `Revisar ${mediaType === 'audio' ? 'áudio' : 'vídeo'}`
+                : `Gravar ${mediaType === 'audio' ? 'áudio' : 'vídeo'}`}
           </DialogTitle>
         </DialogHeader>
         
@@ -104,11 +116,12 @@ const RecordingDialog = ({
             onStartRecording={startRecording}
             onStopRecording={stopRecording}
             onSaveRecording={handleSaveRecording}
+            onReset={handleReset}
           />
         </div>
         
         <DialogFooter className="sm:justify-start">
-          {!isRecording && (
+          {!isRecording && !recordedMedia && (
             <Button
               type="button"
               variant="secondary"
