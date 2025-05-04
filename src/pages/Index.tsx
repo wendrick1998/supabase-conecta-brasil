@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Card, CardContent } from '@/components/ui/card';
 import { BarChart, LineChart, TrendingUp, TrendingDown, Users } from 'lucide-react';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import SupabaseSetupGuide from '@/components/SupabaseSetupGuide';
 
 // Sample data for the chart
 const data = [
@@ -24,6 +25,9 @@ const Index = () => {
       
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
+        
+        {/* Supabase Setup Guide */}
+        <SupabaseSetupGuide />
         
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
