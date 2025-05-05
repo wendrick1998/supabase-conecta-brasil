@@ -117,7 +117,7 @@ export const getConversationStats = async () => {
 };
 
 // Get connected accounts
-export const getConnectedAccounts = async (): Promise<ConnectedAccount[]> {
+export const getConnectedAccounts = async () => {
   // Use the direct table name to avoid type issues
   const { data, error } = await supabase
     .from('canais_conectados')
@@ -128,5 +128,5 @@ export const getConnectedAccounts = async (): Promise<ConnectedAccount[]> {
     throw error;
   }
 
-  return data || [];
+  return data as ConnectedAccount[] || [];
 };
