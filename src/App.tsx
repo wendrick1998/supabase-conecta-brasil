@@ -60,7 +60,7 @@ const App = () => (
                   
                   {/* Redirect for backward compatibility - inbox → conversations */}
                   <Route path="inbox/:id" element={
-                    <Navigate to={(params) => `/conversations/${params.params.id}`} />
+                    <Navigate to={`/conversations/:id`} />
                   } />
                 </Route>
               </Route>
