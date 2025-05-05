@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Block } from '@/types/automation';
@@ -31,7 +32,9 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
       case 'value_greater':
         return 'Valor é maior que X';
       case 'send_message':
-        return 'Enviar uma mensagem';
+        return block.config && block.config.message
+          ? `Enviar mensagem: "${block.config.message.substring(0, 30)}${block.config.message.length > 30 ? '...' : ''}"`
+          : 'Enviar uma mensagem';
       case 'create_task':
         return 'Criar uma tarefa';
       case 'move_pipeline':

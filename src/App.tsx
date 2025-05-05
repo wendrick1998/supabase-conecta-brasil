@@ -25,6 +25,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import ConversationList from "./components/conversations/ConversationList";
 import ConversationDetail from "./components/conversations/ConversationDetail";
 import NewConversation from "./components/conversations/NewConversation";
+import InboxPage from "./pages/InboxPage";
 
 // Create a redirect component to handle the inbox to conversations redirect
 const InboxToConversationRedirect = () => {
@@ -61,7 +62,10 @@ const App = () => (
                   <Route path="automacoes/:id/editar" element={<AutomacaoEditorPage />} />
                   <Route path="pulse" element={<PulsePage />} />
                   
-                  {/* Conversation routes */}
+                  {/* New multicanal inbox */}
+                  <Route path="inbox" element={<InboxPage />} />
+                  
+                  {/* Original conversation routes */}
                   <Route path="conversations" element={<ConversationList />} />
                   <Route path="conversations/new" element={<NewConversation />} />
                   <Route path="conversations/:id" element={<ConversationDetail />} />

@@ -1,1 +1,5 @@
+
 project_id = "hqfxzjuqjjdnmoaenore"
+
+[functions.handle_incoming_message]
+verify_jwt = false
