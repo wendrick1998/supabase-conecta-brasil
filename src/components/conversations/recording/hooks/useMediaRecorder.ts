@@ -25,6 +25,7 @@ export const useMediaRecorder = ({
   const mediaChunksRef = useRef<BlobPart[]>([]);
   const timerIntervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
+  const pausedTimeRef = useRef<number>(0); // Track accumulated time during pauses
   const errorTimeoutRef = useRef<number | null>(null);
 
   // Cleanup effect for timers
@@ -41,7 +42,9 @@ export const useMediaRecorder = ({
 
   // Function to handle timer updates
   const startTimer = useCallback(() => {
-    startTimeRef.current = Date.now();
+    console.log("Starting/resuming timer");
+    startTimeRef.current = Date.now() - pausedTimeRef.current; // Adjust start time with paused time
+    
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
     }
@@ -58,7 +61,13 @@ export const useMediaRecorder = ({
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
-  }, []);
+    
+    // When pausing, store the current elapsed time
+    if (isPaused) {
+      pausedTimeRef.current = Date.now() - startTimeRef.current;
+      console.log("Paused timer at", pausedTimeRef.current, "ms");
+    }
+  }, [isPaused]);
 
   const startRecording = useCallback((stream: MediaStream) => {
     if (mediaType === 'photo') {
@@ -73,65 +82,86 @@ export const useMediaRecorder = ({
       // Reset state
       setIsRecording(true);
       setIsPaused(false);
-      setRecordingTime(0);
       
-      // Reset chunks
-      mediaChunksRef.current = [];
-      
-      // Create media recorder
-      const mimeType = mediaType === 'audio' ? 'audio/webm' : 'video/webm';
-      console.log('Creating MediaRecorder with mimeType:', mimeType);
-      
-      // Check if MediaRecorder is supported
-      if (!window.MediaRecorder) {
-        throw new Error('MediaRecorder is not supported in this browser');
+      if (!isPaused) {
+        // Only reset chunks and time if not resuming
+        setRecordingTime(0);
+        pausedTimeRef.current = 0;
+        mediaChunksRef.current = [];
       }
       
-      // Check if mimeType is supported
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        console.warn(`MimeType ${mimeType} not supported, using default`);
-      }
-      
-      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
-      
-      // Add data handler
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        console.log('Data available from recorder:', e.data?.size || 'No data');
-        if (e.data && e.data.size > 0) {
-          mediaChunksRef.current.push(e.data);
+      // Create media recorder if not resuming
+      if (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive') {
+        const mimeType = mediaType === 'audio' ? 'audio/webm' : 'video/webm';
+        console.log('Creating MediaRecorder with mimeType:', mimeType);
+        
+        // Check if MediaRecorder is supported
+        if (!window.MediaRecorder) {
+          throw new Error('MediaRecorder is not supported in this browser');
         }
-      };
-      
-      // Handle recording stop
-      mediaRecorderRef.current.onstop = () => {
-        console.log('MediaRecorder stopped');
-        const blob = new Blob(mediaChunksRef.current, { type: mimeType });
-        console.log('Created blob:', blob.size, 'bytes');
-        const url = URL.createObjectURL(blob);
-        const fileName = `${mediaType}-${new Date().toISOString().replace(/:/g, '-')}.webm`;
         
-        setRecordedMedia({
-          url,
-          blob,
-          fileName
-        });
+        // Check if mimeType is supported
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          console.warn(`MimeType ${mimeType} not supported, using default`);
+        }
         
-        setIsRecording(false);
-        setIsPaused(false);
-        stopTimer();
+        mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
         
-        if (onRecordingComplete) onRecordingComplete();
-      };
+        // Add data handler
+        mediaRecorderRef.current.ondataavailable = (e) => {
+          console.log('Data available from recorder:', e.data?.size || 'No data');
+          if (e.data && e.data.size > 0) {
+            mediaChunksRef.current.push(e.data);
+          }
+        };
+        
+        // Handle recording stop
+        mediaRecorderRef.current.onstop = () => {
+          console.log('MediaRecorder stopped');
+          const blob = new Blob(mediaChunksRef.current, { type: mimeType });
+          console.log('Created blob:', blob.size, 'bytes');
+          const url = URL.createObjectURL(blob);
+          const fileName = `${mediaType}-${new Date().toISOString().replace(/:/g, '-')}.webm`;
+          
+          const duration = recordingTime;
+          
+          setRecordedMedia({
+            url,
+            blob,
+            fileName
+          });
+          
+          setIsRecording(false);
+          setIsPaused(false);
+          stopTimer();
+          
+          if (onRecordingComplete) onRecordingComplete();
+        };
 
-      mediaRecorderRef.current.onerror = (event) => {
-        console.error('MediaRecorder error:', event);
-        toast.error('Erro durante a gravação');
-        stopRecording();
-      };
+        mediaRecorderRef.current.onerror = (event) => {
+          console.error('MediaRecorder error:', event);
+          toast.error('Erro durante a gravação');
+          stopRecording();
+        };
+      }
       
-      // Start recording
-      console.log('Starting MediaRecorder');
-      mediaRecorderRef.current.start();
+      // Start or resume recording
+      if (mediaRecorderRef.current.state === 'inactive') {
+        console.log('Starting MediaRecorder');
+        mediaRecorderRef.current.start();
+        
+        // Request data every second for longer recordings
+        // This helps create chunks for more reliable recording
+        setInterval(() => {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.requestData();
+          }
+        }, 1000);
+      } else if (mediaRecorderRef.current.state === 'paused') {
+        console.log('Resuming MediaRecorder');
+        mediaRecorderRef.current.resume();
+      }
+      
       startTimer();
       
       // Set a verification timeout to check if recording started correctly
@@ -145,7 +175,7 @@ export const useMediaRecorder = ({
       toast.error('Erro ao iniciar gravação');
       setIsRecording(false);
     }
-  }, [mediaType, onRecordingComplete, startTimer, stopTimer]);
+  }, [mediaType, onRecordingComplete, startTimer, stopTimer, isPaused]);
 
   const stopRecording = useCallback(() => {
     console.log('Stop recording called');
@@ -170,7 +200,7 @@ export const useMediaRecorder = ({
       setIsRecording(false);
       setIsPaused(false);
     }
-  }, [isRecording, mediaType, stopTimer]);
+  }, [mediaType, stopTimer]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -191,7 +221,7 @@ export const useMediaRecorder = ({
       try {
         mediaRecorderRef.current.resume();
         setIsPaused(false);
-        startTimer();
+        startTimer(); // Resume timer from where it left off
       } catch (error) {
         console.error('Error resuming recording:', error);
       }
@@ -203,6 +233,7 @@ export const useMediaRecorder = ({
     setIsRecording(false);
     setIsPaused(false);
     setRecordingTime(0);
+    pausedTimeRef.current = 0;
     
     if (recordedMedia?.url) {
       URL.revokeObjectURL(recordedMedia.url);

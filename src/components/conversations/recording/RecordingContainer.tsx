@@ -10,6 +10,7 @@ interface RecordingContainerProps {
   isPaused: boolean;
   isInitializing?: boolean;
   initError?: string | null;
+  recordingTime?: number;
   recordedMedia: {
     url: string;
     blob: Blob | null;
@@ -31,6 +32,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
   isPaused,
   isInitializing = false,
   initError = null,
+  recordingTime = 0,
   recordedMedia,
   stream,
   browserSupport = true,
@@ -64,21 +66,29 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
         isInitializing={isInitializing}
         initError={initError}
         recordedMedia={recordedMedia}
+        recordingTime={recordingTime}
         stream={stream}
-      />
-      
-      <RecordingControls 
-        isRecording={isRecording}
-        isPaused={isPaused}
-        isInitializing={isInitializing}
-        hasRecordedMedia={!!recordedMedia}
-        onStartRecording={onStartRecording}
-        onStopRecording={onStopRecording}
-        onPauseRecording={onPauseRecording}
-        onResumeRecording={onResumeRecording}
         onSaveRecording={onSaveRecording}
         onReset={onReset}
       />
+      
+      {/* Only show recording controls if we don't have recorded media 
+          or we're still recording. AudioPreview handles its own controls
+          after recording is complete */}
+      {(!recordedMedia || isRecording) && (
+        <RecordingControls 
+          isRecording={isRecording}
+          isPaused={isPaused}
+          isInitializing={isInitializing}
+          hasRecordedMedia={!!recordedMedia}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          onPauseRecording={onPauseRecording}
+          onResumeRecording={onResumeRecording}
+          onSaveRecording={onSaveRecording}
+          onReset={onReset}
+        />
+      )}
     </div>
   );
 };

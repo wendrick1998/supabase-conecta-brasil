@@ -1,22 +1,24 @@
-
 import React, { useState, useEffect } from 'react';
 
 interface RecordingTimerProps {
   isRecording: boolean;
+  initialTimeMs?: number; // Added to support resuming from a paused state
   onTimeUpdate?: (seconds: number) => void;
 }
 
 const RecordingTimer: React.FC<RecordingTimerProps> = ({
   isRecording,
+  initialTimeMs = 0, // Default to 0 if not provided
   onTimeUpdate
 }) => {
-  const [seconds, setSeconds] = useState(0);
+  const [seconds, setSeconds] = useState(Math.floor(initialTimeMs / 1000));
   
   useEffect(() => {
     let interval: number | null = null;
     
+    // Only start the timer if we're recording
     if (isRecording) {
-      setSeconds(0);
+      // Keep the existing seconds when resuming
       interval = window.setInterval(() => {
         setSeconds(prev => {
           const newValue = prev + 1;
@@ -24,8 +26,6 @@ const RecordingTimer: React.FC<RecordingTimerProps> = ({
           return newValue;
         });
       }, 1000);
-    } else {
-      setSeconds(0);
     }
     
     return () => {

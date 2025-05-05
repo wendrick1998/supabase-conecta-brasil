@@ -13,7 +13,10 @@ interface MediaPreviewProps {
   isInitializing?: boolean;
   initError?: string | null;
   recordedMedia: RecordedMedia | null;
+  recordingTime?: number;
   stream: MediaStream | null;
+  onSaveRecording?: () => void;
+  onReset?: () => void;
 }
 
 const MediaPreview: React.FC<MediaPreviewProps> = ({
@@ -23,7 +26,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
   isInitializing = false,
   initError = null,
   recordedMedia,
-  stream
+  recordingTime = 0,
+  stream,
+  onSaveRecording,
+  onReset
 }) => {
   // Show error or initializing states first
   if (initError) {
@@ -42,6 +48,8 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
         isPaused={isPaused}
         recordedMedia={recordedMedia}
         stream={stream}
+        onSaveRecording={onSaveRecording}
+        onReset={onReset}
       />
     );
   }
@@ -51,7 +59,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
       <AudioPreview
         isRecording={isRecording}
         isPaused={isPaused}
+        recordingTime={recordingTime}
         recordedMedia={recordedMedia}
+        onSaveRecording={onSaveRecording}
+        onReset={onReset}
       />
     );
   }

@@ -28,6 +28,7 @@ const RecordingDialog = ({
     isRecording,
     isInitializing,
     initError,
+    recordingTime,
     recordedMedia,
     stream,
     browserSupport,
@@ -77,6 +78,7 @@ const RecordingDialog = ({
           isPaused={isPaused}
           isInitializing={isInitializing}
           initError={initError}
+          recordingTime={recordingTime}
           recordedMedia={recordedMedia}
           stream={stream}
           browserSupport={browserSupport}
@@ -88,11 +90,14 @@ const RecordingDialog = ({
           onReset={handleReset}
         />
         
-        <RecordingFooter 
-          isRecording={isRecording} 
-          hasRecordedMedia={!!recordedMedia}
-          onClose={closeDialog}
-        />
+        {/* Only show footer if we're not recording or haven't finished a recording */}
+        {!isRecording && !recordedMedia && (
+          <RecordingFooter 
+            isRecording={isRecording} 
+            hasRecordedMedia={!!recordedMedia}
+            onClose={closeDialog}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

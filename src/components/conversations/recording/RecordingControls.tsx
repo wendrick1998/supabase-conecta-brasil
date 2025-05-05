@@ -111,29 +111,8 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
     );
   }
   
-  // Has recorded media, not recording
-  if (hasRecordedMedia && !isRecording) {
-    return (
-      <div className="flex gap-3 flex-wrap justify-center">
-        <Button
-          onClick={onReset || onStartRecording}
-          variant="outline"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Regravar
-        </Button>
-        
-        <Button
-          onClick={onSaveRecording}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          <Send className="h-4 w-4 mr-2" />
-          Salvar e Enviar
-        </Button>
-      </div>
-    );
-  }
-  
+  // After recording is complete, we don't need to show controls here
+  // as they're now displayed directly in the AudioPreview component
   return null;
 };
 
