@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { LayoutGrid, BarChart, Users, Zap, Inbox, Activity } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
+
 const DashboardLayout: React.FC = () => {
   // Add location to highlight active route
   const location = useLocation();
@@ -39,24 +41,37 @@ const DashboardLayout: React.FC = () => {
     if (path === "/dashboard" && location.pathname === "/dashboard") return true;
     return path !== "/dashboard" && location.pathname.startsWith(path);
   };
-  return <div className="min-h-screen flex bg-gradient-radial">
+
+  return (
+    <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-surface/90 backdrop-blur-md border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
         {/* Logo */}
-        <div className="mb-8 px-0 mx-[60px]">
-          <div className="h-24">
-            <img alt="Vendah+" className="h-full animate-subtle-glow" src="/lovable-uploads/0abe81d7-e28c-47b7-b096-8d218e84bc64.png" />
+        <div className="mb-8 px-0 md:px-6">
+          <div className="h-16 md:h-24 flex justify-center md:justify-start">
+            <img 
+              alt="Vendah+" 
+              className="h-full animate-subtle-glow" 
+              src="/lovable-uploads/0abe81d7-e28c-47b7-b096-8d218e84bc64.png" 
+            />
           </div>
         </div>
         
         {/* Navigation */}
-        <nav className="flex flex-col items-center md:items-start space-y-6 w-full px-4">
+        <nav className="flex flex-col items-center md:items-start space-y-4 w-full px-4">
           <TooltipProvider>
-            {navigationItems.map(item => <Tooltip key={item.path}>
+            {navigationItems.map(item => (
+              <Tooltip key={item.path}>
                 <TooltipTrigger asChild>
-                  <NavLink to={item.path} title={item.label} className={({
-                isActive
-              }) => `flex items-center space-x-3 py-2 px-3 rounded-md w-full transition-all duration-200 ${isPathActive(item.path) ? 'text-vendah-neon bg-vendah-neon/10 shadow-neon-subtle' : 'text-text-muted hover:text-white hover:bg-vendah-purple/10'} transition-colors`}>
+                  <NavLink 
+                    to={item.path} 
+                    title={item.label} 
+                    className={({isActive}) => `flex items-center space-x-3 py-2 px-3 rounded-md w-full transition-all duration-200 ${
+                      isPathActive(item.path) 
+                        ? 'text-vendah-neon bg-vendah-neon/10 shadow-neon-subtle' 
+                        : 'text-text-muted hover:text-white hover:bg-vendah-purple/10'
+                    }`}
+                  >
                     {item.icon}
                     <span className="hidden md:inline">{item.label}</span>
                   </NavLink>
@@ -64,7 +79,8 @@ const DashboardLayout: React.FC = () => {
                 <TooltipContent side="right" className="md:hidden bg-surface border-vendah-purple/20">
                   {item.label}
                 </TooltipContent>
-              </Tooltip>)}
+              </Tooltip>
+            ))}
           </TooltipProvider>
         </nav>
       </aside>
@@ -81,6 +97,8 @@ const DashboardLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
-    </div>;
+    </div>
+  );
 };
+
 export default DashboardLayout;

@@ -1,92 +1,76 @@
-
 import React from 'react';
-import { 
-  DndContext, 
-  DragOverlay, 
-  MouseSensor, 
-  TouchSensor,
-  useSensor, 
+import { DndContext } from '@dnd-kit/core';
+import { closestCenter } from '@dnd-kit/core';
+import {
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
   useSensors,
+} from '@dnd-kit/core';
+import type {
   DragStartEvent,
   DragEndEvent,
   DragOverEvent,
-  MeasuringConfiguration,
 } from '@dnd-kit/core';
-import { snapCenterToCursor } from '@dnd-kit/modifiers';
-import { Block, BlockCategory } from '@/types/automation';
-import { getBlockInfo } from '@/utils/automationUtils';
-import { AutomationBlock } from './AutomationBlock';
 
-interface AutomationDndContextProps {
+const pointerSensor = new PointerSensor({
+  activationConstraint: {
+    distance: 8,
+  },
+});
+
+const keyboardSensor = new KeyboardSensor({
+  coordinateGetter: () => {
+    return {
+      x: 0,
+      y: 0,
+    };
+  },
+});
+
+const sensors = useSensors(pointerSensor, keyboardSensor);
+
+export interface AutomationDndContextProps {
   children: React.ReactNode;
   onDragStart: (event: DragStartEvent) => void;
   onDragEnd: (event: DragEndEvent) => void;
-  onDragCancel: () => void;
-  onDragOver?: (event: DragOverEvent) => void;
-  activeBlock: Block | null;
-  activeDragType: 'block' | 'connection' | null;
-  activeDragBlockId: string | null;
+  onDragOver: (event: DragOverEvent) => void;
+  onDragCancel?: () => void;  // Added this property
+  activeBlock?: any;          // Added this property
+  activeDragType?: string;    // Added this property
+  activeDragBlockId?: string; // Added this property
 }
 
 export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
   children,
   onDragStart,
   onDragEnd,
-  onDragCancel,
   onDragOver,
-  activeBlock,
-  activeDragType,
-  activeDragBlockId,
+  onDragCancel = () => {}, // Default implementation
+  activeBlock = null,
+  activeDragType = '',
+  activeDragBlockId = '',
 }) => {
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: {
-      distance: 10,
-    },
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 250,
-      tolerance: 5,
-    },
-  });
-  const sensors = useSensors(mouseSensor, touchSensor);
-
-  const measuring: MeasuringConfiguration = {
+  // Use 'always visible' for measuring strategy to avoid type error
+  const measuring = {
     droppable: {
-      strategy: 'always' as const,
+      strategy: 'always' as const, // Use 'as const' to specify the exact type
     },
-  };
-
-  // Show drag overlay only when dragging blocks, not connections
-  const renderDragOverlay = () => {
-    if (!activeBlock || activeDragType !== 'block') return null;
-    
-    const blockInfo = getBlockInfo(activeBlock.type);
-    
-    return (
-      <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={null}>
-        <div className="opacity-80">
-          <AutomationBlock
-            block={activeBlock}
-            onDelete={() => {}}
-            onConfigure={() => {}}
-          />
-        </div>
-      </DragOverlay>
-    );
   };
 
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={closestCenter}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onDragCancel={onDragCancel}
       onDragOver={onDragOver}
+      onDragCancel={onDragCancel}
       measuring={measuring}
     >
       {children}
-      {renderDragOverlay()}
     </DndContext>
   );
 };
+
+export default AutomationDndContext;
