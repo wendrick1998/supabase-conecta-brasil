@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -20,45 +19,44 @@ export interface InboxFilters {
 // Get all conversations
 export const getConversations = async (filters?: InboxFilters): Promise<Conversation[]> => {
   try {
-    // Start with the base query
-    let query = supabase
-      .from('conversations')
-      .select('*');
+    // Build filter conditions first instead of chaining methods
+    let filterConditions: any = {};
+    let searchPattern: string | null = null;
+    let dateRangeFrom: string | null = null;
+    let dateRangeTo: string | null = null;
     
-    // Apply filters sequentially to avoid deep type nesting
+    // Start with the base query
+    let query = supabase.from('conversations').select('*');
+    
+    // Apply filters if provided
     if (filters) {
-      // Apply channel filter
+      // Channel filter (convert to strings to avoid TypeScript complexity)
       if (filters.canais && filters.canais.length > 0) {
-        // Convert channels to simple string array to avoid TypeScript complexity
-        const channelValues: any[] = filters.canais.map(c => c);
-        query = query.in('canal', channelValues);
+        query = query.in('canal', filters.canais as string[]);
       }
       
-      // Apply status filter
+      // Status filter (convert to strings to avoid TypeScript complexity)
       if (filters.status && filters.status.length > 0) {
-        // Convert status to simple string array to avoid TypeScript complexity
-        const statusValues: any[] = filters.status.map(s => s);
-        query = query.in('status', statusValues);
+        query = query.in('status', filters.status as string[]);
       }
       
-      // Apply priority filter
+      // Priority filter
       if (filters.priority) {
         query = query.eq('prioridade', filters.priority);
       }
       
-      // Apply account filter
+      // Account filter
       if (filters.accountId) {
         query = query.eq('conexao_id', filters.accountId);
       }
       
-      // Apply search filter - keep it simple with single pattern
+      // Search filter - use simple string format
       if (filters.search) {
-        const searchPattern = `%${filters.search}%`;
-        // Use a direct string for the or condition to avoid deep type nesting
-        query = query.or(`lead_nome.ilike.${searchPattern},ultima_mensagem.ilike.${searchPattern}`);
+        const pattern = `%${filters.search}%`;
+        query = query.or(`lead_nome.ilike.${pattern},ultima_mensagem.ilike.${pattern}`);
       }
       
-      // Apply date range filter - use separate filter calls
+      // Date range filter - apply separately to avoid chaining issues
       if (filters.dateRange) {
         query = query.gte('horario', filters.dateRange.from.toISOString());
         query = query.lte('horario', filters.dateRange.to.toISOString());
