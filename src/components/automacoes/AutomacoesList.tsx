@@ -6,6 +6,7 @@ import AutomacoesTable from './AutomacoesTable';
 import AutomacoesMobileList from './AutomacoesMobileList';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { useAutomacoesMock, Automacao as AutomacaoMock } from '@/hooks/automacoes/useAutomacoesMock';
 
 interface Automacao {
   id: string;
@@ -46,20 +47,24 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
           const blocos = automacao.blocos_automacao || [];
           
           // Encontrar o bloco de gatilho e o bloco de ação
-          const gatilhoBloco = blocos.find(bloco => bloco.tipo === 'gatilho');
-          const acaoBloco = blocos.find(bloco => bloco.tipo === 'acao');
+          const gatilhoBloco = blocos.find((bloco: any) => bloco.tipo === 'gatilho');
+          const acaoBloco = blocos.find((bloco: any) => bloco.tipo === 'acao');
           
           let gatilhoNome = 'Sem gatilho';
           let acaoNome = 'Sem ação';
           
-          if (gatilhoBloco?.conteudo_config?.nome) {
-            gatilhoNome = gatilhoBloco.conteudo_config.nome;
+          if (gatilhoBloco?.conteudo_config && typeof gatilhoBloco.conteudo_config === 'object') {
+            if ('nome' in gatilhoBloco.conteudo_config) {
+              gatilhoNome = gatilhoBloco.conteudo_config.nome as string;
+            }
           } else if (gatilhoBloco?.tipo) {
             gatilhoNome = mapearTipoParaNome(gatilhoBloco.tipo);
           }
           
-          if (acaoBloco?.conteudo_config?.nome) {
-            acaoNome = acaoBloco.conteudo_config.nome;
+          if (acaoBloco?.conteudo_config && typeof acaoBloco.conteudo_config === 'object') {
+            if ('nome' in acaoBloco.conteudo_config) {
+              acaoNome = acaoBloco.conteudo_config.nome as string;
+            }
           } else if (acaoBloco?.tipo) {
             acaoNome = mapearTipoParaNome(acaoBloco.tipo);
           }
@@ -88,7 +93,7 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
 
   // Função para mapear tipo interno para nome amigável
   const mapearTipoParaNome = (tipo: string): string => {
-    const mapeamento = {
+    const mapeamento: Record<string, string> = {
       'gatilho': 'Gatilho',
       'condicao': 'Condição',
       'acao': 'Ação',
@@ -103,7 +108,7 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
       'move_pipeline': 'Mover no Pipeline'
     };
     
-    return mapeamento[tipo as keyof typeof mapeamento] || tipo;
+    return mapeamento[tipo] || tipo;
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
@@ -157,6 +162,27 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
     );
   }
 
+  // Mapear as automações para o formato esperado pelos componentes de lista
+  const mapearParaFormatoMock = (automacoes: Automacao[]): AutomacaoMock[] => {
+    return automacoes.map(aut => ({
+      id: aut.id,
+      nome: aut.nome, 
+      ativa: aut.status === 'ativa',
+      ultimaExecucao: null, // Não temos esse dado ainda
+      erros: 0, // Não temos esse dado ainda
+      gatilho: aut.gatilho || 'Sem gatilho',
+      acao: aut.acao || 'Sem ação'
+    }));
+  };
+
+  // Adaptador para compatibilidade com o componente existente
+  const adaptarToggleStatus = (id: string) => {
+    const automacao = automacoes.find(a => a.id === id);
+    if (automacao) {
+      handleToggleStatus(id, automacao.status);
+    }
+  };
+
   return (
     <Card className="overflow-hidden bg-surface/30 border border-vendah-purple/20 backdrop-blur-md shadow-md">
       <AutomacoesFilters 
@@ -172,8 +198,8 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
       {/* Desktop view */}
       <div className="hidden md:block overflow-x-auto">
         <AutomacoesTable 
-          automacoesFiltradas={automacoesFiltradas}
-          handleToggleStatus={handleToggleStatus}
+          automacoesFiltradas={mapearParaFormatoMock(automacoesFiltradas)}
+          handleToggleStatus={adaptarToggleStatus}
           handleRowClick={(automacao) => onEditAutomation(automacao.id)}
         />
       </div>
@@ -181,8 +207,8 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
       {/* Mobile view */}
       <div className="md:hidden">
         <AutomacoesMobileList 
-          automacoesFiltradas={automacoesFiltradas}
-          handleToggleStatus={handleToggleStatus}
+          automacoesFiltradas={mapearParaFormatoMock(automacoesFiltradas)}
+          handleToggleStatus={adaptarToggleStatus}
           handleRowClick={(automacao) => onEditAutomation(automacao.id)}
         />
       </div>
