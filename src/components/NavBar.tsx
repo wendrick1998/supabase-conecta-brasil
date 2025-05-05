@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, BarChart, Users, Zap, Inbox, LayoutGrid } from 'lucide-react';
+import { Menu, BarChart, Users, Zap, Inbox, LayoutGrid, UserCog } from 'lucide-react';
 import { UserAccountNav } from './UserAccountNav';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -28,6 +28,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
     { path: '/pipeline', label: 'Pipeline', icon: <BarChart size={20} /> },
     { path: '/automacoes', label: 'Automações', icon: <Zap size={20} /> },
     { path: '/conversations', label: 'Conversas', icon: <Inbox size={20} /> },
+    { path: '/channels', label: 'Canais', icon: <UserCog size={20} /> },
   ];
 
   return (

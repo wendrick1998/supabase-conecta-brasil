@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { LayoutGrid, BarChart, Users, Zap, MessageCircle, Activity } from "lucide-react";
+import { LayoutGrid, BarChart, Users, Zap, MessageCircle, Activity, UserCog } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
 
@@ -30,6 +30,10 @@ const DashboardLayout: React.FC = () => {
     path: "/conversations",
     label: "Conversas",
     icon: <MessageCircle size={24} />
+  }, {
+    path: "/channels",
+    label: "Canais",
+    icon: <UserCog size={24} />
   }, {
     path: "/pulse",
     label: "Pulse",
