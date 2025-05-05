@@ -6,12 +6,8 @@ import { Mic, Square, Send, Trash2, Pause, Play } from "lucide-react";
 interface RecordingControlsProps {
   isRecording: boolean;
   isPaused: boolean;
-  recordedAudio: {
-    url: string;
-    blob: Blob;
-    fileName: string;
-    duration: number;
-  } | null;
+  isInitializing?: boolean;
+  hasRecordedMedia: boolean;
   onStartRecording: () => void;
   onPauseRecording: () => void;
   onResumeRecording: () => void;
@@ -23,7 +19,8 @@ interface RecordingControlsProps {
 const RecordingControls: React.FC<RecordingControlsProps> = ({
   isRecording,
   isPaused,
-  recordedAudio,
+  isInitializing = false,
+  hasRecordedMedia,
   onStartRecording,
   onPauseRecording,
   onResumeRecording,
@@ -31,7 +28,16 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   onResetRecording,
   onSaveRecording
 }) => {
-  if (!isRecording && !isPaused && !recordedAudio) {
+  // If we're initializing, show a loading state
+  if (isInitializing) {
+    return (
+      <Button disabled variant="outline">
+        <span className="animate-pulse">Inicializando...</span>
+      </Button>
+    );
+  }
+  
+  if (!isRecording && !isPaused && !hasRecordedMedia) {
     return (
       <Button
         onClick={onStartRecording}
@@ -88,7 +94,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
     );
   }
   
-  if (recordedAudio) {
+  if (hasRecordedMedia) {
     return (
       <>
         <Button
