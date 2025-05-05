@@ -43,7 +43,7 @@ const DashboardLayout: React.FC = () => {
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-surface/90 backdrop-blur-md border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
         {/* Logo */}
-        <div className="mb-8 px-4">
+        <div className="mb-8 px-0 mx-[60px]">
           <div className="h-24">
             <img alt="Vendah+" className="h-full animate-subtle-glow" src="/lovable-uploads/0abe81d7-e28c-47b7-b096-8d218e84bc64.png" />
           </div>
