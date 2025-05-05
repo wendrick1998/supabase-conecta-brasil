@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -25,18 +24,16 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     
     // Apply filters if provided
     if (filters) {
-      // Channel filter - avoid using generic type parameters
+      // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Force the type to be a simple array rather than a union type
-        const channels = filters.canais as unknown as string[];
-        query = query.in('canal', channels);
+        // Use a simple array approach without complex type parameters
+        query = query.in('canal', filters.canais as any[]);
       }
       
-      // Status filter - avoid using generic type parameters
+      // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Force the type to be a simple array rather than a union type
-        const statuses = filters.status as unknown as string[];
-        query = query.in('status', statuses);
+        // Use a simple array approach without complex type parameters
+        query = query.in('status', filters.status as any[]);
       }
       
       // Priority filter
@@ -49,14 +46,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
         query = query.eq('conexao_id', filters.accountId);
       }
       
-      // Search filter - use explicit pattern construction
+      // Search filter
       if (filters.search) {
         const pattern = `%${filters.search}%`;
-        // Use a simpler string format for the OR condition
+        // Use a direct string to avoid type complexity
         query = query.or(`lead_nome.ilike.${pattern},ultima_mensagem.ilike.${pattern}`);
       }
       
-      // Date range filter - apply separately
+      // Date range filter
       if (filters.dateRange) {
         query = query.gte('horario', filters.dateRange.from.toISOString());
         query = query.lte('horario', filters.dateRange.to.toISOString());
