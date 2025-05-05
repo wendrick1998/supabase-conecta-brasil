@@ -26,7 +26,7 @@ const HomePage = () => {
             <img 
               src="/lovable-uploads/3decb854-1aac-4760-b4a6-6dd4e3fc318c.png" 
               alt="Vendah+" 
-              className="h-14 md:h-16 animate-subtle-glow"
+              className="h-28 md:h-32 animate-subtle-glow"
             />
           </div>
           
