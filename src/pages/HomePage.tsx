@@ -25,7 +25,8 @@ const HomePage = () => {
           <div className="flex gap-4">
             {user ? (
               <Button 
-                className="vendah-button"
+                className="text-white hover:text-vendah-neon bg-transparent"
+                variant="ghost"
                 asChild
               >
                 <Link to="/dashboard">Dashboard</Link>
@@ -60,42 +61,6 @@ const HomePage = () => {
             <p className="text-gray-300 text-lg mt-6 max-w-xl">
               Impulsione seu negócio com a plataforma que conecta, gerencia e converte leads em clientes satisfeitos.
             </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 pt-8">
-              {user ? (
-                <Button 
-                  className="vendah-button animate-pulse-neon"
-                  size="lg"
-                  asChild
-                >
-                  <Link to="/dashboard">
-                    Acessar Plataforma
-                  </Link>
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    className="vendah-button animate-pulse-neon"
-                    size="lg"
-                    asChild
-                  >
-                    <Link to="/auth?tab=signup">
-                      Começar Agora
-                    </Link>
-                  </Button>
-                  <Button
-                    className="bg-transparent border border-vendah-purple/50 text-white hover:border-vendah-neon hover:text-vendah-neon transition-colors"
-                    size="lg"
-                    variant="outline"
-                    asChild
-                  >
-                    <Link to="/auth?tab=login">
-                      Login
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
           </div>
           
           <div className="lg:w-1/2 flex justify-center animate-float">
@@ -220,14 +185,6 @@ const HomePage = () => {
             <p className="text-gray-300 mb-8">
               Junte-se a milhares de empresas que estão transformando seus resultados com Vendah+
             </p>
-            <Button 
-              className="vendah-button animate-pulse-neon text-lg py-6 px-8"
-              asChild
-            >
-              <Link to="/auth?tab=signup">
-                Começar Gratuitamente
-              </Link>
-            </Button>
           </div>
         </div>
       </div>
@@ -254,3 +211,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
