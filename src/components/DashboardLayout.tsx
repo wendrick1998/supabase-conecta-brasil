@@ -9,7 +9,7 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-gradient-radial">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-surface border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
+      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-surface/90 backdrop-blur-md border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
         {/* Logo */}
         <div className="mb-8 px-4">
           <div className="h-24">
@@ -29,7 +29,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/leads" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
+                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <Users size={24} />
@@ -46,7 +46,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/pipeline" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
+                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <BarChart size={24} />
@@ -63,7 +63,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/conversations" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
+                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <Inbox size={24} />
@@ -80,7 +80,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/automacoes" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
+                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <Zap size={24} />
@@ -98,7 +98,7 @@ const DashboardLayout: React.FC = () => {
       {/* Main content */}
       <main className="flex-1 ml-20 md:ml-64">
         {/* Header with user account */}
-        <header className="h-16 bg-surface border-b border-vendah-purple/20 px-6 flex items-center justify-end">
+        <header className="h-16 bg-surface/90 backdrop-blur-md border-b border-vendah-purple/20 px-6 flex items-center justify-end shadow-sm">
           <UserAccountNav />
         </header>
 

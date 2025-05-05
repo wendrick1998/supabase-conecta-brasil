@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { LucideIcon } from 'lucide-react';
 
 interface FeatureCardProps {
   icon: LucideIcon;
@@ -9,10 +9,14 @@ interface FeatureCardProps {
   description: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({
+  icon: Icon,
+  title,
+  description
+}) => {
   return (
-    <Card className="vendah-card group">
-      <CardContent className="p-6 flex flex-col items-center text-center">
+    <Card className="vendah-card group h-full">
+      <CardContent className="p-6 flex flex-col items-center text-center h-full">
         <div className="h-16 w-16 rounded-full bg-vendah-purple/20 flex items-center justify-center mb-4 
                       group-hover:shadow-neon transition-all duration-500">
           <Icon className="h-8 w-8 text-vendah-neon" />
