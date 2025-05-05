@@ -91,7 +91,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         <div>
           <div className="flex justify-between items-center mb-3">
             <BlockHeader 
-              blockType={blockInfo.name} 
+              blockType={block.type} 
               blockIcon={blockInfo.icon} 
             />
             

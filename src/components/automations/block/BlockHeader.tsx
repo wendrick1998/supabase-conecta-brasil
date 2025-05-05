@@ -4,7 +4,7 @@ import { getBlockInfo } from '@/utils/automationUtils';
 import { BlockType } from '@/types/automation';
 
 interface BlockHeaderProps {
-  blockType: BlockType;
+  blockType: string | BlockType;
   blockIcon: React.ReactNode;
 }
 
@@ -12,7 +12,7 @@ export const BlockHeader: React.FC<BlockHeaderProps> = ({
   blockType,
   blockIcon
 }) => {
-  const blockInfo = getBlockInfo(blockType);
+  const blockInfo = getBlockInfo(blockType as BlockType);
   
   return (
     <div className="flex items-center">
