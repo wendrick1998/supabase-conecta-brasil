@@ -1,16 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useRecording, MediaType } from './recording/useRecording';
-import MediaPreview from './recording/MediaPreview';
-import RecordingControls from './recording/RecordingControls';
+import { MediaType } from './recording/useRecording';
+import { useRecordingDialog } from './recording/useRecordingDialog';
+import RecordingHeader from './recording/RecordingHeader';
+import RecordingFooter from './recording/RecordingFooter';
+import RecordingContainer from './recording/RecordingContainer';
 
 interface RecordingDialogProps {
   open: boolean;
@@ -25,90 +23,24 @@ const RecordingDialog = ({
   mediaType, 
   onSave 
 }: RecordingDialogProps) => {
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  
-  const { 
-    isRecording, 
-    recordedMedia, 
+  const {
+    isPaused,
+    isRecording,
+    recordedMedia,
     stream,
-    startRecording, 
-    stopRecording, 
-    resetRecording,
-    stopMediaStream,
-    pauseRecording,
-    resumeRecording
-  } = useRecording({ 
-    mediaType 
+    startRecording,
+    stopRecording,
+    handlePauseRecording,
+    handleResumeRecording,
+    handleReset,
+    handleSaveRecording,
+    closeDialog
+  } = useRecordingDialog({
+    open,
+    mediaType,
+    onSave,
+    onOpenChange
   });
-
-  const closeDialog = () => {
-    stopMediaStream();
-    resetRecording();
-    setIsPaused(false);
-    onOpenChange(false);
-  };
-
-  const handleTimeUpdate = (seconds: number) => {
-    setRecordingTime(seconds);
-  };
-
-  const handleSaveRecording = () => {
-    if (recordedMedia && recordedMedia.blob) {
-      const file = new File([recordedMedia.blob], recordedMedia.fileName, {
-        type: recordedMedia.blob.type
-      });
-      
-      onSave(file, mediaType);
-      closeDialog();
-    }
-  };
-
-  const handleReset = () => {
-    resetRecording();
-    setIsPaused(false);
-  };
-
-  const handlePauseRecording = () => {
-    if (isRecording) {
-      pauseRecording();
-      setIsPaused(true);
-    }
-  };
-
-  const handleResumeRecording = () => {
-    if (isPaused) {
-      resumeRecording();
-      setIsPaused(false);
-    }
-  };
-
-  const getDialogTitle = () => {
-    const mediaTypeText = 
-      mediaType === 'audio' ? 'áudio' : 
-      mediaType === 'video' ? 'vídeo' : 'foto';
-    
-    if (isRecording && !isPaused) {
-      return `Gravando ${mediaTypeText}...`;
-    } else if (isPaused) {
-      return `Gravação de ${mediaTypeText} pausada`;
-    } else if (recordedMedia) {
-      return `Revisar ${mediaTypeText}`;
-    } else {
-      return `Gravar ${mediaTypeText}`;
-    }
-  };
-
-  useEffect(() => {
-    // Reset state when dialog opens
-    if (open) {
-      resetRecording();
-      setRecordingTime(0);
-      setIsPaused(false);
-    } else {
-      stopMediaStream();
-    }
-  }, [open]);
 
   return (
     <Dialog 
@@ -129,43 +61,32 @@ const RecordingDialog = ({
           }
         }}
       >
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-        </DialogHeader>
+        <RecordingHeader 
+          mediaType={mediaType}
+          isRecording={isRecording}
+          isPaused={isPaused}
+          hasRecordedMedia={!!recordedMedia}
+        />
         
-        <div className="flex flex-col items-center justify-center p-4">
-          <MediaPreview 
-            mediaType={mediaType}
-            isRecording={isRecording}
-            isPaused={isPaused}
-            recordedMedia={recordedMedia}
-            stream={stream}
-          />
-          
-          <RecordingControls 
-            isRecording={isRecording}
-            isPaused={isPaused}
-            hasRecordedMedia={!!recordedMedia}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
-            onPauseRecording={handlePauseRecording}
-            onResumeRecording={handleResumeRecording}
-            onSaveRecording={handleSaveRecording}
-            onReset={handleReset}
-          />
-        </div>
+        <RecordingContainer 
+          mediaType={mediaType}
+          isRecording={isRecording}
+          isPaused={isPaused}
+          recordedMedia={recordedMedia}
+          stream={stream}
+          onStartRecording={startRecording}
+          onStopRecording={stopRecording}
+          onPauseRecording={handlePauseRecording}
+          onResumeRecording={handleResumeRecording}
+          onSaveRecording={handleSaveRecording}
+          onReset={handleReset}
+        />
         
-        <DialogFooter className="sm:justify-start">
-          {!isRecording && !recordedMedia && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={closeDialog}
-            >
-              Cancelar
-            </Button>
-          )}
-        </DialogFooter>
+        <RecordingFooter 
+          isRecording={isRecording} 
+          hasRecordedMedia={!!recordedMedia}
+          onClose={closeDialog}
+        />
       </DialogContent>
     </Dialog>
   );
