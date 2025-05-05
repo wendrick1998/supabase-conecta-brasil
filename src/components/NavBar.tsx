@@ -26,7 +26,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
       <div className="container flex h-16 items-center px-5 py-4 justify-between">
         {/* Logo */}
         <div className="flex">
-          <Link to="/dashboard" className="flex items-center">
+          <Link to="/" className="flex items-center">
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+" 
