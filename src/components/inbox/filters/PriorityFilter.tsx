@@ -22,7 +22,7 @@ const PriorityFilter: React.FC<PriorityFilterProps> = ({
     <div>
       <Label className="text-xs font-medium mb-2 block">Prioridade</Label>
       <Select
-        value={priority || ""}
+        value={priority || "all"}
         onValueChange={onPriorityChange}
       >
         <SelectTrigger className="h-8">
