@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DndContext } from '@dnd-kit/core';
 import { closestCenter } from '@dnd-kit/core';
@@ -13,22 +14,20 @@ import type {
   DragOverEvent,
 } from '@dnd-kit/core';
 
-const pointerSensor = new PointerSensor({
-  activationConstraint: {
-    distance: 8,
-  },
-});
+// Create sensors using proper configuration
+const sensors = (dragStartDelay = 500) => {
+  const pointerSensor = useSensor(PointerSensor, {
+    // Small delay to differentiate between click and drag
+    activationConstraint: {
+      delay: dragStartDelay,
+      tolerance: 8,
+    }
+  });
 
-const keyboardSensor = new KeyboardSensor({
-  coordinateGetter: () => {
-    return {
-      x: 0,
-      y: 0,
-    };
-  },
-});
+  const keyboardSensor = useSensor(KeyboardSensor, {});
 
-const sensors = useSensors(pointerSensor, keyboardSensor);
+  return useSensors(pointerSensor, keyboardSensor);
+};
 
 export interface AutomationDndContextProps {
   children: React.ReactNode;
@@ -51,16 +50,19 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
   activeDragType = '',
   activeDragBlockId = '',
 }) => {
-  // Use 'always visible' for measuring strategy to avoid type error
+  // Configure sensors with a shorter delay for better UX
+  const configuredSensors = sensors(200);
+  
+  // Define measuring configuration with correct types
   const measuring = {
     droppable: {
-      strategy: 'always' as const, // Use 'as const' to specify the exact type
+      strategy: 'rects',
     },
   };
 
   return (
     <DndContext
-      sensors={sensors}
+      sensors={configuredSensors}
       collisionDetection={closestCenter}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
