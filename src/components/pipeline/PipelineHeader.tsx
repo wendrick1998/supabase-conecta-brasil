@@ -21,11 +21,14 @@ const PipelineHeader: React.FC<PipelineHeaderProps> = ({
         <Button 
           onClick={onAddNewLead}
           variant="accent"
+          className="font-semibold tracking-wide uppercase hover:brightness-110"
         >
           Novo Lead
         </Button>
         <Button 
           onClick={onConfigurePipeline}
+          variant="outline"
+          className="font-semibold tracking-wide uppercase"
         >
           Configurar Pipeline
         </Button>

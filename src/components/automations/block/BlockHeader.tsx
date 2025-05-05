@@ -11,11 +11,13 @@ export const BlockHeader: React.FC<BlockHeaderProps> = ({
   blockType,
   blockIcon
 }) => {
+  const blockInfo = getBlockInfo(blockType);
+  
   return (
     <div className="flex items-center">
       {blockIcon}
-      <h3 className="font-medium ml-2">
-        {blockType}
+      <h3 className="font-medium ml-2 text-white">
+        {blockInfo ? blockInfo.name : blockType}
       </h3>
     </div>
   );

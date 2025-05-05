@@ -121,16 +121,16 @@ export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({
 
   // Icons for template cards
   const templateIcons: Record<string, React.ReactNode> = {
-    "1": <MessageSquare className="h-6 w-6 text-blue-500" />,
-    "2": <Calendar className="h-6 w-6 text-amber-500" />,
-    "3": <Users className="h-6 w-6 text-purple-500" />
+    "1": <MessageSquare className="h-6 w-6 text-vendah-purple" />,
+    "2": <Calendar className="h-6 w-6 text-vendah-purple" />,
+    "3": <Users className="h-6 w-6 text-vendah-purple" />
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="bg-surface border-vendah-purple/20 rounded-xl sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle>Templates de Automação</DialogTitle>
+          <DialogTitle className="text-white">Templates de Automação</DialogTitle>
         </DialogHeader>
         
         {children && (
@@ -142,15 +142,15 @@ export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({
         <ScrollArea className="h-[500px] pr-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
             {templates.map((template) => (
-              <Card key={template.id} className="border hover:border-pink-200 transition-colors">
+              <Card key={template.id} className="bg-surface border-vendah-purple/20 hover:border-vendah-purple/40 transition-colors">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     {templateIcons[template.id]}
-                    <div className="bg-gray-100 text-xs font-medium rounded-full px-2 py-1">
+                    <div className="bg-muted text-white text-xs rounded-full px-2 py-1">
                       {template.blocks.length} blocos
                     </div>
                   </div>
-                  <CardTitle className="text-lg">{template.name}</CardTitle>
+                  <CardTitle className="text-lg text-white">{template.name}</CardTitle>
                   <CardDescription>{template.description}</CardDescription>
                 </CardHeader>
                 <CardFooter>
@@ -158,7 +158,7 @@ export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({
                     onClick={() => {
                       onApplyTemplate(template.blocks);
                     }}
-                    className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                    className="w-full bg-vendah-purple hover:bg-vendah-purple/90 text-white font-semibold tracking-wide uppercase"
                   >
                     <Check className="mr-2 h-4 w-4" />
                     Usar Template
