@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -27,14 +26,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Use explicit type parameter to avoid deep inference
-        query = query.in('canal', filters.canais as unknown as string[]);
+        // Fix the type error by using a simple string array
+        query = query.in('canal', filters.canais);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Use explicit type parameter to avoid deep inference
-        query = query.in('status', filters.status as unknown as string[]);
+        // Fix the type error by using a simple string array
+        query = query.in('status', filters.status);
       }
       
       // Priority filter

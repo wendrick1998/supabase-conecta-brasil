@@ -7,6 +7,11 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+// Add TouchEvent interface for TypeScript
+interface TouchEventWithTouches extends TouchEvent {
+  touches: TouchList;
+}
+
 // Store the deferred prompt for later use
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
@@ -156,7 +161,10 @@ function updateViewportForNotch() {
 function setupIOSInteractions() {
   // Disable text selection to feel more native
   document.body.style.webkitUserSelect = 'none';
-  document.body.style.webkitTouchCallout = 'none';
+  
+  // Use proper CSS property names with TypeScript
+  // Use setAttribute to apply non-standard webkit properties
+  document.body.setAttribute('style', document.body.getAttribute('style') + '-webkit-touch-callout: none;');
   
   // Disable long-press context menu on links and images
   document.addEventListener('contextmenu', (e) => {
@@ -250,19 +258,25 @@ function setupPullToRefresh() {
       document.body.appendChild(indicator);
       
       // Touch start event
-      container.addEventListener('touchstart', (e) => {
+      container.addEventListener('touchstart', (e: Event) => {
+        // Cast Event to TouchEvent since we know this is a touch event
+        const touchEvent = e as TouchEventWithTouches;
+        
         // Only trigger if at the top of the container
-        if (container.scrollTop === 0) {
-          startY = e.touches[0].clientY;
+        if ((container as HTMLElement).scrollTop === 0) {
+          startY = touchEvent.touches[0].clientY;
           isPulling = true;
         }
       }, { passive: true });
       
       // Touch move event
-      container.addEventListener('touchmove', (e) => {
+      container.addEventListener('touchmove', (e: Event) => {
         if (!isPulling) return;
         
-        pullDistance = Math.max(0, e.touches[0].clientY - startY);
+        // Cast Event to TouchEvent
+        const touchEvent = e as TouchEventWithTouches;
+        
+        pullDistance = Math.max(0, touchEvent.touches[0].clientY - startY);
         
         // Show pull indicator with resistance
         if (pullDistance > 0) {
@@ -295,3 +309,4 @@ function setupPullToRefresh() {
     });
   }
 }
+
