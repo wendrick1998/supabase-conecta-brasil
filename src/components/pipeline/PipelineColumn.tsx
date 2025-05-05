@@ -49,19 +49,6 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
 
   const isActiveLeadInThisColumn = activeId && leads.some(lead => lead.id === activeId);
 
-  // Helper to convert conversation data to format needed by PipelineCard
-  const getConversationData = (leadId: string) => {
-    const conversation = conversations[leadId];
-    if (!conversation) return undefined;
-    
-    return {
-      lastMessage: conversation.ultima_mensagem,
-      timestamp: conversation.horario,
-      unreadCount: conversation.nao_lida ? 1 : 0,
-      isViewed: !conversation.nao_lida,
-    };
-  };
-
   return (
     <div 
       ref={setNodeRef}
@@ -127,7 +114,7 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
               onMove={onMoveCard}
               stages={allStages}
               isDragging={activeId === lead.id}
-              conversation={getConversationData(lead.id)}
+              conversation={conversations[lead.id]}
             />
           ))
         )}

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lead, EstagioPipeline } from '@/types/lead';
@@ -11,18 +12,14 @@ import { cn } from '@/lib/utils';
 import ConversationPreview from './ConversationPreview';
 import ConversationFooter from './ConversationFooter';
 import { formatCurrency } from '@/utils/formatters';
+import { Conversation } from '@/types/conversation';
 
 interface PipelineCardProps {
   lead: Lead;
   onMove: (leadId: string, newStageId: string) => Promise<void>;
   stages: EstagioPipeline[];
   isDragging?: boolean;
-  conversation?: {
-    lastMessage: string;
-    timestamp: string;
-    unreadCount: number;
-    isViewed: boolean;
-  };
+  conversation?: Conversation;
   leadValue?: number;
 }
 
@@ -62,6 +59,14 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
     e.stopPropagation();
     navigate(`/inbox/${lead.id}`);
   };
+
+  // Prepare conversation data for the preview component
+  const conversationData = conversation ? {
+    lastMessage: conversation.ultima_mensagem,
+    timestamp: conversation.horario,
+    unreadCount: conversation.nao_lida ? 1 : 0,
+    isViewed: !conversation.nao_lida
+  } : undefined;
 
   return (
     <Card 
@@ -178,23 +183,19 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
         )}
         
         {/* Last message section */}
-        {conversation && (
+        {conversationData && (
           <ConversationPreview
-            message={conversation.lastMessage}
+            message={conversationData.lastMessage}
             leadName={lead.nome}
             onClick={navigateToChat}
-            unreadCount={conversation.unreadCount}
+            unreadCount={conversationData.unreadCount}
           />
         )}
         
         {/* Card footer with indicators */}
         <ConversationFooter 
           dateString={lead.criado_em} 
-          conversation={conversation && {
-            timestamp: conversation.timestamp,
-            unreadCount: conversation.unreadCount,
-            isViewed: conversation.isViewed
-          }}
+          conversation={conversationData}
         />
       </CardContent>
     </Card>

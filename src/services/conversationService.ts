@@ -1,5 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, Message, InternalNote } from "@/types/conversation";
+import { toast } from "sonner";
 
 // Fetch conversations for leads
 export const getConversationsForLeads = async (leadIds: string[]): Promise<Record<string, Conversation>> => {
