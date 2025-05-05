@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Popover, 
@@ -208,3 +209,45 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                   </Button>
                 )}
               </div>
+              
+              <div className="border rounded-md p-3 mt-2">
+                <Calendar
+                  mode="range"
+                  selected={{
+                    from: dateRange.from,
+                    to: dateRange.to
+                  }}
+                  onSelect={(range) => {
+                    if (range) {
+                      setDateRange({
+                        from: range.from,
+                        to: range.to
+                      });
+                      
+                      if (range.from && range.to) {
+                        onDateRangeChange({
+                          from: range.from,
+                          to: range.to
+                        });
+                      }
+                    }
+                  }}
+                  locale={ptBR}
+                  className="pointer-events-auto"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-end mt-4">
+            <Button size="sm" onClick={() => setIsOpen(false)}>
+              Fechar
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
+export default AdvancedFilters;
