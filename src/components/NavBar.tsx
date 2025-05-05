@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { UserAccountNav } from './UserAccountNav';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -30,7 +30,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+" 
-              className="h-16"
+              className="h-24"
             />
           </Link>
         </div>

@@ -18,7 +18,7 @@ const HomePage = () => {
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+" 
-              className="h-20 md:h-24"
+              className="h-32 md:h-40"
             />
           </div>
           
@@ -52,31 +52,15 @@ const HomePage = () => {
         </nav>
         
         <div className="flex flex-col lg:flex-row gap-12 items-center">
-          <div className="lg:w-1/2 space-y-6">
+          <div className="lg:w-full space-y-6 text-center lg:text-left">
             <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
               <span className="vendah-gradient-text">Mais que um CRM.</span><br />
               Um motor de vendas.
             </h1>
             
-            <p className="text-gray-300 text-lg mt-6 max-w-xl">
+            <p className="text-gray-300 text-lg mt-6 max-w-xl mx-auto lg:mx-0">
               Impulsione seu negócio com a plataforma que conecta, gerencia e converte leads em clientes satisfeitos.
             </p>
-          </div>
-          
-          <div className="lg:w-1/2 flex justify-center animate-float">
-            <div className="relative">
-              <div className="absolute inset-0 bg-vendah-purple/20 blur-3xl rounded-full"></div>
-              <div className="relative bg-vendah-black/50 border border-vendah-purple/30 backdrop-blur-sm p-4 rounded-xl shadow-2xl">
-                <img
-                  src="https://assets.website-files.com/642fc428f0c0b967b7a0bad3/649dabdaf8f4d6c9c9c22067_Dashboard%20CRM.webp"
-                  alt="Vendah+ Dashboard"
-                  className="w-full max-w-md rounded-lg shadow-lg"
-                />
-                <div className="absolute -top-3 -right-3 bg-vendah-neon text-vendah-black text-xs font-bold px-3 py-1 rounded-full shadow-neon">
-                  NEW
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -197,7 +181,7 @@ const HomePage = () => {
               <img 
                 src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
                 alt="Vendah+" 
-                className="h-16"
+                className="h-24"
               />
             </div>
             <div className="text-gray-500 text-sm">
@@ -211,4 +195,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
