@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lead, EstagioPipeline } from '@/types/lead';
@@ -77,6 +76,7 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
       role="button"
     >
       <CardContent className="p-3">
+        {/* Card Header with Name and Actions */}
         <div className="flex justify-between items-start">
           <div className="flex-grow">
             <h4 className="font-semibold text-base truncate">{lead.nome}</h4>

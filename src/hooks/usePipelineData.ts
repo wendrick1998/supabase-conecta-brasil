@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Lead, EstagioPipeline } from '@/types/lead';
 import { Conversation } from '@/types/conversation';
 import { getLeads, getEstagios, moveLeadsToStage } from '@/services/leadService';
+import { getConversationsForLeads } from '@/services/conversationService';
 import { supabase } from '@/integrations/supabase/client';
 
 export function usePipelineData() {
@@ -34,38 +36,12 @@ export function usePipelineData() {
     }
   };
 
-  // Fetch conversations for the leads
+  // Fetch conversations for the leads using our new service
   const fetchConversations = async (leadIds: string[]) => {
     if (leadIds.length === 0) return;
     
     try {
-      // Use raw query to avoid TypeScript errors since the table might not exist in the types yet
-      const { data, error } = await supabase
-        .from('conversations')
-        .select('*')
-        .in('lead_id', leadIds)
-        .order('horario', { ascending: false });
-      
-      if (error) {
-        // If the table doesn't exist, log the error but don't crash
-        console.error('Erro ao carregar conversas dos leads:', error);
-        return;
-      }
-      
-      // Create a mapping of lead_id to conversation
-      const conversationsMap: Record<string, Conversation> = {};
-      if (data) {
-        data.forEach((item: any) => {
-          const conversation = item as Conversation;
-          
-          // If we already have a conversation for this lead_id, only keep the most recent one
-          if (!conversationsMap[conversation.lead_id] || 
-              new Date(conversation.horario) > new Date(conversationsMap[conversation.lead_id].horario)) {
-            conversationsMap[conversation.lead_id] = conversation;
-          }
-        });
-      }
-      
+      const conversationsMap = await getConversationsForLeads(leadIds);
       setConversations(conversationsMap);
     } catch (error) {
       console.error('Erro ao carregar conversas dos leads:', error);
@@ -99,7 +75,6 @@ export function usePipelineData() {
 
   // Setup realtime subscription for conversation updates
   useEffect(() => {
-    // We wrap this in try/catch to prevent errors if the table doesn't exist
     try {
       const channel = supabase
         .channel('public:conversations')
@@ -112,10 +87,12 @@ export function usePipelineData() {
           (payload: any) => {
             // Update conversations when new data arrives
             const conversation = payload.new as Conversation;
-            setConversations(prev => ({
-              ...prev,
-              [conversation.lead_id]: conversation
-            }));
+            if (conversation && conversation.lead_id) {
+              setConversations(prev => ({
+                ...prev,
+                [conversation.lead_id]: conversation
+              }));
+            }
           }
         )
         .subscribe((status) => {
@@ -124,9 +101,39 @@ export function usePipelineData() {
           }
         });
 
+      // Also subscribe to messages table for real-time updates
+      const messagesChannel = supabase
+        .channel('public:messages')
+        .on('postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages'
+          },
+          async (payload: any) => {
+            // When a new message is added, fetch the updated conversation
+            if (payload.new && payload.new.conversation_id) {
+              const { data } = await supabase
+                .from('conversations')
+                .select('*')
+                .eq('id', payload.new.conversation_id)
+                .single();
+              
+              if (data && data.lead_id) {
+                setConversations(prev => ({
+                  ...prev,
+                  [data.lead_id]: data as Conversation
+                }));
+              }
+            }
+          }
+        )
+        .subscribe();
+
       return () => {
-        // Cleanup subscription
+        // Cleanup subscriptions
         supabase.removeChannel(channel);
+        supabase.removeChannel(messagesChannel);
       };
     } catch (error) {
       console.error('Error setting up realtime subscription:', error);

@@ -130,6 +130,41 @@ export type Database = {
           },
         ]
       }
+      internal_notes: {
+        Row: {
+          content: string
+          conversation_id: string
+          id: string
+          timestamp: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          id?: string
+          timestamp?: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          id?: string
+          timestamp?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_notes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           atualizado_em: string
@@ -207,6 +242,44 @@ export type Database = {
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachment: Json | null
+          content: string
+          conversation_id: string
+          id: string
+          sender_type: string
+          status: string
+          timestamp: string
+        }
+        Insert: {
+          attachment?: Json | null
+          content: string
+          conversation_id: string
+          id?: string
+          sender_type: string
+          status?: string
+          timestamp?: string
+        }
+        Update: {
+          attachment?: Json | null
+          content?: string
+          conversation_id?: string
+          id?: string
+          sender_type?: string
+          status?: string
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
