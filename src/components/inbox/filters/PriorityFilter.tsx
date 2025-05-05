@@ -29,7 +29,7 @@ const PriorityFilter: React.FC<PriorityFilterProps> = ({
           <SelectValue placeholder="Todas as prioridades" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Todas as prioridades</SelectItem>
+          <SelectItem value="none">Todas as prioridades</SelectItem>
           <SelectItem value="alta">Alta</SelectItem>
           <SelectItem value="media">Média</SelectItem>
           <SelectItem value="baixa">Baixa</SelectItem>

@@ -28,14 +28,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
         // Convert to plain string array to avoid complex type inference
-        const channels: string[] = [...filters.canais];
+        const channels = filters.canais.map(c => c.toString());
         query = query.in('canal', channels);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
         // Convert to plain string array to avoid complex type inference
-        const statuses: string[] = [...filters.status];
+        const statuses = filters.status.map(s => s.toString());
         query = query.in('status', statuses);
       }
       
