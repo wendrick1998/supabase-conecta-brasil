@@ -25,41 +25,44 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       .from('conversations')
       .select('*');
     
-    // Apply filters one by one to avoid deep type instantiation
+    // Apply filters individually to prevent deep type instantiation
     if (filters) {
-      // Filter by channels
+      // Apply channel filter
       if (filters.canais && filters.canais.length > 0) {
-        query = query.in('canal', filters.canais);
+        // Clone the query and apply filter
+        const channelsFilter = [...filters.canais];
+        query = query.in('canal', channelsFilter);
       }
       
-      // Filter by status
+      // Apply status filter
       if (filters.status && filters.status.length > 0) {
-        query = query.in('status', filters.status);
+        // Clone the query and apply filter
+        const statusFilter = [...filters.status];
+        query = query.in('status', statusFilter);
       }
       
-      // Filter by priority
+      // Apply priority filter (simpler, doesn't need array handling)
       if (filters.priority) {
         query = query.eq('prioridade', filters.priority);
       }
       
-      // Filter by connected account
+      // Apply account filter (simpler, doesn't need array handling)
       if (filters.accountId) {
         query = query.eq('conexao_id', filters.accountId);
       }
       
-      // Filter by search term
+      // Apply search filter
       if (filters.search) {
-        const searchTerm = filters.search;
-        // Use simpler approach to search filtering
-        query = query.or(
-          `lead_nome.ilike.%${searchTerm}%,ultima_mensagem.ilike.%${searchTerm}%`
-        );
+        // Use template string to avoid complex type nesting
+        const searchTermPattern = `%${filters.search}%`;
+        query = query.or(`lead_nome.ilike.${searchTermPattern},ultima_mensagem.ilike.${searchTermPattern}`);
       }
       
-      // Apply date range filter
+      // Apply date range filter - split into two separate queries
       if (filters.dateRange) {
         const fromDate = filters.dateRange.from.toISOString();
         const toDate = filters.dateRange.to.toISOString();
+        // Apply each date filter separately
         query = query.gte('horario', fromDate);
         query = query.lte('horario', toDate);
       }
