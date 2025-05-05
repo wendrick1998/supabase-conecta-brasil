@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { LayoutGrid, BarChart, Users, Zap, Inbox, Activity } from "lucide-react";
+import { LayoutGrid, BarChart, Users, Zap, MessageCircle, Activity } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
 
@@ -29,7 +29,7 @@ const DashboardLayout: React.FC = () => {
   }, {
     path: "/conversations",
     label: "Conversas",
-    icon: <Inbox size={24} />
+    icon: <MessageCircle size={24} />
   }, {
     path: "/pulse",
     label: "Pulse",
@@ -41,6 +41,8 @@ const DashboardLayout: React.FC = () => {
     if (path === "/dashboard" && location.pathname === "/dashboard") return true;
     return path !== "/dashboard" && location.pathname.startsWith(path);
   };
+
+  const isConversationsPage = location.pathname.startsWith('/conversations');
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -95,7 +97,7 @@ const DashboardLayout: React.FC = () => {
         </header>
 
         {/* Page content */}
-        <div className="p-6">
+        <div className={`${isConversationsPage ? 'p-0' : 'p-6'}`}>
           <Outlet />
         </div>
       </main>

@@ -194,3 +194,37 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Conversation specific styles for dark theme */
+.container-fluid {
+  @apply w-full max-w-none;
+}
+
+/* Custom scrollbar for dark theme */
+.dark-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) rgba(0, 0, 0, 0.2);
+}
+
+.dark-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+/* Message input area styling */
+.message-input-area {
+  @apply bg-[#1A1A1A] border-t border-gray-800;
+}
+
+/* Conversation gradient items */
+.conversation-gradient-item {
+  @apply bg-gradient-to-r from-gray-900 to-gray-800 border-l-4 border-vendah-purple;
+}

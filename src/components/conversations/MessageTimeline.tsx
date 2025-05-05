@@ -21,8 +21,8 @@ const MessageTimeline = ({ messages, notes }: MessageTimelineProps) => {
   }, [messages]);
 
   return (
-    <ScrollArea className="flex-1 p-4">
-      <div className="space-y-4">
+    <ScrollArea className="flex-1 p-4 dark-scrollbar">
+      <div className="space-y-4 max-w-4xl mx-auto">
         {messages.map((message) => (
           <MessageItem key={message.id} message={message} />
         ))}
@@ -30,10 +30,10 @@ const MessageTimeline = ({ messages, notes }: MessageTimelineProps) => {
         {notes.length > 0 && (
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-2 bg-white text-sm text-gray-500">
+              <span className="px-2 bg-[#121212] text-sm text-gray-400">
                 Notas internas
               </span>
             </div>

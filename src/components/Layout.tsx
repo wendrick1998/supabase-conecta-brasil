@@ -11,10 +11,10 @@ const Layout: React.FC = () => {
   return (
     <div className={`min-h-screen flex flex-col ${isConversationsPage ? 'bg-[#121212]' : 'bg-gradient-radial'}`}>
       <NavBar currentPath={location.pathname} />
-      <main className={`flex-1 ${isConversationsPage ? '' : 'container mx-auto px-4'} py-6`}>
+      <main className={`flex-1 ${isConversationsPage ? 'container-fluid p-0' : 'container mx-auto px-4'} py-0`}>
         <Outlet />
       </main>
-      <Footer minimal={true} />
+      {!isConversationsPage && <Footer minimal={true} />}
     </div>
   );
 };
