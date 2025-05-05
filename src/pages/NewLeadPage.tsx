@@ -3,7 +3,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import LeadForm from '@/components/LeadForm';
+import LeadForm from '@/components/leads/LeadForm';
 
 const NewLeadPage: React.FC = () => {
   return (

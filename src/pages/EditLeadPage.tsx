@@ -5,7 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { getLead } from '@/services/leadService';
 import { Lead } from '@/types/lead';
-import LeadForm from '@/components/LeadForm';
+import LeadForm from '@/components/leads/LeadForm';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const EditLeadPage: React.FC = () => {
