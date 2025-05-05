@@ -29,16 +29,16 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Apply channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Clone the query and apply filter
-        const channelsFilter = [...filters.canais];
-        query = query.in('canal', channelsFilter);
+        // Use string array to avoid complex type nesting
+        const channels = filters.canais.map(c => c.toString());
+        query = query.in('canal', channels);
       }
       
       // Apply status filter
       if (filters.status && filters.status.length > 0) {
-        // Clone the query and apply filter
-        const statusFilter = [...filters.status];
-        query = query.in('status', statusFilter);
+        // Use string array to avoid complex type nesting
+        const statuses = filters.status.map(s => s.toString());
+        query = query.in('status', statuses);
       }
       
       // Apply priority filter (simpler, doesn't need array handling)
