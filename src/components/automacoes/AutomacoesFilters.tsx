@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Filter } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,23 +37,23 @@ const AutomacoesFilters: React.FC<AutomacoesFiltersProps> = ({
   limparFiltros
 }) => {
   return (
-    <div className="p-4 border-b bg-gray-50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+    <div className="p-4 border-b border-vendah-purple/20 bg-surface/30 flex flex-col md:flex-row gap-4 items-start md:items-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
+          <Button variant="outline" className="flex items-center gap-2 border-vendah-purple/20">
+            <Filter className="h-4 w-4 text-vendah-neon" />
             Filtros
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
+        <DropdownMenuContent className="w-56 bg-surface border border-vendah-purple/20">
           <div className="p-2">
             <div className="mb-2">
-              <label className="text-sm font-medium mb-1 block">Gatilho</label>
+              <label className="text-sm font-medium mb-1 block text-white">Gatilho</label>
               <Select value={gatilhoFiltro || ''} onValueChange={(value) => setGatilhoFiltro(value || null)}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-surface/60 border-vendah-purple/20">
                   <SelectValue placeholder="Todos os gatilhos" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-surface border-vendah-purple/20">
                   <SelectItem value="">Todos os gatilhos</SelectItem>
                   {gatilhos.map(gatilho => (
                     <SelectItem key={gatilho} value={gatilho}>{gatilho}</SelectItem>
@@ -62,12 +62,12 @@ const AutomacoesFilters: React.FC<AutomacoesFiltersProps> = ({
               </Select>
             </div>
             <div className="mb-2">
-              <label className="text-sm font-medium mb-1 block">Ação</label>
+              <label className="text-sm font-medium mb-1 block text-white">Ação</label>
               <Select value={acaoFiltro || ''} onValueChange={(value) => setAcaoFiltro(value || null)}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-surface/60 border-vendah-purple/20">
                   <SelectValue placeholder="Todas as ações" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-surface border-vendah-purple/20">
                   <SelectItem value="">Todas as ações</SelectItem>
                   {acoes.map(acao => (
                     <SelectItem key={acao} value={acao}>{acao}</SelectItem>
@@ -89,30 +89,30 @@ const AutomacoesFilters: React.FC<AutomacoesFiltersProps> = ({
       {(gatilhoFiltro || acaoFiltro) && (
         <div className="flex flex-wrap gap-2 items-center">
           {gatilhoFiltro && (
-            <Badge variant="outline" className="flex items-center gap-1">
+            <Badge variant="outline" className="flex items-center gap-1 bg-surface/40 border-vendah-purple/20">
               Gatilho: {gatilhoFiltro}
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-4 w-4 ml-1 p-0"
+                className="h-4 w-4 ml-1 p-0 text-text-muted hover:text-white"
                 onClick={() => setGatilhoFiltro(null)}
               >
+                <X className="h-3 w-3" />
                 <span className="sr-only">Remover filtro</span>
-                ×
               </Button>
             </Badge>
           )}
           {acaoFiltro && (
-            <Badge variant="outline" className="flex items-center gap-1">
+            <Badge variant="outline" className="flex items-center gap-1 bg-surface/40 border-vendah-purple/20">
               Ação: {acaoFiltro}
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-4 w-4 ml-1 p-0"
+                className="h-4 w-4 ml-1 p-0 text-text-muted hover:text-white"
                 onClick={() => setAcaoFiltro(null)}
               >
+                <X className="h-3 w-3" />
                 <span className="sr-only">Remover filtro</span>
-                ×
               </Button>
             </Badge>
           )}

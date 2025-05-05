@@ -54,8 +54,8 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
   };
   
   return (
-    <Card className="bg-gray-50 p-6 rounded-lg shadow-inner">
-      <h2 className="text-xl font-semibold mb-4">
+    <Card className="bg-surface/30 p-6 rounded-lg border border-vendah-purple/20">
+      <h2 className="text-xl font-semibold mb-4 text-white">
         {isNewStage ? 'Novo Estágio' : 'Editar Estágio'}
       </h2>
       
@@ -67,9 +67,13 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
             rules={{ required: 'O nome do estágio é obrigatório' }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome do Estágio</FormLabel>
+                <FormLabel className="text-white">Nome do Estágio</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ex: Qualificação" {...field} />
+                  <Input 
+                    placeholder="Ex: Qualificação" 
+                    {...field} 
+                    className="bg-surface/60 border-vendah-purple/20 text-white"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -81,15 +85,15 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
             name="cor"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cor</FormLabel>
+                <FormLabel className="text-white">Cor</FormLabel>
                 <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-2">
                   {predefinedColors.map(color => (
                     <div
                       key={color}
                       onClick={() => form.setValue('cor', color)}
-                      className={`w-8 h-8 rounded-full cursor-pointer ${
+                      className={`w-8 h-8 rounded-full cursor-pointer hover:scale-105 transition-transform ${
                         field.value === color 
-                          ? 'ring-2 ring-offset-2 ring-blue-500' 
+                          ? 'ring-2 ring-offset-2 ring-vendah-neon' 
                           : ''
                       }`}
                       style={{ backgroundColor: color }}
@@ -98,7 +102,11 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
                   ))}
                 </div>
                 <FormControl>
-                  <Input type="color" {...field} />
+                  <Input 
+                    type="color" 
+                    {...field} 
+                    className="h-10 bg-surface/60 border-vendah-purple/20"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -110,11 +118,12 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
             name="descricao"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Descrição (opcional)</FormLabel>
+                <FormLabel className="text-white">Descrição (opcional)</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="Descreva o que significa este estágio"
-                    {...field} 
+                    {...field}
+                    className="bg-surface/60 border-vendah-purple/20 text-white resize-none"
                   />
                 </FormControl>
                 <FormMessage />
@@ -122,17 +131,19 @@ const PipelineStageForm: React.FC<PipelineStageFormProps> = ({
             )}
           />
           
-          <div className="flex space-x-2 justify-end pt-2">
+          <div className="flex space-x-2 justify-end pt-4 border-t border-vendah-purple/20">
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
+              className="border-vendah-purple/20"
             >
               Cancelar
             </Button>
             <Button 
               type="submit"
-              className="bg-pink-500 hover:bg-pink-600"
+              className="bg-vendah-neon text-vendah-black hover:bg-vendah-neon/90 font-semibold"
+              variant="accent"
             >
               {isNewStage ? 'Criar Estágio' : 'Salvar Alterações'}
             </Button>

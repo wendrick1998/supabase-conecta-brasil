@@ -30,7 +30,7 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
   });
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-surface/30 border border-vendah-purple/20 backdrop-blur-md shadow-md">
       <AutomacoesFilters 
         gatilhos={gatilhos}
         acoes={acoes}
@@ -42,7 +42,7 @@ const AutomacoesList: React.FC<AutomacoesListProps> = ({ onEditAutomation }) => 
       />
 
       {/* Desktop view */}
-      <div className="overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto">
         <AutomacoesTable 
           automacoesFiltradas={automacoesFiltradas}
           handleToggleStatus={handleToggleStatus}

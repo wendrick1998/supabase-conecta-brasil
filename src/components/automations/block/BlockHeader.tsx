@@ -16,8 +16,10 @@ export const BlockHeader: React.FC<BlockHeaderProps> = ({
   
   return (
     <div className="flex items-center">
-      {blockIcon}
-      <h3 className="font-medium ml-2 text-white">
+      <div className="text-white mr-2">
+        {blockIcon}
+      </div>
+      <h3 className="font-medium text-white">
         {blockInfo ? blockInfo.name : blockType}
       </h3>
     </div>

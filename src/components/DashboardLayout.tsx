@@ -1,11 +1,14 @@
 
 import React from "react";
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { LayoutGrid, BarChart, Users, Zap, Inbox, Activity } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
 
 const DashboardLayout: React.FC = () => {
+  // Add location to highlight active route
+  const location = useLocation();
+  
   // Navigation items ordered by priority
   const navigationItems = [
     { path: "/dashboard", label: "Dashboard", icon: <LayoutGrid size={24} /> },
@@ -15,6 +18,12 @@ const DashboardLayout: React.FC = () => {
     { path: "/conversations", label: "Conversas", icon: <Inbox size={24} /> },
     { path: "/pulse", label: "Pulse", icon: <Activity size={24} /> },
   ];
+
+  // Helper to check if a path is active (including nested routes)
+  const isPathActive = (path: string) => {
+    if (path === "/dashboard" && location.pathname === "/dashboard") return true;
+    return path !== "/dashboard" && location.pathname.startsWith(path);
+  };
 
   return (
     <div className="min-h-screen flex bg-gradient-radial">
@@ -41,10 +50,10 @@ const DashboardLayout: React.FC = () => {
                     to={item.path}
                     title={item.label}
                     className={({ isActive }) => 
-                      `flex items-center space-x-3 hover-glow btn-press ${
-                        isActive 
-                          ? 'text-vendah-neon bg-vendah-neon/10'
-                          : 'text-text-muted hover:text-white'
+                      `flex items-center space-x-3 py-2 px-3 rounded-md w-full transition-all duration-200 ${
+                        isPathActive(item.path)
+                          ? 'text-vendah-neon bg-vendah-neon/10 shadow-neon-subtle'
+                          : 'text-text-muted hover:text-white hover:bg-vendah-purple/10'
                       } transition-colors`
                     }
                   >
@@ -52,7 +61,7 @@ const DashboardLayout: React.FC = () => {
                     <span className="hidden md:inline">{item.label}</span>
                   </NavLink>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="md:hidden">
+                <TooltipContent side="right" className="md:hidden bg-surface border-vendah-purple/20">
                   {item.label}
                 </TooltipContent>
               </Tooltip>
