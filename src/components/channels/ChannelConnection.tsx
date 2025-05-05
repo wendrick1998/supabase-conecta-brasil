@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +14,7 @@ import {
   RefreshCw, 
   Trash2 
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { getChannelConnections, disconnectChannel } from '@/services/channelService';
 
 interface ChannelConnectionProps {
   onConnectChannel?: (channelType: string) => void;
@@ -43,18 +42,13 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({
   const fetchConnectedChannels = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('canais_conectados')
-        .select('*')
-        .order('criado_em', { ascending: false });
-      
-      if (error) throw error;
+      const data = await getChannelConnections();
       
       // Transform the data to match ConnectedChannel type
-      const typedData: ConnectedChannel[] = (data || []).map(channel => ({
+      const typedData: ConnectedChannel[] = data.map(channel => ({
         id: channel.id,
         nome: channel.nome,
-        canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+        canal: channel.canal,
         status: channel.status,
         criado_em: channel.criado_em,
         atualizado_em: channel.atualizado_em
@@ -105,15 +99,11 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({
     } else {
       try {
         // Mark the channel as inactive in the database
-        const { error } = await supabase
-          .from('canais_conectados')
-          .update({ status: false })
-          .eq('id', channelId);
+        const success = await disconnectChannel(channelId);
         
-        if (error) throw error;
-        
-        toast.success("Canal desconectado com sucesso!");
-        fetchConnectedChannels();
+        if (success) {
+          fetchConnectedChannels();
+        }
       } catch (error: any) {
         toast.error(`Erro ao desconectar canal: ${error.message}`);
       }

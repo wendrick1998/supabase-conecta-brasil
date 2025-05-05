@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, Message, InternalNote } from "@/types/conversation";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 // Fetch conversations for leads
 export const getConversationsForLeads = async (leadIds: string[]): Promise<Record<string, Conversation>> => {
@@ -59,9 +59,12 @@ export const getMessagesFromConversation = async (conversationId: string): Promi
       status: message.status as 'sent' | 'delivered' | 'read',
       // Properly handle the attachment property
       attachment: message.attachment ? {
-        name: (message.attachment as any)?.name || '',
-        url: (message.attachment as any)?.url || '',
-        type: (message.attachment as any)?.type || ''
+        name: typeof message.attachment === 'object' && message.attachment !== null ? 
+          ((message.attachment as any)?.name || '') : '',
+        url: typeof message.attachment === 'object' && message.attachment !== null ? 
+          ((message.attachment as any)?.url || '') : '',
+        type: typeof message.attachment === 'object' && message.attachment !== null ? 
+          ((message.attachment as any)?.type || '') : ''
       } : undefined
     }));
   } catch (error) {
@@ -156,9 +159,12 @@ export const sendMessage = async (
       sender_type: messageData.sender_type as 'user' | 'lead',
       status: messageData.status as 'sent' | 'delivered' | 'read',
       attachment: messageData.attachment ? {
-        name: (messageData.attachment as any)?.name || '',
-        url: (messageData.attachment as any)?.url || '',
-        type: (messageData.attachment as any)?.type || ''
+        name: typeof messageData.attachment === 'object' && messageData.attachment !== null ? 
+          ((messageData.attachment as any)?.name || '') : '',
+        url: typeof messageData.attachment === 'object' && messageData.attachment !== null ? 
+          ((messageData.attachment as any)?.url || '') : '',
+        type: typeof messageData.attachment === 'object' && messageData.attachment !== null ? 
+          ((messageData.attachment as any)?.type || '') : ''
       } : undefined
     };
     

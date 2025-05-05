@@ -1,20 +1,22 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export interface ChannelConnection {
   id: string;
   canal: 'whatsapp' | 'instagram' | 'facebook' | 'email';
   nome: string;
   status: boolean;
-  acesso_token?: string;
-  refresh_token?: string;
-  token_expira_em?: string;
-  qr_code?: string;
-  configuracao?: Record<string, any>;
-  webhook_token?: string;
+  acesso_token?: string | null;
+  refresh_token?: string | null;
+  token_expira_em?: string | null;
+  qr_code?: string | null;
+  configuracao?: Record<string, any> | Json | null;
+  webhook_token?: string | null;
   criado_em: string;
   atualizado_em: string;
+  usuario_id?: string | null;
 }
 
 // Get all channel connections
@@ -30,7 +32,8 @@ export const getChannelConnections = async (): Promise<ChannelConnection[]> => {
     // Cast the results to ensure proper type conversion
     return (data || []).map(channel => ({
       ...channel,
-      canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+      canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+      configuracao: channel.configuracao as Record<string, any> | null
     }));
   } catch (error: any) {
     toast.error(`Erro ao buscar canais conectados: ${error.message}`);
@@ -52,7 +55,8 @@ export const getChannelConnectionsByType = async (channelType: string): Promise<
     // Cast the results to ensure proper type conversion
     return (data || []).map(channel => ({
       ...channel,
-      canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+      canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+      configuracao: channel.configuracao as Record<string, any> | null
     }));
   } catch (error: any) {
     toast.error(`Erro ao buscar canais do tipo ${channelType}: ${error.message}`);
@@ -74,7 +78,8 @@ export const getChannelConnection = async (channelId: string): Promise<ChannelCo
     // Cast the result to ensure proper type conversion
     return data ? {
       ...data,
-      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+      configuracao: data.configuracao as Record<string, any> | null
     } : null;
   } catch (error: any) {
     toast.error(`Erro ao buscar canal: ${error.message}`);
@@ -98,7 +103,8 @@ export const createChannelConnection = async (channelData: Partial<ChannelConnec
     // Cast the result to ensure proper type conversion
     return data ? {
       ...data,
-      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+      configuracao: data.configuracao as Record<string, any> | null
     } : null;
   } catch (error: any) {
     toast.error(`Erro ao conectar canal: ${error.message}`);
@@ -123,7 +129,8 @@ export const updateChannelConnection = async (channelId: string, channelData: Pa
     // Cast the result to ensure proper type conversion
     return data ? {
       ...data,
-      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+      configuracao: data.configuracao as Record<string, any> | null
     } : null;
   } catch (error: any) {
     toast.error(`Erro ao atualizar canal: ${error.message}`);
