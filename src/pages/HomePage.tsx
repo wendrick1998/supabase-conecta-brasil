@@ -18,7 +18,7 @@ const HomePage = () => {
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+" 
-              className="h-10 md:h-12"
+              className="h-20 md:h-24"
             />
           </div>
           
@@ -240,7 +240,7 @@ const HomePage = () => {
               <img 
                 src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
                 alt="Vendah+" 
-                className="h-8"
+                className="h-16"
               />
             </div>
             <div className="text-gray-500 text-sm">

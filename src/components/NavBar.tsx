@@ -30,7 +30,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+" 
-              className="h-8"
+              className="h-16"
             />
           </Link>
         </div>
