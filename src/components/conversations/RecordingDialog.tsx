@@ -87,7 +87,7 @@ const RecordingDialog = ({
             <RecordingControls 
               isRecording={isRecording}
               isPaused={isPaused}
-              recordedAudio={recordedAudio}
+              hasRecordedMedia={!!recordedAudio}
               onStartRecording={startRecording}
               onPauseRecording={pauseRecording}
               onResumeRecording={resumeRecording}

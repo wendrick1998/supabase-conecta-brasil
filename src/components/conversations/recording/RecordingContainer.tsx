@@ -23,7 +23,7 @@ interface RecordingContainerProps {
   onPauseRecording: () => void;
   onResumeRecording: () => void;
   onSaveRecording: () => void;
-  onReset: () => void;
+  onResetRecording: () => void;
 }
 
 const RecordingContainer: React.FC<RecordingContainerProps> = ({
@@ -41,7 +41,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
   onPauseRecording,
   onResumeRecording,
   onSaveRecording,
-  onReset
+  onResetRecording
 }) => {
   // Log state changes for debugging
   useEffect(() => {
@@ -95,7 +95,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
         recordingTime={recordingTime}
         stream={stream}
         onSaveRecording={onSaveRecording}
-        onReset={onReset}
+        onReset={onResetRecording}
       />
       
       {/* Only show recording controls if we're not showing the post-recording controls in AudioPreview */}
@@ -110,7 +110,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
           onPauseRecording={onPauseRecording}
           onResumeRecording={onResumeRecording}
           onSaveRecording={onSaveRecording}
-          onReset={onReset}
+          onResetRecording={onResetRecording}
         />
       )}
     </div>
