@@ -19,24 +19,24 @@ export interface InboxFilters {
 // Get all conversations
 export const getConversations = async (filters?: InboxFilters): Promise<Conversation[]> => {
   try {
+    // Start with the base query
     let query = supabase
       .from('conversations')
-      .select('*')
-      .order('horario', { ascending: false });
+      .select('*');
     
-    // Apply filters - simplified to avoid excessive type instantiation
+    // Apply filters
     if (filters) {
       // Filter by search term
       if (filters.search) {
         query = query.or(`lead_nome.ilike.%${filters.search}%,ultima_mensagem.ilike.%${filters.search}%`);
       }
       
-      // Filter by channels
+      // Filter by channels - fixed the type instantiation issue
       if (filters.canais && filters.canais.length > 0) {
         query = query.in('canal', filters.canais);
       }
       
-      // Filter by status
+      // Filter by status - fixed the type instantiation issue
       if (filters.status && filters.status.length > 0) {
         query = query.in('status', filters.status);
       }
@@ -58,6 +58,9 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
         query = query.eq('conexao_id', filters.accountId);
       }
     }
+    
+    // Add ordering at the end
+    query = query.order('horario', { ascending: false });
     
     // Execute the query
     const { data, error } = await query;
