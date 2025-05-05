@@ -1,13 +1,12 @@
 
 import React from 'react';
-import { Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Conversation } from '@/types/conversation';
+import { formatMessageTime, getInitials, getChannelBgColor, getChannelIndicator } from '@/utils/conversationUtils';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -24,37 +23,6 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   selectedConversationId,
   onSelectConversation
 }) => {
-  // Helper function to get initials from a name
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
-
-  // Helper function to get channel color
-  const getChannelColor = (canal: Conversation['canal']) => {
-    switch (canal) {
-      case 'WhatsApp': return 'bg-[#25D366]';
-      case 'Instagram': return 'bg-[#C13584]';
-      case 'Facebook': return 'bg-[#1877F2]';
-      case 'Email': return 'bg-black';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getChannelIndicator = (canal: Conversation['canal']) => {
-    switch (canal) {
-      case 'WhatsApp': return 'W';
-      case 'Instagram': return 'I';
-      case 'Facebook': return 'F';
-      case 'Email': return 'E';
-      default: return '';
-    }
-  };
-
   const formatTime = (timestamp: string) => {
     try {
       return formatDistanceToNow(new Date(timestamp), { 
@@ -99,7 +67,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                     <AvatarImage src={conversation.avatar} alt={conversation.lead_nome} />
                     <AvatarFallback className="bg-surface/60">{getInitials(conversation.lead_nome)}</AvatarFallback>
                   </Avatar>
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center ${getChannelColor(conversation.canal)} text-white text-[8px] font-bold`}>
+                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center ${getChannelBgColor(conversation.canal)} text-white text-[8px] font-bold`}>
                     {getChannelIndicator(conversation.canal)}
                   </div>
                 </div>
@@ -108,14 +76,19 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   <div className="flex justify-between mb-1">
                     <div className="flex items-center">
                       <span className="font-medium text-white">{conversation.lead_nome}</span>
+                      {conversation.status === 'Fechada' && (
+                        <Badge variant="outline" className="ml-2 text-xs h-5">
+                          Fechada
+                        </Badge>
+                      )}
                     </div>
-                    <span className="text-xs text-text-muted">
+                    <span className="text-xs text-text-muted whitespace-nowrap">
                       {formatTime(conversation.horario)}
                     </span>
                   </div>
                   <div className="text-sm text-text-muted truncate flex items-center">
                     {conversation.nao_lida && (
-                      <span className="inline-block w-2 h-2 rounded-full bg-vendah-neon mr-2"></span>
+                      <span className="inline-block w-2 h-2 rounded-full bg-vendah-neon mr-2 flex-shrink-0"></span>
                     )}
                     {conversation.ultima_mensagem}
                   </div>

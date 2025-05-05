@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, Smile } from 'lucide-react';
 import { Conversation, Message } from '@/types/conversation';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatRelative } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getInitials } from '@/utils/conversationUtils';
+import MessageInput from './MessageInput';
+import { toast } from 'sonner';
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -57,6 +57,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
         setMessages(typedMessages);
       } catch (error) {
         console.error('Failed to fetch messages:', error);
+        toast.error('Não foi possível carregar as mensagens');
       } finally {
         setIsLoading(false);
       }
@@ -104,21 +105,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || isSending) return;
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || isSending) return;
 
     setIsSending(true);
     try {
       const { error } = await supabase.from('messages').insert({
         conversation_id: conversation.id,
-        content: newMessage,
+        content: messageText,
         sender_type: 'user',
         status: 'sent',
       });
 
       if (error) {
         console.error('Error sending message:', error);
+        toast.error('Erro ao enviar mensagem');
         throw error;
       }
 
@@ -126,12 +127,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
       await supabase
         .from('conversations')
         .update({ 
-          ultima_mensagem: newMessage,
-          horario: new Date().toISOString()
+          ultima_mensagem: messageText,
+          horario: new Date().toISOString(),
+          nao_lida: false
         })
         .eq('id', conversation.id);
 
-      setNewMessage('');
+      toast.success('Mensagem enviada');
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
@@ -151,10 +153,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
     <div className="flex flex-col h-full">
       {/* Chat header */}
       <div className="p-4 border-b border-vendah-purple/20 flex items-center">
-        <Avatar className="h-10 w-10 mr-3 bg-vendah-purple">
-          <div className="text-lg font-medium text-white">
-            {conversation.lead_nome.charAt(0).toUpperCase()}
-          </div>
+        <Avatar className="h-10 w-10 mr-3">
+          <AvatarImage src={conversation.avatar} alt={conversation.lead_nome} />
+          <AvatarFallback className="bg-vendah-purple">{getInitials(conversation.lead_nome)}</AvatarFallback>
         </Avatar>
         <div>
           <h3 className="font-medium text-white">{conversation.lead_nome}</h3>
@@ -202,31 +203,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
       </div>
 
       {/* Message input */}
-      <form onSubmit={sendMessage} className="p-4 border-t border-vendah-purple/20 flex">
-        <Button 
-          type="button" 
-          size="icon" 
-          variant="ghost" 
-          className="text-text-muted hover:text-white"
-        >
-          <Paperclip className="h-5 w-5" />
-        </Button>
-        <Input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          className="mx-2 bg-surface/40 border-vendah-purple/20"
-          disabled={isSending}
-        />
-        <Button 
-          type="submit" 
-          size="icon" 
-          disabled={!newMessage.trim() || isSending}
-          className="bg-vendah-purple hover:bg-vendah-purple/80"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+      <MessageInput 
+        onSend={sendMessage} 
+        isLoading={isSending} 
+        channelType={conversation.canal}
+      />
     </div>
   );
 };
+
+export default ChatWindow;
