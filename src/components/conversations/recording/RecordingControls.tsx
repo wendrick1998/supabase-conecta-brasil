@@ -38,7 +38,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
           className="bg-blue-50 border-blue-100"
         >
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Iniciando...
+          Iniciando microfone...
         </Button>
       </div>
     );
@@ -63,11 +63,12 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   // Currently recording, not paused
   if (isRecording && !isPaused) {
     return (
-      <div className="flex gap-3 flex-wrap justify-center">
+      <div className="flex gap-3 flex-wrap justify-center mt-2">
         <Button
           onClick={onPauseRecording}
           variant="outline"
           size="sm"
+          className="bg-white"
         >
           <Pause className="h-4 w-4 mr-2" />
           Pausar
@@ -88,7 +89,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   // Recording is paused
   if (isRecording && isPaused) {
     return (
-      <div className="flex gap-3 flex-wrap justify-center">
+      <div className="flex gap-3 flex-wrap justify-center mt-2">
         <Button
           onClick={onResumeRecording}
           variant="outline"
@@ -111,8 +112,33 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
     );
   }
   
-  // After recording is complete, we don't need to show controls here
-  // as they're now displayed directly in the AudioPreview component
+  // After recording is complete, with saved media
+  if (hasRecordedMedia && !isRecording) {
+    return (
+      <div className="flex gap-3 flex-wrap justify-center mt-2">
+        {onReset && (
+          <Button
+            onClick={onReset}
+            variant="outline"
+            size="sm"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Descartar
+          </Button>
+        )}
+        
+        <Button
+          onClick={onSaveRecording}
+          className="bg-pink-600 hover:bg-pink-700"
+          size="sm"
+        >
+          <Send className="h-4 w-4 mr-2" />
+          Enviar
+        </Button>
+      </div>
+    );
+  }
+  
   return null;
 };
 

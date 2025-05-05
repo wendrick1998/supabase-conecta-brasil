@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 interface RecordingTimerProps {
@@ -11,38 +12,48 @@ const RecordingTimer: React.FC<RecordingTimerProps> = ({
   initialTimeMs = 0, // Default to 0 if not provided
   onTimeUpdate
 }) => {
-  const [seconds, setSeconds] = useState(Math.floor(initialTimeMs / 1000));
+  const [elapsedTime, setElapsedTime] = useState(initialTimeMs);
+  const [startTime, setStartTime] = useState<number | null>(null);
   
   useEffect(() => {
     let interval: number | null = null;
     
-    // Only start the timer if we're recording
     if (isRecording) {
-      // Keep the existing seconds when resuming
+      // If recording is starting or resuming, set the start time
+      const now = Date.now();
+      // When initialTimeMs is provided, adjust the start time to account for previous recording
+      setStartTime(now - initialTimeMs);
+      
+      // Start the interval to update elapsed time
       interval = window.setInterval(() => {
-        setSeconds(prev => {
-          const newValue = prev + 1;
-          if (onTimeUpdate) onTimeUpdate(newValue);
-          return newValue;
-        });
-      }, 1000);
+        const currentTime = Date.now() - (startTime || now) + initialTimeMs;
+        setElapsedTime(currentTime);
+        
+        if (onTimeUpdate) {
+          onTimeUpdate(Math.floor(currentTime / 1000));
+        }
+      }, 100);
+    } else if (!isRecording && startTime) {
+      // When recording is paused or stopped, preserve the elapsed time
+      setElapsedTime(Date.now() - startTime + initialTimeMs);
     }
     
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRecording, onTimeUpdate]);
+  }, [isRecording, initialTimeMs, onTimeUpdate]);
   
-  const formatTime = (totalSeconds: number) => {
+  const formatTime = (timeMs: number) => {
+    const totalSeconds = Math.floor(timeMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
-    const remainingSeconds = totalSeconds % 60;
+    const seconds = totalSeconds % 60;
     
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
   
   return (
     <div className="text-center font-mono font-medium">
-      {formatTime(seconds)}
+      {formatTime(elapsedTime)}
     </div>
   );
 };

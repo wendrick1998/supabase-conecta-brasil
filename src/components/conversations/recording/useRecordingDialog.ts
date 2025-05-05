@@ -17,10 +17,10 @@ export const useRecordingDialog = ({
   onOpenChange
 }: UseRecordingDialogProps) => {
   const [recordingTime, setRecordingTime] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   
   const { 
     isRecording,
+    isPaused,
     isInitializing,
     initError, 
     recordingTime: currentRecordingTime,
@@ -42,16 +42,22 @@ export const useRecordingDialog = ({
     setRecordingTime(currentRecordingTime);
   }, [currentRecordingTime]);
 
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('RecordingDialog state:', { 
+      open, 
+      mediaType, 
+      isRecording, 
+      isPaused, 
+      recordedMedia: !!recordedMedia 
+    });
+  }, [open, mediaType, isRecording, isPaused, recordedMedia]);
+
   const closeDialog = () => {
     console.log('Closing recording dialog');
     stopMediaStream();
     resetRecording();
-    setIsPaused(false);
     onOpenChange(false);
-  };
-
-  const handleTimeUpdate = (seconds: number) => {
-    setRecordingTime(seconds);
   };
 
   const handleSaveRecording = () => {
@@ -63,20 +69,20 @@ export const useRecordingDialog = ({
       
       onSave(file, mediaType);
       closeDialog();
+    } else {
+      console.error('Attempted to save recording but no valid media found');
     }
   };
 
   const handleReset = () => {
     console.log('Resetting recording');
     resetRecording();
-    setIsPaused(false);
   };
 
   const handlePauseRecording = () => {
-    if (isRecording) {
+    if (isRecording && !isPaused) {
       console.log('Pausing recording');
       pauseRecording();
-      setIsPaused(true);
     }
   };
 
@@ -84,7 +90,6 @@ export const useRecordingDialog = ({
     if (isPaused) {
       console.log('Resuming recording');
       resumeRecording();
-      setIsPaused(false);
     }
   };
 
@@ -94,18 +99,17 @@ export const useRecordingDialog = ({
       console.log('Recording dialog opened');
       resetRecording();
       setRecordingTime(0);
-      setIsPaused(false);
     } else {
       stopMediaStream();
     }
   }, [open, resetRecording, stopMediaStream]);
 
   return {
-    recordingTime,
     isPaused,
     isRecording,
     isInitializing,
     initError,
+    recordingTime,
     recordedMedia,
     stream,
     browserSupport,

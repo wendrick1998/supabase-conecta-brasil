@@ -26,6 +26,7 @@ export const useMediaRecorder = ({
   const timerIntervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const pausedTimeRef = useRef<number>(0); // Track accumulated time during pauses
+  const pausedTimestampRef = useRef<number | null>(null); // Track when we paused
   const errorTimeoutRef = useRef<number | null>(null);
 
   // Cleanup effect for timers
@@ -42,11 +43,20 @@ export const useMediaRecorder = ({
 
   // Function to handle timer updates
   const startTimer = useCallback(() => {
-    console.log("Starting/resuming timer");
-    startTimeRef.current = Date.now() - pausedTimeRef.current; // Adjust start time with paused time
+    console.log("Starting/resuming timer, pausedTime:", pausedTimeRef.current);
     
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
+    }
+
+    if (!isPaused) {
+      // If not resuming from pause, reset the time tracking
+      if (pausedTimeRef.current === 0) {
+        startTimeRef.current = Date.now();
+      } else {
+        // When resuming, adjust start time to account for paused time
+        startTimeRef.current = Date.now() - pausedTimeRef.current;
+      }
     }
 
     // Update recording time every 100ms
@@ -54,7 +64,7 @@ export const useMediaRecorder = ({
       const elapsedTime = Date.now() - startTimeRef.current;
       setRecordingTime(elapsedTime);
     }, 100);
-  }, []);
+  }, [isPaused]);
 
   const stopTimer = useCallback(() => {
     if (timerIntervalRef.current) {
@@ -65,6 +75,7 @@ export const useMediaRecorder = ({
     // When pausing, store the current elapsed time
     if (isPaused) {
       pausedTimeRef.current = Date.now() - startTimeRef.current;
+      pausedTimestampRef.current = Date.now();
       console.log("Paused timer at", pausedTimeRef.current, "ms");
     }
   }, [isPaused]);
@@ -87,6 +98,7 @@ export const useMediaRecorder = ({
         // Only reset chunks and time if not resuming
         setRecordingTime(0);
         pausedTimeRef.current = 0;
+        pausedTimestampRef.current = null;
         mediaChunksRef.current = [];
       }
       
@@ -117,9 +129,30 @@ export const useMediaRecorder = ({
         
         // Handle recording stop
         mediaRecorderRef.current.onstop = () => {
-          console.log('MediaRecorder stopped');
+          console.log('MediaRecorder stopped, creating blob from chunks:', mediaChunksRef.current.length);
+          
+          if (mediaChunksRef.current.length === 0) {
+            console.error('No data collected during recording');
+            toast.error('Nenhum áudio gravado');
+            setIsRecording(false);
+            setIsPaused(false);
+            stopTimer();
+            return;
+          }
+          
+          const mimeType = mediaType === 'audio' ? 'audio/webm' : 'video/webm';
           const blob = new Blob(mediaChunksRef.current, { type: mimeType });
           console.log('Created blob:', blob.size, 'bytes');
+          
+          if (blob.size === 0) {
+            console.error('Created blob has zero size');
+            toast.error('Erro ao processar a gravação');
+            setIsRecording(false);
+            setIsPaused(false);
+            stopTimer();
+            return;
+          }
+          
           const url = URL.createObjectURL(blob);
           const fileName = `${mediaType}-${new Date().toISOString().replace(/:/g, '-')}.webm`;
           
@@ -209,6 +242,7 @@ export const useMediaRecorder = ({
         mediaRecorderRef.current.pause();
         setIsPaused(true);
         stopTimer();
+        pausedTimestampRef.current = Date.now();
       } catch (error) {
         console.error('Error pausing recording:', error);
       }
@@ -217,7 +251,7 @@ export const useMediaRecorder = ({
 
   const resumeRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'paused') {
-      console.log('Resuming MediaRecorder');
+      console.log('Resuming MediaRecorder from pausedTime:', pausedTimeRef.current);
       try {
         mediaRecorderRef.current.resume();
         setIsPaused(false);
@@ -234,6 +268,7 @@ export const useMediaRecorder = ({
     setIsPaused(false);
     setRecordingTime(0);
     pausedTimeRef.current = 0;
+    pausedTimestampRef.current = null;
     
     if (recordedMedia?.url) {
       URL.revokeObjectURL(recordedMedia.url);

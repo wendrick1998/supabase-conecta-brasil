@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import MediaPreview from './MediaPreview';
 import RecordingControls from './RecordingControls';
 import { MediaType } from './types';
@@ -43,6 +43,18 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
   onSaveRecording,
   onReset
 }) => {
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('RecordingContainer state:', { 
+      mediaType, 
+      isRecording, 
+      isPaused, 
+      isInitializing, 
+      recordedMedia: !!recordedMedia,
+      stream: !!stream
+    });
+  }, [mediaType, isRecording, isPaused, isInitializing, recordedMedia, stream]);
+  
   // Show browser support warning if needed
   if (browserSupport === false) {
     return (
@@ -52,6 +64,20 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
           Seu navegador não suporta gravação de {mediaType === 'audio' ? 'áudio' : 
             mediaType === 'video' ? 'vídeo' : 'foto'}. 
           Por favor, use um navegador mais recente como Chrome, Firefox ou Edge.
+        </p>
+      </div>
+    );
+  }
+  
+  // Show error message if there's an initialization error
+  if (initError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 bg-red-50 text-red-800 rounded-md">
+        <h3 className="font-medium text-lg mb-2">Erro de acesso ao dispositivo</h3>
+        <p className="text-center text-sm">
+          Não foi possível acessar {mediaType === 'audio' ? 'o microfone' : 
+            mediaType === 'video' ? 'a câmera' : 'a câmera'}. 
+          Verifique as permissões do seu navegador.
         </p>
       </div>
     );
@@ -72,10 +98,8 @@ const RecordingContainer: React.FC<RecordingContainerProps> = ({
         onReset={onReset}
       />
       
-      {/* Only show recording controls if we don't have recorded media 
-          or we're still recording. AudioPreview handles its own controls
-          after recording is complete */}
-      {(!recordedMedia || isRecording) && (
+      {/* Only show recording controls if we're not showing the post-recording controls in AudioPreview */}
+      {(mediaType !== 'audio' || !recordedMedia || isRecording) && (
         <RecordingControls 
           isRecording={isRecording}
           isPaused={isPaused}
