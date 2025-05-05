@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
+import FeatureCard from '@/components/home/FeatureCard';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -22,13 +23,11 @@ const HomePage = () => {
       <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24 relative z-10">
         <nav className="flex justify-between items-center mb-20">
           <div className="flex items-center">
-            <div className="logo-container p-4 flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
-                alt="Vendah+" 
-                className="h-44 md:h-52 animate-subtle-glow"
-              />
-            </div>
+            <img 
+              src="/lovable-uploads/3decb854-1aac-4760-b4a6-6dd4e3fc318c.png" 
+              alt="Vendah+" 
+              className="h-14 md:h-16 animate-subtle-glow"
+            />
           </div>
           
           <div className="flex gap-4">
@@ -107,82 +106,37 @@ const HomePage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="vendah-card group">
-              <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-16 w-16 rounded-full bg-vendah-purple/20 flex items-center justify-center mb-4 
-                              group-hover:shadow-neon transition-all duration-500">
-                  <Users className="h-8 w-8 text-vendah-neon" />
-                </div>
-                <h3 className="font-bold text-xl mb-2 text-white group-hover:text-vendah-neon transition-colors">
-                  Gestão de Leads
-                </h3>
-                <p className="text-text-muted">
-                  Organize e acompanhe seus leads de forma eficiente com ferramentas inteligentes
-                </p>
-              </CardContent>
-            </Card>
+            <FeatureCard 
+              icon={Users}
+              title="Gestão de Leads"
+              description="Organize e acompanhe seus leads de forma eficiente com ferramentas inteligentes"
+            />
             
-            <Card className="vendah-card group">
-              <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-16 w-16 rounded-full bg-vendah-purple/20 flex items-center justify-center mb-4
-                              group-hover:shadow-neon transition-all duration-500">
-                  <BarChart className="h-8 w-8 text-vendah-neon" />
-                </div>
-                <h3 className="font-bold text-xl mb-2 text-white group-hover:text-vendah-neon transition-colors">
-                  Pipeline de Vendas
-                </h3>
-                <p className="text-text-muted">
-                  Visualize todo o processo de vendas com dashboards interativos e personalizáveis
-                </p>
-              </CardContent>
-            </Card>
+            <FeatureCard 
+              icon={BarChart}
+              title="Pipeline de Vendas"
+              description="Visualize todo o processo de vendas com dashboards interativos e personalizáveis"
+            />
             
-            <Card className="vendah-card group">
-              <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-16 w-16 rounded-full bg-vendah-purple/20 flex items-center justify-center mb-4
-                              group-hover:shadow-neon transition-all duration-500">
-                  <MessageSquare className="h-8 w-8 text-vendah-neon" />
-                </div>
-                <h3 className="font-bold text-xl mb-2 text-white group-hover:text-vendah-neon transition-colors">
-                  Conversas Integradas
-                </h3>
-                <p className="text-text-muted">
-                  Comunique-se com clientes diretamente pela plataforma sem trocar de ferramenta
-                </p>
-              </CardContent>
-            </Card>
+            <FeatureCard 
+              icon={MessageSquare}
+              title="Conversas Integradas"
+              description="Comunique-se com clientes diretamente pela plataforma sem trocar de ferramenta"
+            />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <Card className="vendah-card group">
-              <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-16 w-16 rounded-full bg-vendah-purple/20 flex items-center justify-center mb-4
-                              group-hover:shadow-neon transition-all duration-500">
-                  <Zap className="h-8 w-8 text-vendah-neon" />
-                </div>
-                <h3 className="font-bold text-xl mb-2 text-white group-hover:text-vendah-neon transition-colors">
-                  Automações
-                </h3>
-                <p className="text-text-muted">
-                  Crie fluxos de trabalho automatizados para aumentar a eficiência e diminuir tarefas repetitivas
-                </p>
-              </CardContent>
-            </Card>
+            <FeatureCard 
+              icon={Zap}
+              title="Automações"
+              description="Crie fluxos de trabalho automatizados para aumentar a eficiência e diminuir tarefas repetitivas"
+            />
             
-            <Card className="vendah-card group">
-              <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-16 w-16 rounded-full bg-vendah-purple/20 flex items-center justify-center mb-4
-                              group-hover:shadow-neon transition-all duration-500">
-                  <Shield className="h-8 w-8 text-vendah-neon" />
-                </div>
-                <h3 className="font-bold text-xl mb-2 text-white group-hover:text-vendah-neon transition-colors">
-                  Segurança Avançada
-                </h3>
-                <p className="text-text-muted">
-                  Proteção de dados e conformidade com as regulamentações de privacidade
-                </p>
-              </CardContent>
-            </Card>
+            <FeatureCard 
+              icon={Shield}
+              title="Segurança Avançada"
+              description="Proteção de dados e conformidade com as regulamentações de privacidade"
+            />
           </div>
         </div>
       </div>

@@ -21,13 +21,11 @@ const AuthLayout = ({ children, pageTitle }: AuthLayoutProps) => {
         <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
         
         <div className="mb-8 flex flex-col items-center z-10">
-          <div className="logo-container p-6 mb-2 flex items-center justify-center">
-            <img 
-              src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
-              alt="Vendah+"
-              className="h-44 md:h-48 animate-subtle-glow" 
-            />
-          </div>
+          <img 
+            src="/lovable-uploads/3decb854-1aac-4760-b4a6-6dd4e3fc318c.png" 
+            alt="Vendah+"
+            className="h-28 md:h-32 animate-subtle-glow" 
+          />
         </div>
         
         <div className="z-10 w-full">

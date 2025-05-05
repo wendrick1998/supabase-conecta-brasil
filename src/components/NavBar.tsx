@@ -28,9 +28,9 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
         <div className="flex">
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+              src="/lovable-uploads/3decb854-1aac-4760-b4a6-6dd4e3fc318c.png" 
               alt="Vendah+" 
-              className="h-24"
+              className="h-10"
             />
           </Link>
         </div>
