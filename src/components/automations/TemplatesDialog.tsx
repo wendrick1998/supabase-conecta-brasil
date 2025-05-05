@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,12 +11,14 @@ interface TemplatesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onApplyTemplate: (blocks: Block[]) => void;
+  children?: ReactNode;
 }
 
 export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({
   open,
   onOpenChange,
-  onApplyTemplate
+  onApplyTemplate,
+  children
 }) => {
   // Example templates
   const templates: AutomationTemplate[] = [
@@ -130,6 +132,12 @@ export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Templates de Automação</DialogTitle>
         </DialogHeader>
+        
+        {children && (
+          <div className="mb-4">
+            {children}
+          </div>
+        )}
         
         <ScrollArea className="h-[500px] pr-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">

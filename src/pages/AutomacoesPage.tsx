@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Plus, AlertTriangle, Filter } from 'lucide-react';
@@ -165,7 +166,7 @@ const AutomacoesPage = () => {
                           <SelectValue placeholder="Todos os gatilhos" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todos os gatilhos</SelectItem>
+                          <SelectItem value="todos">Todos os gatilhos</SelectItem>
                           {gatilhos.map(gatilho => (
                             <SelectItem key={gatilho} value={gatilho}>{gatilho}</SelectItem>
                           ))}
@@ -179,7 +180,7 @@ const AutomacoesPage = () => {
                           <SelectValue placeholder="Todas as ações" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todas as ações</SelectItem>
+                          <SelectItem value="todas">Todas as ações</SelectItem>
                           {acoes.map(acao => (
                             <SelectItem key={acao} value={acao}>{acao}</SelectItem>
                           ))}
