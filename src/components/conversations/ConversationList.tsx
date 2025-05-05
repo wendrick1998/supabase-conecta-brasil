@@ -1,20 +1,15 @@
 
 import { useState } from 'react';
-import { Search, Plus } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Conversation } from '@/types/conversation';
-import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useNavigate } from 'react-router-dom';
+import ConversationFilters from './filters/ConversationFilters';
+import ConversationItem from './list/ConversationItem';
+import ConversationListHeader from './list/ConversationListHeader';
+import EmptyConversationList from './list/EmptyConversationList';
+import { useConversationFilter } from '@/hooks/useConversationFilter';
+import { Conversation } from '@/types/conversation';
 
 // Mock data for demonstration
 const mockConversations: Conversation[] = [
@@ -70,55 +65,15 @@ const mockConversations: Conversation[] = [
   },
 ];
 
-// Helper to format the time
-const formatMessageTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (60 * 1000));
-  
-  if (diffMinutes < 60) {
-    return `${diffMinutes}m`;
-  } else if (diffMinutes < 24 * 60) {
-    return `${Math.floor(diffMinutes / 60)}h`;
-  } else {
-    return `${Math.floor(diffMinutes / (24 * 60))}d`;
-  }
-};
-
-// Get initials for avatar fallback
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
-};
-
-// Channel color mapping
-const channelColors: Record<Conversation['canal'], string> = {
-  'WhatsApp': 'bg-green-500',
-  'Instagram': 'bg-purple-500',
-  'Email': 'bg-blue-500',
-};
-
 const ConversationList = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
-  const [canalFilter, setCanalFilter] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
-
-  // Filter conversations based on search and filters
-  const filteredConversations = mockConversations.filter(conversation => {
-    const matchesSearch = search === '' || 
-      conversation.lead_nome.toLowerCase().includes(search.toLowerCase()) ||
-      conversation.ultima_mensagem.toLowerCase().includes(search.toLowerCase());
-    
-    const matchesCanal = canalFilter === null || conversation.canal === canalFilter;
-    const matchesStatus = statusFilter === null || conversation.status === statusFilter;
-    
-    return matchesSearch && matchesCanal && matchesStatus;
-  });
+  const { 
+    search, 
+    setSearch,
+    setCanalFilter,
+    setStatusFilter,
+    filteredConversations 
+  } = useConversationFilter(mockConversations);
 
   const handleConversationClick = (conversationId: string) => {
     navigate(`/conversations/${conversationId}`);
@@ -130,82 +85,28 @@ const ConversationList = () => {
 
   return (
     <div className="flex flex-col h-full bg-[#121212] text-white">
-      <div className="p-4 border-b border-gray-800 sticky top-0 bg-[#121212] z-10">
-        <h1 className="text-xl font-bold mb-4 text-left">Inbox de Comunicação</h1>
-        
-        <div className="flex flex-col gap-2 mb-4">
-          <Select onValueChange={(value) => setCanalFilter(value || null)}>
-            <SelectTrigger className="w-full bg-[#222] border-gray-800 text-white">
-              <SelectValue placeholder="Canal" />
-            </SelectTrigger>
-            <SelectContent className="bg-[#222] border-gray-800 text-white">
-              <SelectItem value="all" className="text-white hover:bg-[#333]">Todos</SelectItem>
-              <SelectItem value="WhatsApp" className="text-white hover:bg-[#333]">WhatsApp</SelectItem>
-              <SelectItem value="Instagram" className="text-white hover:bg-[#333]">Instagram</SelectItem>
-              <SelectItem value="Email" className="text-white hover:bg-[#333]">Email</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select onValueChange={(value) => setStatusFilter(value || null)}>
-            <SelectTrigger className="w-full bg-[#222] border-gray-800 text-white">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent className="bg-[#222] border-gray-800 text-white">
-              <SelectItem value="all" className="text-white hover:bg-[#333]">Todos</SelectItem>
-              <SelectItem value="Aberta" className="text-white hover:bg-[#333]">Aberta</SelectItem>
-              <SelectItem value="Fechada" className="text-white hover:bg-[#333]">Fechada</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input 
-              type="search" 
-              placeholder="Buscar por nome ou mensagem..." 
-              className="pl-10 w-full bg-[#222] border-gray-800 text-white placeholder:text-gray-400"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </div>
+      <ConversationListHeader title="Inbox de Comunicação" />
+      
+      <div className="p-4 border-b border-gray-800 sticky top-16 bg-[#121212] z-10">
+        <ConversationFilters
+          search={search}
+          setSearch={setSearch}
+          setCanalFilter={setCanalFilter}
+          setStatusFilter={setStatusFilter}
+        />
       </div>
       
       <ScrollArea className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
-          <div className="py-8 text-center text-gray-400">
-            Nenhuma conversa encontrada.
-          </div>
+          <EmptyConversationList />
         ) : (
           <div>
             {filteredConversations.map((conversation) => (
-              <div
+              <ConversationItem
                 key={conversation.id}
-                className="flex items-center p-4 border-b border-gray-800 hover:bg-[#222] cursor-pointer transition-colors"
+                conversation={conversation}
                 onClick={() => handleConversationClick(conversation.id)}
-              >
-                <div className="relative">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={conversation.avatar} alt={conversation.lead_nome} />
-                    <AvatarFallback className="bg-[#333]">{getInitials(conversation.lead_nome)}</AvatarFallback>
-                  </Avatar>
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center ${channelColors[conversation.canal]} text-white text-[8px] font-bold`}>
-                    {conversation.canal === 'WhatsApp' ? 'W' : 
-                     conversation.canal === 'Instagram' ? 'I' : 'E'}
-                  </div>
-                </div>
-                
-                <div className="ml-3 flex-1 min-w-0">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium truncate text-white">{conversation.lead_nome}</h3>
-                    <span className="text-xs text-gray-400">{formatMessageTime(conversation.horario)}</span>
-                  </div>
-                  <p className="text-sm text-gray-400 truncate">{conversation.ultima_mensagem}</p>
-                </div>
-                
-                {conversation.nao_lida && (
-                  <Badge className="ml-2 bg-pink-500 w-2 h-2 p-0 rounded-full" />
-                )}
-              </div>
+              />
             ))}
           </div>
         )}
