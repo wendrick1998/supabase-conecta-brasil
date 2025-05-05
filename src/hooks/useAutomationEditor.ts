@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Block, BlockType } from '@/types/automation';
@@ -106,11 +105,9 @@ export const useAutomationEditor = () => {
               category: getBlockCategory(block.tipo as BlockType),
               position: { x: block.x, y: block.y },
               configured: true,
-              config: block.conteudo_config ? 
-                // FIX: Ensure config is properly parsed as a Record<string, any>
-                (typeof block.conteudo_config === 'string' 
-                  ? JSON.parse(block.conteudo_config)
-                  : block.conteudo_config) as Record<string, any>,
+              config: typeof block.conteudo_config === 'string' 
+                ? JSON.parse(block.conteudo_config) as Record<string, any>
+                : block.conteudo_config as Record<string, any>,
               connections: connectionsData
                 .filter(conn => conn.id_origem === block.id)
                 .map(conn => conn.id_destino)
