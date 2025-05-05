@@ -63,10 +63,19 @@ export const useRecordingDialog = ({
   const handleSaveRecording = () => {
     if (recordedMedia && recordedMedia.blob) {
       console.log('Saving recorded media:', recordedMedia);
+      
+      // Create file with proper mime type based on media type
+      let mimeType = recordedMedia.blob.type;
+      if (!mimeType || mimeType === 'audio/webm' && mediaType === 'audio') {
+        // Ensure proper MIME type for audio files
+        mimeType = 'audio/webm';
+      }
+      
       const file = new File([recordedMedia.blob], recordedMedia.fileName, {
-        type: recordedMedia.blob.type
+        type: mimeType
       });
       
+      console.log('File created for saving:', file);
       onSave(file, mediaType);
       closeDialog();
     } else {

@@ -63,16 +63,38 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
     setSendingMessage(true);
     
     try {
-      // For real implementation, upload file to Supabase storage first
-      // For now, create a temporary URL
-      const fileUrl = URL.createObjectURL(file);
+      // Generate a unique file path
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${conversationId}/${fileName}`;
       
+      // Upload file to Supabase storage
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('media')
+        .upload(filePath, file, {
+          contentType: file.type,
+          cacheControl: '3600'
+        });
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL for the uploaded file
+      const { data: publicUrlData } = supabase
+        .storage
+        .from('media')
+        .getPublicUrl(filePath);
+      
+      const fileUrl = publicUrlData.publicUrl;
+      
+      // Create message attachment object
       const attachment = {
         name: file.name,
         url: fileUrl,
         type: file.type,
       };
       
+      // Add message to database with attachment
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -87,6 +109,7 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
       
       if (messageError) throw messageError;
       
+      // Update conversation with latest message
       await supabase
         .from('conversations')
         .update({
