@@ -20,8 +20,8 @@ export const formatMessageTime = (dateString: string): string => {
   }
 };
 
-// Channel identifier type - move the JSX to a separate component
-export type ChannelType = 'WhatsApp' | 'Instagram' | 'Email';
+// Channel identifier type - updated to include Facebook
+export type ChannelType = 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email';
 
 // Get initials for avatar fallback
 export const getInitials = (name: string): string => {
