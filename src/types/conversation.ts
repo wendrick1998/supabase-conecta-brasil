@@ -5,31 +5,36 @@ export interface Conversation {
   lead_nome: string;
   canal: 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email';
   ultima_mensagem: string;
-  horario: string; // ISO date string
+  horario: string;
   nao_lida: boolean;
-  avatar?: string;
   status: 'Aberta' | 'Fechada';
+  avatar?: string | null;
+  connection_id?: string | null;
+  sender_id?: string | null;
 }
 
 export interface Message {
   id: string;
   conversation_id: string;
   content: string;
-  timestamp: string; // ISO date string
   sender_type: 'user' | 'lead';
+  timestamp: string;
   status: 'sent' | 'delivered' | 'read';
   attachment?: {
-    name: string;
+    type: 'image' | 'video' | 'audio' | 'document';
     url: string;
-    type: string;
-  };
+    filename?: string;
+    size?: number;
+    thumbnail_url?: string;
+  } | null;
+  canal_id?: string | null;
 }
 
 export interface InternalNote {
   id: string;
   conversation_id: string;
-  content: string;
-  timestamp: string;
   user_id: string;
   user_name: string;
+  content: string;
+  timestamp: string;
 }
