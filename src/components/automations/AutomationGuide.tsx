@@ -1,43 +1,35 @@
-
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
 interface GuideStep {
   title: string;
   description: string;
   target: string;
 }
-
-const GUIDE_STEPS: GuideStep[] = [
-  {
-    title: "Passo 1: Adicione um Gatilho",
-    description: "Arraste um bloco de gatilho para a tela. Este será o evento que inicia sua automação.",
-    target: "trigger-section"
-  },
-  {
-    title: "Passo 2: Configure condições (opcional)",
-    description: "Adicione condições para determinar quando sua automação deve ser executada.",
-    target: "condition-section"
-  },
-  {
-    title: "Passo 3: Adicione ações",
-    description: "Arraste ações para definir o que acontece quando a automação é disparada.",
-    target: "action-section"
-  }
-];
-
+const GUIDE_STEPS: GuideStep[] = [{
+  title: "Passo 1: Adicione um Gatilho",
+  description: "Arraste um bloco de gatilho para a tela. Este será o evento que inicia sua automação.",
+  target: "trigger-section"
+}, {
+  title: "Passo 2: Configure condições (opcional)",
+  description: "Adicione condições para determinar quando sua automação deve ser executada.",
+  target: "condition-section"
+}, {
+  title: "Passo 3: Adicione ações",
+  description: "Arraste ações para definir o que acontece quando a automação é disparada.",
+  target: "action-section"
+}];
 interface AutomationGuideProps {
   isFirstVisit?: boolean;
 }
-
-export const AutomationGuide: React.FC<AutomationGuideProps> = ({ isFirstVisit = false }) => {
+export const AutomationGuide: React.FC<AutomationGuideProps> = ({
+  isFirstVisit = false
+}) => {
   const [showGuide, setShowGuide] = useState(isFirstVisit);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-
   const handleNextStep = () => {
     if (currentStep < GUIDE_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -45,15 +37,12 @@ export const AutomationGuide: React.FC<AutomationGuideProps> = ({ isFirstVisit =
       setShowGuide(false);
     }
   };
-
   const handlePrevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
-
-  const renderBlockTypeTooltips = () => (
-    <div className="mb-4">
+  const renderBlockTypeTooltips = () => <div className="mb-4">
       <TooltipProvider>
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
@@ -98,33 +87,21 @@ export const AutomationGuide: React.FC<AutomationGuideProps> = ({ isFirstVisit =
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    </div>
-  );
-
-  return (
-    <>
+    </div>;
+  return <>
       {/* "Como funciona" button */}
       <div className="absolute top-4 right-4 z-10">
-        <Button
-          variant="outline"
-          className="bg-white shadow-sm"
-          onClick={() => setShowHelpDialog(true)}
-        >
+        <Button variant="outline" className="bg-white shadow-sm" onClick={() => setShowHelpDialog(true)}>
           Como funciona?
         </Button>
       </div>
 
       {/* Interactive guide overlay */}
-      {showGuide && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      {showGuide && <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="p-6 rounded-lg shadow-lg max-w-md w-full bg-zinc-900">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{GUIDE_STEPS[currentStep].title}</h2>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowGuide(false)}
-              >
+              <Button variant="ghost" size="icon" onClick={() => setShowGuide(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -132,11 +109,7 @@ export const AutomationGuide: React.FC<AutomationGuideProps> = ({ isFirstVisit =
             <p className="mb-6">{GUIDE_STEPS[currentStep].description}</p>
             
             <div className="flex justify-between">
-              <Button
-                variant="outline"
-                onClick={handlePrevStep}
-                disabled={currentStep === 0}
-              >
+              <Button variant="outline" onClick={handlePrevStep} disabled={currentStep === 0}>
                 Anterior
               </Button>
               
@@ -145,8 +118,7 @@ export const AutomationGuide: React.FC<AutomationGuideProps> = ({ isFirstVisit =
               </Button>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Help dialog */}
       <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
@@ -200,21 +172,16 @@ export const AutomationGuide: React.FC<AutomationGuideProps> = ({ isFirstVisit =
           </div>
           
           <div className="flex justify-end">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowHelpDialog(false);
-                setShowGuide(true);
-                setCurrentStep(0);
-              }}
-            >
+            <Button variant="outline" onClick={() => {
+            setShowHelpDialog(false);
+            setShowGuide(true);
+            setCurrentStep(0);
+          }}>
               Iniciar Guia Interativo
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default AutomationGuide;
