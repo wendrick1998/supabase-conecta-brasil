@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -26,15 +27,15 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Use type assertion to primitive array to avoid deep type instantiation
-        const channelFilters = [...filters.canais] as string[];
+        // Use a simple string array type to avoid deep type instantiation
+        const channelFilters = filters.canais.map(c => c.toString());
         query = query.in('canal', channelFilters);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Use type assertion to primitive array to avoid deep type instantiation
-        const statusFilters = [...filters.status] as string[];
+        // Use a simple string array type to avoid deep type instantiation
+        const statusFilters = filters.status.map(s => s.toString());
         query = query.in('status', statusFilters);
       }
       
@@ -51,8 +52,8 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       // Search filter
       if (filters.search) {
         const pattern = `%${filters.search}%`;
-        // Use direct string concatenation to avoid complex type inference
-        query = query.or('lead_nome.ilike.' + pattern + ',ultima_mensagem.ilike.' + pattern);
+        // Use a simpler approach for search filtering
+        query = query.or(`lead_nome.ilike.${pattern},ultima_mensagem.ilike.${pattern}`);
       }
       
       // Date range filter
