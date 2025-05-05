@@ -4,50 +4,41 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface ChannelFilterProps {
-  activeChannels: ('WhatsApp' | 'Instagram' | 'Facebook' | 'Email')[];
-  onChannelChange: (channel: 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email') => void;
+  activeChannels: string[];
+  onChannelChange: (channel: string) => void;
 }
 
-const ChannelFilter: React.FC<ChannelFilterProps> = ({ 
-  activeChannels, 
-  onChannelChange 
+const ChannelFilter: React.FC<ChannelFilterProps> = ({
+  activeChannels,
+  onChannelChange
 }) => {
+  // Define available channels
+  const channels = [
+    { id: 'WhatsApp', label: 'WhatsApp' },
+    { id: 'Instagram', label: 'Instagram' },
+    { id: 'Facebook', label: 'Facebook' },
+    { id: 'Email', label: 'Email' }
+  ];
+  
   return (
     <div>
       <Label className="text-xs font-medium mb-2 block">Canais</Label>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="filter-whatsapp" 
-            checked={activeChannels.includes('WhatsApp')}
-            onCheckedChange={() => onChannelChange('WhatsApp')}
-          />
-          <label htmlFor="filter-whatsapp" className="text-sm">WhatsApp</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="filter-instagram" 
-            checked={activeChannels.includes('Instagram')}
-            onCheckedChange={() => onChannelChange('Instagram')}
-          />
-          <label htmlFor="filter-instagram" className="text-sm">Instagram</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="filter-facebook" 
-            checked={activeChannels.includes('Facebook')}
-            onCheckedChange={() => onChannelChange('Facebook')}
-          />
-          <label htmlFor="filter-facebook" className="text-sm">Facebook</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="filter-email" 
-            checked={activeChannels.includes('Email')}
-            onCheckedChange={() => onChannelChange('Email')}
-          />
-          <label htmlFor="filter-email" className="text-sm">Email</label>
-        </div>
+      <div className="flex flex-col space-y-2">
+        {channels.map(channel => (
+          <div key={channel.id} className="flex items-center space-x-2">
+            <Checkbox
+              id={`channel-${channel.id}`}
+              checked={activeChannels.includes(channel.id)}
+              onCheckedChange={() => onChannelChange(channel.id)}
+            />
+            <label
+              htmlFor={`channel-${channel.id}`}
+              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {channel.label}
+            </label>
+          </div>
+        ))}
       </div>
     </div>
   );

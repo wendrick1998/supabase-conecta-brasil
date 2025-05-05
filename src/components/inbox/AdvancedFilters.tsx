@@ -19,8 +19,8 @@ import FilterCountBadge from './filters/FilterCountBadge';
 
 interface AdvancedFiltersProps {
   activeFilters: InboxFilters;
-  onChannelFilterChange: (channel: 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email') => void;
-  onStatusFilterChange: (status: 'Aberta' | 'Fechada') => void;
+  onChannelFilterChange: (channel: string) => void;
+  onStatusFilterChange: (status: string) => void;
   onDateRangeChange: (range: { from: Date; to: Date } | null) => void;
   onPriorityChange: (priority: string) => void;
   onClearFilters: () => void;

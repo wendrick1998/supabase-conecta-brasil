@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Conversation } from '@/types/conversation';
 import { InboxFilters, getConnectedAccounts } from '@/services/inboxService';
@@ -41,14 +42,14 @@ export const useInboxFilters = (conversations: Conversation[]) => {
     // Apply channel filters
     if (activeFilters.canais && activeFilters.canais.length > 0) {
       filtered = filtered.filter(conv => 
-        activeFilters.canais?.includes(conv.canal as 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email')
+        activeFilters.canais?.includes(conv.canal)
       );
     }
     
     // Filter by status
     if (activeFilters.status && activeFilters.status.length > 0) {
       filtered = filtered.filter(conv => 
-        activeFilters.status?.includes(conv.status as 'Aberta' | 'Fechada')
+        activeFilters.status?.includes(conv.status)
       );
     }
     
@@ -97,7 +98,7 @@ export const useInboxFilters = (conversations: Conversation[]) => {
   };
   
   // Handle channel filter change
-  const handleChannelFilterChange = (channel: 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email') => {
+  const handleChannelFilterChange = (channel: string) => {
     setActiveFilters(prev => {
       const channelFilters = prev.canais || [];
       const newChannelFilters = channelFilters.includes(channel)
@@ -112,7 +113,7 @@ export const useInboxFilters = (conversations: Conversation[]) => {
   };
   
   // Handle status filter change
-  const handleStatusFilterChange = (status: 'Aberta' | 'Fechada') => {
+  const handleStatusFilterChange = (status: string) => {
     setActiveFilters(prev => {
       const statusFilters = prev.status || [];
       const newStatusFilters = statusFilters.includes(status)
@@ -136,9 +137,10 @@ export const useInboxFilters = (conversations: Conversation[]) => {
   
   // Handle priority filter change
   const handlePriorityChange = (priority: string) => {
+    // Use "all" to represent "no filter" but store as undefined in the filter object
     setActiveFilters(prev => ({
       ...prev,
-      priority: priority || undefined
+      priority: priority === "all" ? undefined : priority
     }));
   };
   

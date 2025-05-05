@@ -6,8 +6,8 @@ import { Conversation } from "@/types/conversation";
 // Interface for filters
 export interface InboxFilters {
   search?: string;
-  canais?: ('WhatsApp' | 'Instagram' | 'Facebook' | 'Email')[];
-  status?: ('Aberta' | 'Fechada')[];
+  canais?: string[];  // Changed from union type to string[]
+  status?: string[];  // Changed from union type to string[]
   dateRange?: {
     from: Date;
     to: Date;
@@ -27,14 +27,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Use type assertion to avoid deep type inference
-        query = query.in('canal', filters.canais as any);
+        // Use explicitly typed arrays
+        query = query.in('canal', filters.canais);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Use type assertion to avoid deep type inference
-        query = query.in('status', filters.status as any);
+        // Use explicitly typed arrays
+        query = query.in('status', filters.status);
       }
       
       // Priority filter
