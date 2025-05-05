@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WhatsApp, Instagram, Facebook, Mail } from 'lucide-react';
+import { MessageSquare, Camera, Facebook, Mail } from 'lucide-react';
 import { ChannelType } from '@/utils/conversationUtils';
 
 interface ChannelIconProps {
@@ -12,9 +12,9 @@ export const getChannelIcon = (channel: ChannelType, props: ChannelIconProps = {
 
   switch (channel) {
     case 'WhatsApp':
-      return <WhatsApp size={size} className="text-[#25D366]" />;
+      return <MessageSquare size={size} className="text-[#25D366]" />;
     case 'Instagram':
-      return <Instagram size={size} className="text-[#C13584]" />;
+      return <Camera size={size} className="text-[#C13584]" />;
     case 'Facebook':
       return <Facebook size={size} className="text-[#1877F2]" />;
     case 'Email':

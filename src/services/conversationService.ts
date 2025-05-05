@@ -1,6 +1,5 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { Message } from "@/types/conversation";
+import { Message, Conversation } from "@/types/conversation";
 import { toast } from "@/components/ui/sonner";
 
 // Buscar mensagens de um lead
@@ -153,5 +152,36 @@ export const getConversationMessages = async (
     console.error('Erro ao buscar mensagens:', error);
     toast.error('Não foi possível carregar as mensagens');
     return [];
+  }
+};
+
+// Get conversations for multiple leads
+export const getConversationsForLeads = async (leadIds: string[]): Promise<Record<string, Conversation>> => {
+  try {
+    if (leadIds.length === 0) return {};
+
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('*')
+      .in('lead_id', leadIds);
+
+    if (error) {
+      console.error('Error fetching conversations for leads:', error);
+      return {};
+    }
+
+    // Map the conversations by lead_id for easy access
+    const conversationsMap: Record<string, Conversation> = {};
+    
+    (data as Conversation[]).forEach(conversation => {
+      if (conversation.lead_id) {
+        conversationsMap[conversation.lead_id] = conversation;
+      }
+    });
+
+    return conversationsMap;
+  } catch (error) {
+    console.error('Error in getConversationsForLeads:', error);
+    return {};
   }
 };
