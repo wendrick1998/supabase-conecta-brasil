@@ -38,8 +38,12 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
         // Properly cast the data to the Conversation type
         const typedConversations = data?.map(conv => ({
-          ...conv,
+          id: conv.id,
+          lead_id: conv.lead_id,
+          lead_nome: conv.lead_nome,
           canal: conv.canal as "WhatsApp" | "Instagram" | "Email",
+          ultima_mensagem: conv.ultima_mensagem,
+          horario: conv.horario,
           status: conv.status as "Aberta" | "Fechada",
           nao_lida: Boolean(conv.nao_lida),
           avatar: conv.avatar || undefined
@@ -69,8 +73,12 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             const newConv = payload.new;
             // Ensure the new conversation is properly typed
             const typedConversation: Conversation = {
-              ...newConv,
+              id: newConv.id,
+              lead_id: newConv.lead_id,
+              lead_nome: newConv.lead_nome,
               canal: newConv.canal as "WhatsApp" | "Instagram" | "Email",
+              ultima_mensagem: newConv.ultima_mensagem,
+              horario: newConv.horario,
               status: newConv.status as "Aberta" | "Fechada",
               nao_lida: Boolean(newConv.nao_lida),
               avatar: newConv.avatar || undefined
@@ -80,8 +88,12 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             const updatedConv = payload.new;
             // Ensure the updated conversation is properly typed
             const typedConversation: Conversation = {
-              ...updatedConv,
+              id: updatedConv.id,
+              lead_id: updatedConv.lead_id,
+              lead_nome: updatedConv.lead_nome,
               canal: updatedConv.canal as "WhatsApp" | "Instagram" | "Email",
+              ultima_mensagem: updatedConv.ultima_mensagem,
+              horario: updatedConv.horario,
               status: updatedConv.status as "Aberta" | "Fechada",
               nao_lida: Boolean(updatedConv.nao_lida),
               avatar: updatedConv.avatar || undefined
