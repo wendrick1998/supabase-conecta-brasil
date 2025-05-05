@@ -1,11 +1,10 @@
 
 import { useState } from 'react';
-import { Search, Plus, Filter } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { 
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -130,44 +129,40 @@ const ConversationList = () => {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-3xl mx-auto bg-white">
-      <div className="p-4 border-b sticky top-0 bg-white z-10">
-        <h1 className="text-xl font-bold mb-4">Inbox de Comunicação</h1>
+    <div className="flex flex-col h-full bg-[#121212] text-white">
+      <div className="p-4 border-b border-gray-800 sticky top-0 bg-[#121212] z-10">
+        <h1 className="text-xl font-bold mb-4 text-left">Inbox de Comunicação</h1>
         
-        <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <div className="flex flex-col gap-2 mb-4">
           <Select onValueChange={(value) => setCanalFilter(value || null)}>
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full bg-[#222] border-gray-800 text-white">
               <SelectValue placeholder="Canal" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                <SelectItem value="Instagram">Instagram</SelectItem>
-                <SelectItem value="Email">Email</SelectItem>
-              </SelectGroup>
+            <SelectContent className="bg-[#222] border-gray-800 text-white">
+              <SelectItem value="all" className="text-white hover:bg-[#333]">Todos</SelectItem>
+              <SelectItem value="WhatsApp" className="text-white hover:bg-[#333]">WhatsApp</SelectItem>
+              <SelectItem value="Instagram" className="text-white hover:bg-[#333]">Instagram</SelectItem>
+              <SelectItem value="Email" className="text-white hover:bg-[#333]">Email</SelectItem>
             </SelectContent>
           </Select>
           
           <Select onValueChange={(value) => setStatusFilter(value || null)}>
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full bg-[#222] border-gray-800 text-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="Aberta">Aberta</SelectItem>
-                <SelectItem value="Fechada">Fechada</SelectItem>
-              </SelectGroup>
+            <SelectContent className="bg-[#222] border-gray-800 text-white">
+              <SelectItem value="all" className="text-white hover:bg-[#333]">Todos</SelectItem>
+              <SelectItem value="Aberta" className="text-white hover:bg-[#333]">Aberta</SelectItem>
+              <SelectItem value="Fechada" className="text-white hover:bg-[#333]">Fechada</SelectItem>
             </SelectContent>
           </Select>
           
-          <div className="relative flex-1">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input 
               type="search" 
               placeholder="Buscar por nome ou mensagem..." 
-              className="pl-10 w-full"
+              className="pl-10 w-full bg-[#222] border-gray-800 text-white placeholder:text-gray-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -177,7 +172,7 @@ const ConversationList = () => {
       
       <ScrollArea className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
-          <div className="py-8 text-center text-gray-500">
+          <div className="py-8 text-center text-gray-400">
             Nenhuma conversa encontrada.
           </div>
         ) : (
@@ -185,13 +180,13 @@ const ConversationList = () => {
             {filteredConversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className="flex items-center p-4 border-b hover:bg-blue-50 cursor-pointer transition-colors"
+                className="flex items-center p-4 border-b border-gray-800 hover:bg-[#222] cursor-pointer transition-colors"
                 onClick={() => handleConversationClick(conversation.id)}
               >
                 <div className="relative">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={conversation.avatar} alt={conversation.lead_nome} />
-                    <AvatarFallback>{getInitials(conversation.lead_nome)}</AvatarFallback>
+                    <AvatarFallback className="bg-[#333]">{getInitials(conversation.lead_nome)}</AvatarFallback>
                   </Avatar>
                   <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center ${channelColors[conversation.canal]} text-white text-[8px] font-bold`}>
                     {conversation.canal === 'WhatsApp' ? 'W' : 
@@ -201,10 +196,10 @@ const ConversationList = () => {
                 
                 <div className="ml-3 flex-1 min-w-0">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-medium truncate">{conversation.lead_nome}</h3>
+                    <h3 className="font-medium truncate text-white">{conversation.lead_nome}</h3>
                     <span className="text-xs text-gray-400">{formatMessageTime(conversation.horario)}</span>
                   </div>
-                  <p className="text-sm text-gray-600 truncate">{conversation.ultima_mensagem}</p>
+                  <p className="text-sm text-gray-400 truncate">{conversation.ultima_mensagem}</p>
                 </div>
                 
                 {conversation.nao_lida && (
@@ -218,7 +213,7 @@ const ConversationList = () => {
 
       <Button
         onClick={handleNewMessage}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-pink-500 hover:bg-pink-600 p-0"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-pink-500 hover:bg-pink-600 p-0 shadow-lg"
         aria-label="Nova Mensagem"
       >
         <Plus className="h-6 w-6" />

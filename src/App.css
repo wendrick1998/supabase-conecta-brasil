@@ -11,6 +11,7 @@
   background-image: 
     radial-gradient(at 20% 30%, rgba(93, 46, 140, 0.12) 0%, transparent 70%),
     radial-gradient(at 80% 70%, rgba(57, 255, 20, 0.05) 0%, transparent 60%);
+  background-color: #121212;
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -156,3 +157,40 @@
   @apply overflow-hidden break-words;
 }
 
+/* Dark theme for conversations */
+.conversation-dark-theme {
+  @apply bg-[#121212] text-white border-gray-800;
+}
+
+/* Dark input styles */
+.dark-input {
+  @apply bg-[#222] border-gray-800 text-white placeholder:text-gray-400;
+}
+
+/* Dark select styles */
+.dark-select {
+  @apply bg-[#222] border-gray-800 text-white;
+}
+
+.dark-select-content {
+  @apply bg-[#222] border-gray-800 text-white;
+}
+
+.dark-select-item {
+  @apply text-white hover:bg-[#333];
+}
+
+/* Dark conversation list item */
+.conversation-list-item {
+  @apply border-b border-gray-800 hover:bg-[#222] cursor-pointer transition-colors;
+}
+
+/* Animations for conversation list */
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

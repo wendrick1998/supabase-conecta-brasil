@@ -9,6 +9,7 @@ import {
   useSensors,
   DragStartEvent,
   DragEndEvent,
+  DragOverEvent,
   MeasuringConfiguration,
 } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
@@ -21,6 +22,7 @@ interface AutomationDndContextProps {
   onDragStart: (event: DragStartEvent) => void;
   onDragEnd: (event: DragEndEvent) => void;
   onDragCancel: () => void;
+  onDragOver?: (event: DragOverEvent) => void;
   activeBlock: Block | null;
   activeDragType: 'block' | 'connection' | null;
   activeDragBlockId: string | null;
@@ -31,6 +33,7 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
   onDragStart,
   onDragEnd,
   onDragCancel,
+  onDragOver,
   activeBlock,
   activeDragType,
   activeDragBlockId,
@@ -50,7 +53,7 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
 
   const measuring: MeasuringConfiguration = {
     droppable: {
-      strategy: 'always',
+      strategy: 'always' as const,
     },
   };
 
@@ -79,6 +82,7 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onDragCancel={onDragCancel}
+      onDragOver={onDragOver}
       measuring={measuring}
     >
       {children}
