@@ -121,7 +121,8 @@ export const compressImage = async (file: File): Promise<File> => {
       options = compressionOptions.high;
     }
     
-    const compressedBlob = await imageCompression(file, options);
+    // Changed from const to let to allow reassignment
+    let compressedBlob = await imageCompression(file, options);
     console.log('Compression complete:', compressedBlob.size, 'bytes');
     
     // Se a compressão não reduziu o tamanho significativamente, tente um nível mais agressivo
