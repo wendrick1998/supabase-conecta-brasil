@@ -47,14 +47,14 @@ export function registerServiceWorker() {
 
 // Function to setup background sync
 async function setupBackgroundSync(registration: ServiceWorkerRegistration) {
-  if ('sync' in registration) {
-    try {
+  try {
+    if ('sync' in registration) {
       // Register for background sync - this would sync messages when online
       await registration.sync.register('sync-messages');
       console.log('Background sync registered');
-    } catch (err) {
-      console.error('Background sync registration failed:', err);
     }
+  } catch (err) {
+    console.error('Background sync registration failed:', err);
   }
 }
 
@@ -129,4 +129,3 @@ function urlBase64ToUint8Array(base64String: string) {
   }
   return outputArray;
 }
-

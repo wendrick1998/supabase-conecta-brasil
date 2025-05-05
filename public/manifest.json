@@ -60,5 +60,25 @@
   },
   "edge_side_panel": {
     "preferred_width": 400
-  }
+  },
+  "display_override": ["standalone", "window-controls-overlay", "minimal-ui"],
+  "id": "vendah-plus-crm",
+  "protocol_handlers": [
+    {
+      "protocol": "mailto",
+      "url": "/compose?to=%s"
+    },
+    {
+      "protocol": "web+vendah",
+      "url": "/custom/%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/upload",
+      "accept": {
+        "image/*": [".png", ".jpg", ".jpeg"]
+      }
+    }
+  ]
 }

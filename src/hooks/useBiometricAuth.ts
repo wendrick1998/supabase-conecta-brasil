@@ -47,7 +47,7 @@ const useBiometricAuth = () => {
     try {
       // Create a simple credential to verify user presence
       // This will trigger TouchID/FaceID on devices that support it
-      const publicKey = {
+      const publicKey: PublicKeyCredentialCreationOptions = {
         challenge: new Uint8Array([1, 2, 3, 4]),
         rp: { name: 'Vendah+' },
         user: {
@@ -58,7 +58,7 @@ const useBiometricAuth = () => {
         pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
         timeout: 60000,
         authenticatorSelection: {
-          authenticatorAttachment: 'platform',
+          authenticatorAttachment: 'platform' as AuthenticatorAttachment,
           userVerification: 'required' 
         }
       };
