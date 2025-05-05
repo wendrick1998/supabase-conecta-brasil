@@ -11,6 +11,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import ConversationPreview from './ConversationPreview';
 import ConversationFooter from './ConversationFooter';
+import { formatCurrency } from '@/utils/formatters';
 
 interface PipelineCardProps {
   lead: Lead;
@@ -23,6 +24,7 @@ interface PipelineCardProps {
     unreadCount: number;
     isViewed: boolean;
   };
+  leadValue?: number;
 }
 
 const PipelineCard: React.FC<PipelineCardProps> = ({ 
@@ -30,7 +32,8 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
   onMove, 
   stages, 
   isDragging = false,
-  conversation 
+  conversation,
+  leadValue 
 }) => {
   const navigate = useNavigate();
   
@@ -113,6 +116,14 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
                 }}>
                   Editar lead
                 </DropdownMenuItem>
+                {conversation && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/inbox/${lead.id}`);
+                  }}>
+                    Ver conversas
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 
                 {/* Menu para mover para outros estágios */}
@@ -143,6 +154,15 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
           </div>
         </div>
         
+        {/* Show lead value if available */}
+        {leadValue !== undefined && (
+          <div className="mt-1.5 mb-1 px-2 py-1 bg-green-50 rounded-md inline-block">
+            <span className="text-sm text-green-700 font-medium">
+              {formatCurrency(leadValue)}
+            </span>
+          </div>
+        )}
+        
         {/* Tags */}
         {lead.tags && lead.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
@@ -163,6 +183,7 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
             message={conversation.lastMessage}
             leadName={lead.nome}
             onClick={navigateToChat}
+            unreadCount={conversation.unreadCount}
           />
         )}
         

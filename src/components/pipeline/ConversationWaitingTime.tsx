@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { differenceInMinutes, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { getMinutesElapsed, formatElapsedTime } from '@/utils/formatters';
 
 interface ConversationWaitingTimeProps {
   timestamp: string;
@@ -23,28 +23,26 @@ const ConversationWaitingTime: React.FC<ConversationWaitingTimeProps> = ({
   }
 
   // Calculate waiting time based on timestamp
-  const minutesWaiting = differenceInMinutes(
-    new Date(),
-    parseISO(timestamp)
-  );
+  const minutesWaiting = getMinutesElapsed(timestamp);
+  const formattedTime = formatElapsedTime(minutesWaiting);
 
   // Determine styling based on waiting time
-  if (minutesWaiting < 5) {
+  if (minutesWaiting < 10) {
     return (
       <Badge className="bg-green-100 text-green-700 px-2 py-0.5 text-xs font-medium">
-        Esperando há {minutesWaiting}min
+        Esperando há {formattedTime}
       </Badge>
     );
-  } else if (minutesWaiting < 30) {
+  } else if (minutesWaiting < 60) {
     return (
       <Badge className="bg-yellow-100 text-yellow-800 px-2 py-0.5 text-xs font-medium">
-        Esperando há {minutesWaiting}min
+        Esperando há {formattedTime}
       </Badge>
     );
   } else {
     return (
       <Badge className="bg-red-100 text-red-800 px-2 py-0.5 text-xs font-medium">
-        Esperando há {minutesWaiting}min
+        Esperando há {formattedTime}
       </Badge>
     );
   }

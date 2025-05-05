@@ -1,7 +1,7 @@
 
 import React, { useState, CSSProperties } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { Settings, Trash2 } from 'lucide-react';
+import { Settings, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Block } from '@/types/automation';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { getBlockInfo, getBlockColor } from '@/utils/automationUtils';
 import { AutomationBlockConfig } from './AutomationBlockConfig';
 import { BlockConnectionPoints } from './BlockConnectionPoints';
+import { cn } from '@/lib/utils';
 
 interface AutomationBlockProps {
   block: Block;
@@ -35,6 +36,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   
   const [showConfig, setShowConfig] = useState(false);
   const [blockConfig, setBlockConfig] = useState<Record<string, any>>(block.config);
+  const [isHovered, setIsHovered] = useState(false);
   const blockInfo = getBlockInfo(block.type);
   const blockColor = getBlockColor(block.category);
 
@@ -82,7 +84,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
     ? 'border-2 border-dashed border-red-500' 
     : 'border';
 
-  // Add visual feedback for connecting state
+  // Add visual feedback for connecting state and hover
   const connectionClass = isConnecting
     ? (isConnectionSource ? 'ring-2 ring-pink-500 shadow-lg' : 'ring-1 ring-blue-300')
     : '';
@@ -90,13 +92,20 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   return (
     <>
       <div
+        id={block.id}
         ref={setNodeRef}
         style={style}
         {...attributes}
         {...listeners}
-        className={`rounded-md shadow-md ${blockColor} ${blockStatusClass} ${connectionClass} transition-all hover:shadow-lg`}
+        className={cn(
+          `rounded-md shadow-md ${blockColor} ${blockStatusClass} ${connectionClass} transition-all`,
+          isHovered && !isConnecting ? 'shadow-lg scale-[1.02]' : '',
+          isConnectionSource ? 'rotate-1' : ''
+        )}
         aria-labelledby={`block-title-${block.id}`}
         onClick={() => !isConnecting && setShowConfig(true)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
@@ -118,7 +127,10 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
           <div className="text-sm">
             {block.configured ? 
               <p>{getSummaryText(block)}</p> : 
-              <p className="text-red-500 font-medium">Necessita configuração</p>
+              <div className="flex items-center text-red-500 font-medium">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                <span>Necessita configuração</span>
+              </div>
             }
           </div>
           
@@ -137,7 +149,10 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
       <Dialog open={showConfig} onOpenChange={setShowConfig}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Configurar {blockInfo.name}</DialogTitle>
+            <DialogTitle className="flex items-center">
+              {blockInfo.icon && <span className="mr-2">{blockInfo.icon}</span>}
+              Configurar {blockInfo.name}
+            </DialogTitle>
           </DialogHeader>
           
           <AutomationBlockConfig 
