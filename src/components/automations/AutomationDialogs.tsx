@@ -1,18 +1,35 @@
 
 import React from 'react';
+import { TemplatesDialog } from './TemplatesDialog';
+import { PreviewDialog } from './PreviewDialog';
+import { TestResultsDialog } from './TestResultsDialog';
 import { Block } from '@/types/automation';
-import { PreviewDialog } from '@/components/automations/PreviewDialog';
-import { TemplatesDialog } from '@/components/automations/TemplatesDialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+
+interface TestResult {
+  blockId: string;
+  status: 'success' | 'error' | 'pending';
+  message: string;
+}
+
+interface TestSummary {
+  success: boolean;
+  message: string;
+  details: string[];
+}
 
 interface AutomationDialogsProps {
   showTemplates: boolean;
   setShowTemplates: (show: boolean) => void;
   showPreview: boolean;
   setShowPreview: (show: boolean) => void;
+  showTestResults: boolean;
+  setShowTestResults: (show: boolean) => void;
   blocks: Block[];
-  handleApplyTemplate: (templateBlocks: Block[]) => void;
+  testResults: TestResult[];
+  testSummary: TestSummary | null;
+  isTestRunning: boolean;
+  handleApplyTemplate: (blocks: Block[]) => void;
+  handleRunTest: () => void;
 }
 
 export const AutomationDialogs: React.FC<AutomationDialogsProps> = ({
@@ -20,43 +37,41 @@ export const AutomationDialogs: React.FC<AutomationDialogsProps> = ({
   setShowTemplates,
   showPreview,
   setShowPreview,
+  showTestResults,
+  setShowTestResults,
   blocks,
-  handleApplyTemplate
+  testResults,
+  testSummary,
+  isTestRunning,
+  handleApplyTemplate,
+  handleRunTest
 }) => {
-  // Verifica se há blocos suficientes para exibir uma prévia
-  const hasEnoughBlocks = blocks.length > 1;
-  
   return (
     <>
-      {/* Template dialog */}
-      <TemplatesDialog 
-        open={showTemplates} 
-        onOpenChange={setShowTemplates} 
+      {/* Templates Dialog */}
+      <TemplatesDialog
+        open={showTemplates}
+        onOpenChange={setShowTemplates}
         onApplyTemplate={handleApplyTemplate}
-      >
-        {blocks.length > 0 && (
-          <div className="flex items-center mb-2">
-            <Badge variant="count">
-              {blocks.length} {blocks.length === 1 ? 'bloco' : 'blocos'}
-            </Badge>
-          </div>
-        )}
-      </TemplatesDialog>
+      />
       
-      {/* Preview dialog */}
-      <PreviewDialog 
-        open={showPreview} 
-        onOpenChange={setShowPreview} 
-        blocks={blocks} 
-      >
-        {!hasEnoughBlocks && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertDescription>
-              Você precisa adicionar pelo menos dois blocos conectados para visualizar a prévia da automação.
-            </AlertDescription>
-          </Alert>
-        )}
-      </PreviewDialog>
+      {/* Preview Dialog */}
+      <PreviewDialog
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        blocks={blocks}
+      />
+
+      {/* Test Results Dialog */}
+      <TestResultsDialog 
+        open={showTestResults}
+        onOpenChange={setShowTestResults}
+        blocks={blocks}
+        testResults={testResults}
+        testSummary={testSummary}
+        isTestRunning={isTestRunning}
+        onRetest={handleRunTest}
+      />
     </>
   );
 };

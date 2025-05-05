@@ -10,6 +10,7 @@ import { BlockActions } from './block/BlockActions';
 import { BlockSummary } from './block/BlockSummary';
 import { BlockConfigDialog } from './block/BlockConfigDialog';
 import { useBlockStyles } from './block/useBlockStyles';
+import { CheckCircle, XCircle, Clock } from 'lucide-react';
 
 interface AutomationBlockProps {
   block: Block;
@@ -19,6 +20,10 @@ interface AutomationBlockProps {
   onEndConnection?: (blockId: string) => void;
   isConnecting?: boolean;
   isConnectionSource?: boolean;
+  testResult?: {
+    status: 'success' | 'error' | 'pending';
+    message: string;
+  } | null;
 }
 
 export const AutomationBlock: React.FC<AutomationBlockProps> = ({
@@ -28,7 +33,8 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   onStartConnection,
   onEndConnection,
   isConnecting = false,
-  isConnectionSource = false
+  isConnectionSource = false,
+  testResult = null
 }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: block.id,
@@ -84,6 +90,22 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
     }
   };
 
+  // Aplica cor baseada no resultado do teste
+  const getTestResultColor = () => {
+    if (!testResult) return '';
+    
+    switch (testResult.status) {
+      case 'success':
+        return 'ring-2 ring-green-500/70 shadow-lg shadow-green-900/30';
+      case 'error':
+        return 'ring-2 ring-red-500/70 shadow-lg shadow-red-900/30';
+      case 'pending':
+        return 'ring-2 ring-amber-500/70 animate-pulse shadow-lg shadow-amber-900/30';
+      default:
+        return '';
+    }
+  };
+
   return (
     <>
       <div
@@ -96,7 +118,8 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
           `automation-block rounded-md shadow-md ${getCategoryColor()} ${blockStatusClass} ${connectionClass} transition-all px-5 py-4`,
           isHovered && !isConnecting ? 'shadow-lg scale-[1.02]' : '',
           isConnectionSource ? 'rotate-1' : '',
-          !block.configured ? 'border-dashed' : 'border-solid'
+          !block.configured ? 'border-dashed' : 'border-solid',
+          testResult ? getTestResultColor() : ''
         )}
         aria-labelledby={`block-title-${block.id}`}
         onClick={() => !isConnecting && setShowConfig(true)}
@@ -111,6 +134,13 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
             />
             
             <div className="flex space-x-1">
+              {testResult && (
+                <div className="mr-2" title={testResult.message}>
+                  {testResult.status === 'success' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                  {testResult.status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
+                  {testResult.status === 'pending' && <Clock className="h-5 w-5 text-amber-500 animate-pulse" />}
+                </div>
+              )}
               <BlockActions 
                 onOpenConfig={() => setShowConfig(true)}
                 onDelete={onDelete}

@@ -7,12 +7,19 @@ import { AutomationDndContext } from '@/components/automations/AutomationDndCont
 import { Block } from '@/types/automation';
 import { DragOverEvent } from '@dnd-kit/core';
 
+interface TestResult {
+  blockId: string;
+  status: 'success' | 'error' | 'pending';
+  message: string;
+}
+
 interface AutomationWorkspaceProps {
   blocks: Block[];
   canvasRef: React.RefObject<HTMLDivElement>;
   isMobile: boolean;
   setShowTemplates: (show: boolean) => void;
   setShowPreview: (show: boolean) => void;
+  setShowTestResults: (show: boolean) => void;
   handleDragStart: any;
   handleDragEnd: any;
   handleDragOver?: (event: DragOverEvent) => void;
@@ -20,6 +27,7 @@ interface AutomationWorkspaceProps {
   handleDeleteBlock: (blockId: string) => void;
   handleCreateConnection: (fromBlockId: string, toBlockId: string) => void;
   onAddBlockByClick: (blockType: string) => void;
+  testResults: TestResult[];
 }
 
 export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
@@ -28,13 +36,15 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
   isMobile,
   setShowTemplates,
   setShowPreview,
+  setShowTestResults,
   handleDragStart,
   handleDragEnd,
   handleDragOver,
   handleConfigureBlock,
   handleDeleteBlock,
   handleCreateConnection,
-  onAddBlockByClick
+  onAddBlockByClick,
+  testResults
 }) => {
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full">
@@ -58,11 +68,13 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
             onConfigureBlock={handleConfigureBlock}
             onDeleteBlock={handleDeleteBlock}
             onCreateConnection={handleCreateConnection}
+            testResults={testResults}
           />
           
           {/* Canvas controls */}
           <AutomationCanvasControls
             onShowPreview={() => setShowPreview(true)}
+            onShowTestResults={() => setShowTestResults(true)}
           />
         </main>
       </AutomationDndContext>

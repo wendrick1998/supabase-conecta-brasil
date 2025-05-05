@@ -20,9 +20,14 @@ const AutomacaoEditorPage = () => {
     setShowTemplates,
     showPreview,
     setShowPreview,
+    showTestResults,
+    setShowTestResults,
     isMobile,
     setIsMobile,
     isLoading,
+    isTestRunning,
+    testResults,
+    testSummary,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
@@ -128,6 +133,7 @@ const AutomacaoEditorPage = () => {
               isMobile={isMobile}
               setShowTemplates={setShowTemplates}
               setShowPreview={setShowPreview}
+              setShowTestResults={setShowTestResults}
               handleDragStart={handleDragStart}
               handleDragEnd={handleDragEnd}
               handleDragOver={handleDragOver}
@@ -135,6 +141,7 @@ const AutomacaoEditorPage = () => {
               handleDeleteBlock={handleDeleteBlock}
               handleCreateConnection={handleCreateConnection}
               onAddBlockByClick={handleAddBlockByClick}
+              testResults={testResults}
             />
           )}
         </div>
@@ -146,8 +153,14 @@ const AutomacaoEditorPage = () => {
         setShowTemplates={setShowTemplates}
         showPreview={showPreview}
         setShowPreview={setShowPreview}
+        showTestResults={showTestResults}
+        setShowTestResults={setShowTestResults}
         blocks={blocks}
+        testResults={testResults}
+        testSummary={testSummary}
+        isTestRunning={isTestRunning}
         handleApplyTemplate={handleApplyTemplate}
+        handleRunTest={handleTestAutomation}
       />
     </>
   );

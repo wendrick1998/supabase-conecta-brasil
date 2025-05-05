@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Block, BlockType } from '@/types/automation';
@@ -15,6 +16,7 @@ export const useAutomationEditor = () => {
   const [automationName, setAutomationName] = useState(id ? 'Editar Automação' : 'Nova Automação');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isLoading, setIsLoading] = useState(false);
+  const [showTestResults, setShowTestResults] = useState(false);
 
   // Import sub-hooks
   const { 
@@ -37,7 +39,11 @@ export const useAutomationEditor = () => {
 
   const {
     validateAutomation,
-    handleTestAutomation
+    handleTestAutomation,
+    testResults,
+    isTestRunning,
+    testSummary,
+    resetTest
   } = useAutomationValidation(blocks);
 
   const {
@@ -315,6 +321,13 @@ export const useAutomationEditor = () => {
     }
   }, [blocks, setActiveBlock, generateBlockId, getBlockCategory]);
 
+  // Wrapper for test automation to show results dialog
+  const handleRunTest = useCallback(() => {
+    resetTest();
+    setShowTestResults(true);
+    handleTestAutomation();
+  }, [handleTestAutomation, resetTest]);
+
   return {
     automationName,
     setAutomationName,
@@ -326,16 +339,21 @@ export const useAutomationEditor = () => {
     setShowTemplates,
     showPreview,
     setShowPreview,
+    showTestResults,
+    setShowTestResults,
     isMobile,
     setIsMobile,
     isLoading,
+    isTestRunning,
+    testResults,
+    testSummary,
     canvasRef,
     handleDragStart: enhancedHandleDragStart,
     handleDragOver,
     handleDragEnd,
     handleAddBlockByClick,
     handleSaveAutomation,
-    handleTestAutomation,
+    handleTestAutomation: handleRunTest,
     handleCancelAutomation,
     handleConfigureBlock,
     handleDeleteBlock,

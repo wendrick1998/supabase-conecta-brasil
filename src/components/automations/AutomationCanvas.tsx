@@ -8,12 +8,19 @@ import { ConnectionDrawingIndicator } from './canvas/ConnectionDrawingIndicator'
 import { EmptyCanvasMessage } from './canvas/EmptyCanvasMessage';
 import { useCanvasConnections } from '@/hooks/automation/useCanvasConnections';
 
+interface TestResult {
+  blockId: string;
+  status: 'success' | 'error' | 'pending';
+  message: string;
+}
+
 interface AutomationCanvasProps {
   blocks: Block[];
   canvasRef: React.RefObject<HTMLDivElement>;
   onConfigureBlock: (blockId: string) => void;
   onDeleteBlock: (blockId: string) => void;
   onCreateConnection: (fromBlockId: string, toBlockId: string) => void;
+  testResults?: TestResult[];
 }
 
 export const AutomationCanvas: React.FC<AutomationCanvasProps> = ({
@@ -21,7 +28,8 @@ export const AutomationCanvas: React.FC<AutomationCanvasProps> = ({
   canvasRef,
   onConfigureBlock,
   onDeleteBlock,
-  onCreateConnection
+  onCreateConnection,
+  testResults = []
 }) => {
   const { setNodeRef } = useDroppable({
     id: 'automation-canvas',
@@ -43,6 +51,11 @@ export const AutomationCanvas: React.FC<AutomationCanvasProps> = ({
       // Using a function to update the ref value is safer than direct assignment
       (canvasRef as any).current = node;
     }
+  };
+
+  // Find test result for a specific block
+  const getTestResultForBlock = (blockId: string) => {
+    return testResults.find(result => result.blockId === blockId);
   };
 
   return (
@@ -76,6 +89,7 @@ export const AutomationCanvas: React.FC<AutomationCanvasProps> = ({
           onEndConnection={handleBlockConnectionEnd}
           isConnecting={activeConnectionSource !== null}
           isConnectionSource={activeConnectionSource === block.id}
+          testResult={getTestResultForBlock(block.id)}
         />
       ))}
     </div>
