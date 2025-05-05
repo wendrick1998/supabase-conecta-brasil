@@ -6,7 +6,17 @@ import { Conversation } from '@/types/conversation';
 import { ArrowLeft } from 'lucide-react'; 
 import { Button } from '@/components/ui/button';
 
-const InboxLayout: React.FC = () => {
+interface InboxLayoutProps {
+  conversations?: Conversation[];
+  isLoading?: boolean;
+  emptyMessage?: string;
+}
+
+export const InboxLayout: React.FC<InboxLayoutProps> = ({ 
+  conversations = [],
+  isLoading = false,
+  emptyMessage = "Nenhuma conversa disponível"
+}) => {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showMobileChat, setShowMobileChat] = useState(false);
   
@@ -41,10 +51,13 @@ const InboxLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-4rem)] bg-[#121212] overflow-hidden">
+    <div className="flex flex-1 h-full min-h-0 overflow-hidden">
       {/* Left sidebar with conversation list - hide on mobile when chat is visible */}
       <div className={`w-full md:w-1/3 xl:w-1/4 border-r border-vendah-purple/20 bg-surface/30 ${showMobileChat ? 'hidden md:block' : 'block'}`}>
         <ConversationList 
+          conversations={conversations}
+          isLoading={isLoading}
+          emptyMessage={emptyMessage}
           selectedConversationId={selectedConversation?.id} 
           onSelectConversation={handleSelectConversation} 
         />

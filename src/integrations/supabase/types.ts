@@ -224,9 +224,11 @@ export type Database = {
           configuracao: Json | null
           criado_em: string
           id: string
+          instance_name: string | null
           nome: string
           qr_code: string | null
           refresh_token: string | null
+          session_id: string | null
           status: boolean | null
           token_expira_em: string | null
           usuario_id: string | null
@@ -239,9 +241,11 @@ export type Database = {
           configuracao?: Json | null
           criado_em?: string
           id?: string
+          instance_name?: string | null
           nome: string
           qr_code?: string | null
           refresh_token?: string | null
+          session_id?: string | null
           status?: boolean | null
           token_expira_em?: string | null
           usuario_id?: string | null
@@ -254,15 +258,25 @@ export type Database = {
           configuracao?: Json | null
           criado_em?: string
           id?: string
+          instance_name?: string | null
           nome?: string
           qr_code?: string | null
           refresh_token?: string | null
+          session_id?: string | null
           status?: boolean | null
           token_expira_em?: string | null
           usuario_id?: string | null
           webhook_token?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "canais_conectados_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions_whatsapp"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conexoes_blocos: {
         Row: {
@@ -533,30 +547,36 @@ export type Database = {
       messages: {
         Row: {
           attachment: Json | null
+          canal_id: string | null
           conexao_id: string | null
           content: string
           conversation_id: string
           id: string
+          lead_id: string | null
           sender_type: string
           status: string
           timestamp: string
         }
         Insert: {
           attachment?: Json | null
+          canal_id?: string | null
           conexao_id?: string | null
           content: string
           conversation_id: string
           id?: string
+          lead_id?: string | null
           sender_type: string
           status?: string
           timestamp?: string
         }
         Update: {
           attachment?: Json | null
+          canal_id?: string | null
           conexao_id?: string | null
           content?: string
           conversation_id?: string
           id?: string
+          lead_id?: string | null
           sender_type?: string
           status?: string
           timestamp?: string
@@ -567,6 +587,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "canais_conectados"
             referencedColumns: ["id"]
           },
           {
@@ -581,6 +608,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -613,6 +647,89 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_events: {
+        Row: {
+          criado_em: string
+          event_type: string
+          id: string
+          payload: Json | null
+          session_id: string | null
+        }
+        Insert: {
+          criado_em?: string
+          event_type: string
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+        }
+        Update: {
+          criado_em?: string
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions_whatsapp"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions_whatsapp: {
+        Row: {
+          atualizado_em: string
+          canal_id: string | null
+          criado_em: string
+          id: string
+          instance_name: string
+          last_activity: string
+          qr_code: string | null
+          status: string
+          usuario_id: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          canal_id?: string | null
+          criado_em?: string
+          id?: string
+          instance_name: string
+          last_activity?: string
+          qr_code?: string | null
+          status?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          canal_id?: string | null
+          criado_em?: string
+          id?: string
+          instance_name?: string
+          last_activity?: string
+          qr_code?: string | null
+          status?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_whatsapp_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "canais_conectados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_whatsapp_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
             referencedColumns: ["id"]
           },
         ]
@@ -678,6 +795,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      usuarios: {
+        Row: {
+          atualizado_em: string
+          auth_id: string | null
+          avatar: string | null
+          cargo: string | null
+          criado_em: string
+          email: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          atualizado_em?: string
+          auth_id?: string | null
+          avatar?: string | null
+          cargo?: string | null
+          criado_em?: string
+          email: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          atualizado_em?: string
+          auth_id?: string | null
+          avatar?: string | null
+          cargo?: string | null
+          criado_em?: string
+          email?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
       }
     }
     Views: {

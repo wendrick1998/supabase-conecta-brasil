@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import InboxLayout from '@/components/inbox/InboxLayout';
+import { UnifiedInbox } from '@/components/inbox/UnifiedInbox';
 
 const InboxPage: React.FC = () => {
   return (
@@ -9,7 +9,7 @@ const InboxPage: React.FC = () => {
       <Helmet>
         <title>Inbox | Vendah+</title>
       </Helmet>
-      <InboxLayout />
+      <UnifiedInbox />
     </>
   );
 };

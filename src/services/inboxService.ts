@@ -1,0 +1,162 @@
+
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Conversation } from "@/types/conversation";
+
+// Interface for filters
+export interface InboxFilters {
+  search?: string;
+  canais?: ('WhatsApp' | 'Instagram' | 'Facebook' | 'Email')[];
+  status?: ('Aberta' | 'Fechada')[];
+  dateRange?: {
+    from: Date;
+    to: Date;
+  };
+}
+
+// Get all conversations
+export const getConversations = async (filters?: InboxFilters): Promise<Conversation[]> => {
+  try {
+    let query = supabase
+      .from('conversations')
+      .select('*')
+      .order('horario', { ascending: false });
+    
+    // Apply filters
+    if (filters) {
+      // Filter by search term
+      if (filters.search) {
+        query = query.or(`lead_nome.ilike.%${filters.search}%,ultima_mensagem.ilike.%${filters.search}%`);
+      }
+      
+      // Filter by channels
+      if (filters.canais && filters.canais.length > 0) {
+        query = query.in('canal', filters.canais);
+      }
+      
+      // Filter by status
+      if (filters.status && filters.status.length > 0) {
+        query = query.in('status', filters.status);
+      }
+      
+      // Filter by date range
+      if (filters.dateRange) {
+        const fromDate = filters.dateRange.from.toISOString();
+        const toDate = filters.dateRange.to.toISOString();
+        query = query.gte('horario', fromDate).lte('horario', toDate);
+      }
+    }
+    
+    // Execute the query
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    
+    // Cast the results to ensure proper type conversion
+    return (data || []).map(conversation => ({
+      ...conversation,
+      canal: conversation.canal as 'WhatsApp' | 'Instagram' | 'Email',
+      status: conversation.status as 'Aberta' | 'Fechada'
+    }));
+  } catch (error: any) {
+    toast.error(`Erro ao buscar conversas: ${error.message}`);
+    return [];
+  }
+};
+
+// Get conversation statistics
+export const getConversationStats = async (): Promise<{
+  total: number;
+  unread: number;
+  byChannel: Record<string, number>;
+}> => {
+  try {
+    // Get total conversations
+    const { count: total, error: totalError } = await supabase
+      .from('conversations')
+      .select('*', { count: 'exact', head: true });
+    
+    if (totalError) throw totalError;
+    
+    // Get unread conversations
+    const { count: unread, error: unreadError } = await supabase
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .eq('nao_lida', true);
+    
+    if (unreadError) throw unreadError;
+    
+    // Get conversations by channel
+    const { data: channelData, error: channelError } = await supabase
+      .from('conversations')
+      .select('canal')
+      .is('nao_lida', true);
+    
+    if (channelError) throw channelError;
+    
+    // Count conversations by channel
+    const byChannel: Record<string, number> = {};
+    channelData?.forEach(conversation => {
+      const channel = conversation.canal;
+      byChannel[channel] = (byChannel[channel] || 0) + 1;
+    });
+    
+    return {
+      total: total || 0,
+      unread: unread || 0,
+      byChannel
+    };
+  } catch (error: any) {
+    console.error('Error fetching conversation stats:', error);
+    return {
+      total: 0,
+      unread: 0,
+      byChannel: {}
+    };
+  }
+};
+
+// Subscribe to conversation changes
+export const subscribeToConversations = (
+  onInsert?: (conversation: Conversation) => void,
+  onUpdate?: (conversation: Conversation) => void,
+  onDelete?: (id: string) => void
+) => {
+  const channel = supabase
+    .channel('conversation-changes')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'conversations' },
+      (payload) => {
+        if (onInsert) {
+          const conversation = payload.new as Conversation;
+          onInsert(conversation);
+        }
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'conversations' },
+      (payload) => {
+        if (onUpdate) {
+          const conversation = payload.new as Conversation;
+          onUpdate(conversation);
+        }
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'conversations' },
+      (payload) => {
+        if (onDelete) {
+          const id = payload.old.id;
+          onDelete(id);
+        }
+      }
+    )
+    .subscribe();
+  
+  return () => {
+    supabase.removeChannel(channel);
+  };
+};

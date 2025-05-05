@@ -12,11 +12,13 @@ export interface ChannelConnection {
   refresh_token?: string | null;
   token_expira_em?: string | null;
   qr_code?: string | null;
-  configuracao?: Record<string, any> | Json | null;
+  configuracao?: Record<string, any> | null;
   webhook_token?: string | null;
   criado_em: string;
   atualizado_em: string;
   usuario_id?: string | null;
+  instance_name?: string | null;
+  session_id?: string | null;
 }
 
 // Get all channel connections
