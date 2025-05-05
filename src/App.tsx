@@ -3,35 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useRoutes } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Layout from "./components/Layout";
-import DashboardLayout from "./components/DashboardLayout";
-import HomePage from "./pages/HomePage";
-import AuthPage from "./pages/AuthPage";
-import LeadsPage from "./pages/LeadsPage";
-import LeadDetailPage from "./pages/LeadDetailPage";
-import NewLeadPage from "./pages/NewLeadPage";
-import EditLeadPage from "./pages/EditLeadPage";
-import PipelinePage from "./pages/PipelinePage";
-import PipelineConfigPage from "./pages/PipelineConfigPage";
-import AutomacoesPage from "./pages/AutomacoesPage";
-import AutomacaoEditorPage from "./pages/AutomacaoEditorPage";
-import PulsePage from "./pages/PulsePage";
-import NotFound from "./pages/NotFound";
-import Index from "./pages/Index";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import ConversationList from "./components/conversations/ConversationList";
-import ConversationDetail from "./components/conversations/ConversationDetail";
-import NewConversation from "./components/conversations/NewConversation";
-import InboxPage from "./pages/InboxPage";
-import ChannelManagementPage from "./pages/ChannelManagementPage";
+import { appRoutes } from "./routes";
 
-// Create a redirect component to handle the inbox to conversations redirect
-const InboxToConversationRedirect = () => {
-  const { id } = useParams();
-  return <Navigate to={`/conversations/${id}`} replace />;
+// Create a root component that uses the useRoutes hook
+const AppRoutes = () => {
+  return useRoutes(appRoutes);
 };
 
 const queryClient = new QueryClient();
@@ -44,43 +23,7 @@ const App = () => (
           <AuthProvider>
             <Toaster />
             <Sonner />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              
-              {/* Protected routes with Dashboard layout */}
-              <Route element={<ProtectedRoute />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="dashboard" element={<Index />} />
-                  <Route path="leads" element={<LeadsPage />} />
-                  <Route path="leads/novo" element={<NewLeadPage />} />
-                  <Route path="leads/:id/editar" element={<EditLeadPage />} />
-                  <Route path="leads/:id" element={<LeadDetailPage />} />
-                  <Route path="pipeline" element={<PipelinePage />} />
-                  <Route path="pipeline/configuracao" element={<PipelineConfigPage />} />
-                  <Route path="automacoes" element={<AutomacoesPage />} />
-                  <Route path="automacoes/nova" element={<AutomacaoEditorPage />} />
-                  <Route path="automacoes/:id/editar" element={<AutomacaoEditorPage />} />
-                  <Route path="pulse" element={<PulsePage />} />
-                  
-                  {/* New multicanal inbox */}
-                  <Route path="inbox" element={<InboxPage />} />
-                  
-                  {/* Channel management */}
-                  <Route path="channels" element={<ChannelManagementPage />} />
-                  
-                  {/* Original conversation routes */}
-                  <Route path="conversations" element={<ConversationList />} />
-                  <Route path="conversations/new" element={<NewConversation />} />
-                  <Route path="conversations/:id" element={<ConversationDetail />} />
-                  
-                  {/* Redirect for backward compatibility - inbox → conversations */}
-                  <Route path="inbox/:id" element={<InboxToConversationRedirect />} />
-                </Route>
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppRoutes />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

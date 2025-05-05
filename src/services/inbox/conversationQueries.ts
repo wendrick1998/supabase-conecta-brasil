@@ -1,7 +1,27 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation } from "@/types/conversation";
-import { InboxFilters } from "@/types/inboxTypes";
+
+// Define the interface for inbox filters
+export interface InboxFilters {
+  search?: string;
+  canais?: string[];
+  status?: string[];
+  priority?: string;
+  accountId?: string;
+  channel?: string;
+  dateRange?: {
+    from: Date;
+    to: Date;
+  };
+}
+
+// Type for connected accounts
+export interface ConnectedAccount {
+  id: string;
+  nome: string;
+  canal: string;
+}
 
 // Get conversations with optional filtering
 export const getConversations = async (filters?: InboxFilters) => {
@@ -97,9 +117,10 @@ export const getConversationStats = async () => {
 };
 
 // Get connected accounts
-export const getConnectedAccounts = async () => {
+export const getConnectedAccounts = async (): Promise<ConnectedAccount[]> {
+  // Use the direct table name to avoid type issues
   const { data, error } = await supabase
-    .from('connected_accounts')
+    .from('canais_conectados')
     .select('id, nome, canal');
 
   if (error) {
