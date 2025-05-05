@@ -14,11 +14,11 @@ const HomePage = () => {
       <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24">
         <nav className="flex justify-between items-center mb-20">
           <div className="flex items-center">
-            <div className="logo-container p-4 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center shadow-xl">
+            <div className="logo-container p-4 flex items-center justify-center">
               <img 
                 src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
                 alt="Vendah+" 
-                className="h-32 md:h-40 drop-shadow-[0_0_8px_rgba(93,46,140,0.7)]"
+                className="h-40 md:h-48 drop-shadow-[0_0_15px_rgba(93,46,140,0.85)]"
               />
             </div>
           </div>
@@ -179,11 +179,11 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <div className="logo-container p-2 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center shadow-lg">
+              <div className="logo-container p-2 flex items-center justify-center">
                 <img 
                   src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
                   alt="Vendah+" 
-                  className="h-24 drop-shadow-[0_0_8px_rgba(93,46,140,0.7)]"
+                  className="h-32 drop-shadow-[0_0_15px_rgba(93,46,140,0.85)]"
                 />
               </div>
             </div>
