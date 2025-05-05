@@ -66,7 +66,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// New Vendah+ colors
+				// Vendah+ colors
 				'vendah-purple': '#5D2E8C',
 				'vendah-blue': '#144D8C',
 				'vendah-neon': '#39FF14',
@@ -113,19 +113,30 @@ export default {
 				'float': {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' }
+				},
+				'subtle-glow': {
+					'0%, 100%': { 
+						filter: 'drop-shadow(0 0 15px rgba(93, 46, 140, 0.7))' 
+					},
+					'50%': { 
+						filter: 'drop-shadow(0 0 10px rgba(93, 46, 140, 0.4))' 
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-neon': 'pulse-neon 2s infinite',
-				'float': 'float 6s ease-in-out infinite'
+				'float': 'float 6s ease-in-out infinite',
+				'subtle-glow': 'subtle-glow 4s ease-in-out infinite'
 			},
 			boxShadow: {
 				'neon': '0 0 5px #39FF14, 0 0 10px #39FF14',
 				'neon-intense': '0 0 10px #39FF14, 0 0 20px #39FF14, 0 0 30px #39FF14',
 				'neon-subtle': '0 0 5px rgba(57, 255, 20, 0.5)',
-				'purple': '0 0 15px rgba(93, 46, 140, 0.5)'
+				'purple': '0 0 15px rgba(93, 46, 140, 0.5)',
+				'purple-glow': '0 0 20px rgba(93, 46, 140, 0.7)',
+				'blue-glow': '0 0 20px rgba(20, 77, 140, 0.6)'
 			},
 			backgroundImage: {
 				'dark-gradient': 'linear-gradient(to bottom, #221F26, #2A2730)',

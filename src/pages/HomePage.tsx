@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, LayoutList, MessageSquare, BarChart, Zap, Award, Shield } from 'lucide-react';
@@ -15,6 +14,7 @@ const HomePage = () => {
       <div className="absolute top-0 left-0 w-96 h-96 bg-vendah-purple/10 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-vendah-neon/5 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2"></div>
       <div className="absolute top-1/3 right-10 w-64 h-64 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
+      <div className="absolute bottom-1/4 left-10 w-48 h-48 bg-vendah-purple/5 rounded-full filter blur-xl"></div>
       
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24 relative z-10">
@@ -75,6 +75,8 @@ const HomePage = () => {
       {/* Features Section */}
       <div className="bg-[#252329] py-24 relative">
         <div className="absolute left-1/4 top-0 w-72 h-72 bg-vendah-purple/5 rounded-full filter blur-2xl"></div>
+        <div className="absolute right-1/4 bottom-1/2 w-64 h-64 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
@@ -170,6 +172,8 @@ const HomePage = () => {
       <div className="py-20 bg-[#2D2933] relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-vendah-purple to-vendah-neon"></div>
         <div className="absolute left-1/3 bottom-0 w-80 h-80 bg-vendah-neon/3 rounded-full filter blur-3xl"></div>
+        <div className="absolute right-1/4 top-1/2 w-48 h-48 bg-vendah-purple/5 rounded-full filter blur-xl"></div>
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">

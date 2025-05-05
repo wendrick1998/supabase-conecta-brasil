@@ -18,6 +18,7 @@ const AuthLayout = ({ children, pageTitle }: AuthLayoutProps) => {
         {/* Visual details - decorative circles */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-vendah-purple/10 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-vendah-neon/5 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
         
         <div className="mb-8 flex flex-col items-center z-10">
           <div className="logo-container p-6 mb-2 flex items-center justify-center">
