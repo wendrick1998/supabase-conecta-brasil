@@ -91,7 +91,7 @@ export const AutomationGuide: React.FC<AutomationGuideProps> = ({
   return <>
       {/* "Como funciona" button */}
       <div className="absolute top-4 right-4 z-10">
-        <Button variant="outline" className="bg-white shadow-sm" onClick={() => setShowHelpDialog(true)}>
+        <Button variant="outline" onClick={() => setShowHelpDialog(true)} className="shadow-sm bg-gray-800 hover:bg-gray-700">
           Como funciona?
         </Button>
       </div>
