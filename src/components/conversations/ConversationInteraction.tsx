@@ -28,32 +28,6 @@ const ConversationInteraction = ({
   const [mediaType, setMediaType] = useState<MediaType>('audio');
   const { isUploading, uploadMedia } = useMediaUpload(conversationId);
 
-  // Document file upload handler
-  const handleDocumentFileUpload = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = false;
-    input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar';
-    
-    input.onchange = (e) => {
-      const target = e.target as HTMLInputElement;
-      if (target.files && target.files[0]) {
-        const file = target.files[0];
-        
-        // Verify file is a document
-        const fileType = getMediaType(file);
-        if (fileType !== 'document') {
-          toast.error('Por favor, selecione apenas documentos. Para mídia, use os botões específicos.');
-          return;
-        }
-        
-        handleSendFile(file);
-      }
-    };
-    
-    input.click();
-  };
-
   // Photo library (gallery) upload handler
   const handlePhotoLibraryUpload = () => {
     const input = document.createElement('input');
@@ -98,6 +72,32 @@ const ConversationInteraction = ({
         const fileType = getMediaType(file);
         if (fileType !== 'image' && fileType !== 'video') {
           toast.error('Por favor, selecione apenas imagens ou vídeos.');
+          return;
+        }
+        
+        handleSendFile(file);
+      }
+    };
+    
+    input.click();
+  };
+
+  // Document file upload handler
+  const handleDocumentFileUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = false;
+    input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar';
+    
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files[0]) {
+        const file = target.files[0];
+        
+        // Verify file is a document
+        const fileType = getMediaType(file);
+        if (fileType !== 'document') {
+          toast.error('Por favor, selecione apenas documentos. Para mídia, use os botões específicos.');
           return;
         }
         
