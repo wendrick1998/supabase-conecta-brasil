@@ -1,19 +1,16 @@
 
 import React from 'react';
-import { format, parseISO, differenceInMinutes } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { Lead, EstagioPipeline } from '@/types/lead';
 import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronRight, MoreHorizontal, Move, MessageCircle } from 'lucide-react';
+import { MoreHorizontal, Move } from 'lucide-react';
 import LeadTag from '@/components/LeadTag';
 import { useDraggable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatMessageTime } from '@/utils/conversationUtils';
+import ConversationPreview from './ConversationPreview';
+import ConversationFooter from './ConversationFooter';
 
 interface PipelineCardProps {
   lead: Lead;
@@ -63,50 +60,6 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
     e.stopPropagation();
     navigate(`/inbox/${lead.id}`);
   };
-
-  const formatDate = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), 'dd MMM yyyy', { locale: ptBR });
-    } catch (error) {
-      return dateString;
-    }
-  };
-
-  // Calculate waiting time status and styles
-  const getWaitingTimeStatus = () => {
-    if (!conversation) return null;
-    
-    if (conversation.isViewed) {
-      return {
-        text: "Visualizado",
-        className: "bg-gray-200 text-gray-700"
-      };
-    }
-
-    const minutesWaiting = differenceInMinutes(
-      new Date(),
-      parseISO(conversation.timestamp)
-    );
-
-    if (minutesWaiting < 5) {
-      return {
-        text: `Esperando há ${minutesWaiting}min`,
-        className: "bg-green-100 text-green-700"
-      };
-    } else if (minutesWaiting < 30) {
-      return {
-        text: `Esperando há ${minutesWaiting}min`,
-        className: "bg-yellow-100 text-yellow-800"
-      };
-    } else {
-      return {
-        text: `Esperando há ${minutesWaiting}min`,
-        className: "bg-red-100 text-red-800"
-      };
-    }
-  };
-
-  const waitingStatus = getWaitingTimeStatus();
 
   return (
     <Card 
@@ -204,56 +157,24 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
           </div>
         )}
         
-        {/* Last message section - new */}
+        {/* Last message section */}
         {conversation && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div 
-                  className="mt-3 p-2 rounded-md bg-gray-50 hover:bg-gray-100 flex items-center justify-between cursor-pointer transition-colors"
-                  onClick={navigateToChat}
-                  aria-label={`Ver conversa com ${lead.nome}`}
-                >
-                  <p className="text-sm text-gray-700 truncate pr-2">{conversation.lastMessage}</p>
-                  <MessageCircle className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Ver conversa com {lead.nome}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <ConversationPreview
+            message={conversation.lastMessage}
+            leadName={lead.nome}
+            onClick={navigateToChat}
+          />
         )}
         
         {/* Card footer with indicators */}
-        <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
-          <span className="text-xs text-gray-500">
-            {formatDate(lead.criado_em)}
-          </span>
-          
-          {/* Waiting indicators - new */}
-          {conversation && (
-            <div className="flex items-center space-x-2">
-              {/* Unread message count */}
-              {conversation.unreadCount > 0 && (
-                <div className="w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                  {conversation.unreadCount}
-                </div>
-              )}
-              
-              {/* Waiting time badge */}
-              {waitingStatus && (
-                <Badge className={cn("px-2 py-0.5 text-xs font-medium", waitingStatus.className)}>
-                  {waitingStatus.text}
-                </Badge>
-              )}
-            </div>
-          )}
-
-          {!conversation && (
-            <ChevronRight className="h-3 w-3 text-gray-400" />
-          )}
-        </div>
+        <ConversationFooter 
+          dateString={lead.criado_em} 
+          conversation={conversation && {
+            timestamp: conversation.timestamp,
+            unreadCount: conversation.unreadCount,
+            isViewed: conversation.isViewed
+          }}
+        />
       </CardContent>
     </Card>
   );
