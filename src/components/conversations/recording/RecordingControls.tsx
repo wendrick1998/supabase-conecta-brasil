@@ -1,74 +1,54 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, Square, Send, Trash2, Pause, Play, Loader2 } from "lucide-react";
+import { Mic, Square, Send, Trash2, Pause, Play } from "lucide-react";
 
 interface RecordingControlsProps {
   isRecording: boolean;
   isPaused: boolean;
-  isInitializing?: boolean;
-  hasRecordedMedia: boolean;
+  recordedAudio: {
+    url: string;
+    blob: Blob;
+    fileName: string;
+    duration: number;
+  } | null;
   onStartRecording: () => void;
-  onStopRecording: () => void;
   onPauseRecording: () => void;
   onResumeRecording: () => void;
+  onStopRecording: () => void;
+  onResetRecording: () => void;
   onSaveRecording: () => void;
-  onReset?: () => void;
 }
 
 const RecordingControls: React.FC<RecordingControlsProps> = ({
   isRecording,
   isPaused,
-  isInitializing = false,
-  hasRecordedMedia,
+  recordedAudio,
   onStartRecording,
-  onStopRecording,
   onPauseRecording,
   onResumeRecording,
-  onSaveRecording,
-  onReset
+  onStopRecording,
+  onResetRecording,
+  onSaveRecording
 }) => {
-  // Show initializing state
-  if (isInitializing) {
+  if (!isRecording && !isPaused && !recordedAudio) {
     return (
-      <div className="flex justify-center mt-2">
-        <Button
-          disabled
-          variant="outline"
-          className="bg-blue-50 border-blue-100"
-        >
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Iniciando microfone...
-        </Button>
-      </div>
-    );
-  }
-
-  // Not recording and no media recorded yet
-  if (!isRecording && !hasRecordedMedia) {
-    return (
-      <div className="flex gap-3 flex-wrap justify-center">
-        <Button
-          onClick={onStartRecording}
-          className="bg-blue-600 hover:bg-blue-700 px-6"
-          size="lg"
-        >
-          <Mic className="h-4 w-4 mr-2" />
-          Iniciar Gravação
-        </Button>
-      </div>
+      <Button
+        onClick={onStartRecording}
+        className="bg-blue-600 hover:bg-blue-700"
+      >
+        <Mic className="h-4 w-4 mr-2" />
+        Iniciar Gravação
+      </Button>
     );
   }
   
-  // Currently recording, not paused
   if (isRecording && !isPaused) {
     return (
-      <div className="flex gap-3 flex-wrap justify-center mt-2">
+      <>
         <Button
           onClick={onPauseRecording}
           variant="outline"
-          size="sm"
-          className="bg-white"
         >
           <Pause className="h-4 w-4 mr-2" />
           Pausar
@@ -77,65 +57,56 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
         <Button
           onClick={onStopRecording}
           variant="destructive"
-          size="sm"
         >
           <Square className="h-4 w-4 mr-2" />
           Parar
         </Button>
-      </div>
+      </>
     );
   }
-
-  // Recording is paused
-  if (isRecording && isPaused) {
+  
+  if (isPaused) {
     return (
-      <div className="flex gap-3 flex-wrap justify-center mt-2">
+      <>
         <Button
           onClick={onResumeRecording}
           variant="outline"
-          size="sm"
-          className="bg-blue-50 border-blue-200 hover:bg-blue-100"
+          className="border-blue-300 bg-blue-50 hover:bg-blue-100"
         >
           <Play className="h-4 w-4 mr-2" />
-          Retomar
+          Continuar
         </Button>
         
         <Button
           onClick={onStopRecording}
           variant="destructive"
-          size="sm"
         >
           <Square className="h-4 w-4 mr-2" />
-          Parar
+          Finalizar
         </Button>
-      </div>
+      </>
     );
   }
   
-  // After recording is complete, with saved media
-  if (hasRecordedMedia && !isRecording) {
+  if (recordedAudio) {
     return (
-      <div className="flex gap-3 flex-wrap justify-center mt-2">
-        {onReset && (
-          <Button
-            onClick={onReset}
-            variant="outline"
-            size="sm"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Descartar
-          </Button>
-        )}
+      <>
+        <Button
+          onClick={onResetRecording}
+          variant="outline"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Descartar
+        </Button>
         
         <Button
           onClick={onSaveRecording}
-          className="bg-pink-600 hover:bg-pink-700"
-          size="sm"
+          className="bg-green-600 hover:bg-green-700"
         >
           <Send className="h-4 w-4 mr-2" />
           Enviar
         </Button>
-      </div>
+      </>
     );
   }
   

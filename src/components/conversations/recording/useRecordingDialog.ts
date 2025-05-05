@@ -1,133 +1,93 @@
 
-import { useState, useEffect } from 'react';
-import { useRecording } from './hooks/useRecording';
+import React, { useEffect } from 'react';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
 import { MediaType } from './types';
 
 interface UseRecordingDialogProps {
   open: boolean;
+  onOpenChange: (open: boolean) => void;
   mediaType: MediaType;
   onSave: (file: File, type: MediaType) => void;
-  onOpenChange: (open: boolean) => void;
 }
 
-export const useRecordingDialog = ({
+export function useRecordingDialog({
   open,
+  onOpenChange,
   mediaType,
-  onSave,
-  onOpenChange
-}: UseRecordingDialogProps) => {
-  const [recordingTime, setRecordingTime] = useState(0);
-  
-  const { 
+  onSave
+}: UseRecordingDialogProps) {
+  const {
+    state,
     isRecording,
     isPaused,
-    isInitializing,
-    initError, 
-    recordingTime: currentRecordingTime,
-    recordedMedia, 
-    stream,
-    browserSupport,
-    startRecording, 
-    stopRecording, 
-    resetRecording,
-    stopMediaStream,
+    recordingTime,
+    formattedTime,
+    recordedAudio,
+    audioLevel,
+    startRecording,
     pauseRecording,
-    resumeRecording
-  } = useRecording({ 
-    mediaType 
+    resumeRecording,
+    stopRecording,
+    resetRecording
+  } = useAudioRecorder({
+    onComplete: (audio) => {
+      console.log('Recording completed:', audio);
+    }
   });
 
-  // Update recording time from the hook
-  useEffect(() => {
-    setRecordingTime(currentRecordingTime);
-  }, [currentRecordingTime]);
-
-  // Log state changes for debugging
-  useEffect(() => {
-    console.log('RecordingDialog state:', { 
-      open, 
-      mediaType, 
-      isRecording, 
-      isPaused, 
-      recordedMedia: !!recordedMedia 
-    });
-  }, [open, mediaType, isRecording, isPaused, recordedMedia]);
-
-  const closeDialog = () => {
-    console.log('Closing recording dialog');
-    stopMediaStream();
+  // Handle closing dialog
+  const handleCloseDialog = () => {
+    if (isRecording || isPaused) {
+      // Prevent closing while recording is active
+      return;
+    }
     resetRecording();
     onOpenChange(false);
   };
 
+  // Handle saving the recording
   const handleSaveRecording = () => {
-    if (recordedMedia && recordedMedia.blob) {
-      console.log('Saving recorded media:', recordedMedia);
-      
-      // Create file with proper mime type based on media type
-      let mimeType = recordedMedia.blob.type;
-      if (!mimeType || mimeType === 'audio/webm' && mediaType === 'audio') {
-        // Ensure proper MIME type for audio files
-        mimeType = 'audio/webm';
-      }
-      
-      const file = new File([recordedMedia.blob], recordedMedia.fileName, {
-        type: mimeType
+    if (recordedAudio) {
+      const file = new File([recordedAudio.blob], recordedAudio.fileName, {
+        type: 'audio/webm'
       });
-      
-      console.log('File created for saving:', file);
       onSave(file, mediaType);
-      closeDialog();
-    } else {
-      console.error('Attempted to save recording but no valid media found');
-    }
-  };
-
-  const handleReset = () => {
-    console.log('Resetting recording');
-    resetRecording();
-  };
-
-  const handlePauseRecording = () => {
-    if (isRecording && !isPaused) {
-      console.log('Pausing recording');
-      pauseRecording();
-    }
-  };
-
-  const handleResumeRecording = () => {
-    if (isPaused) {
-      console.log('Resuming recording');
-      resumeRecording();
-    }
-  };
-
-  // Reset state when dialog opens or closes
-  useEffect(() => {
-    if (open) {
-      console.log('Recording dialog opened');
       resetRecording();
-      setRecordingTime(0);
-    } else {
-      stopMediaStream();
+      onOpenChange(false);
     }
-  }, [open, resetRecording, stopMediaStream]);
+  };
+
+  // Start recording when dialog opens
+  useEffect(() => {
+    if (open && state === 'idle' && mediaType === 'audio') {
+      const timer = setTimeout(() => {
+        startRecording();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    
+    // Cleanup when dialog closes
+    if (!open && (isRecording || isPaused)) {
+      resetRecording();
+    }
+  }, [open, state, mediaType, isRecording, isPaused, startRecording, resetRecording]);
 
   return {
-    isPaused,
+    state,
     isRecording,
-    isInitializing,
-    initError,
+    isPaused,
     recordingTime,
-    recordedMedia,
-    stream,
-    browserSupport,
+    formattedTime,
+    recordedAudio,
+    audioLevel,
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
-    handlePauseRecording,
-    handleResumeRecording,
-    handleReset,
+    resetRecording,
     handleSaveRecording,
-    closeDialog
+    handleCloseDialog
   };
-};
+}
+
+export default useRecordingDialog;
