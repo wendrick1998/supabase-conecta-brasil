@@ -84,13 +84,20 @@ export const useAutomationEditor = () => {
 
             if (blocksError) throw blocksError;
 
-            // Carregar as conexões entre os blocos
-            const { data: connectionsData, error: connectionsError } = await supabase
-              .from('conexoes_blocos')
-              .select('*')
-              .eq('id_origem', blocksData.map(block => block.id));
+            // FIX: Collecting all block IDs to query connections
+            const blockIds = blocksData?.map(block => block.id) || [];
+            
+            // Carregar as conexões entre os blocos - Only if we have blocks
+            let connectionsData = [];
+            if (blockIds.length > 0) {
+              const { data: connections, error: connectionsError } = await supabase
+                .from('conexoes_blocos')
+                .select('*')
+                .in('id_origem', blockIds);
 
-            if (connectionsError) throw connectionsError;
+              if (connectionsError) throw connectionsError;
+              connectionsData = connections || [];
+            }
 
             // Mapear dados do banco para o formato usado pelo editor
             const mappedBlocks = blocksData.map(block => ({
@@ -99,7 +106,11 @@ export const useAutomationEditor = () => {
               category: getBlockCategory(block.tipo as BlockType),
               position: { x: block.x, y: block.y },
               configured: true,
-              config: block.conteudo_config,
+              config: block.conteudo_config ? 
+                // FIX: Ensure config is properly parsed as a Record<string, any>
+                (typeof block.conteudo_config === 'string' 
+                  ? JSON.parse(block.conteudo_config)
+                  : block.conteudo_config as Record<string, any>),
               connections: connectionsData
                 .filter(conn => conn.id_origem === block.id)
                 .map(conn => conn.id_destino)
