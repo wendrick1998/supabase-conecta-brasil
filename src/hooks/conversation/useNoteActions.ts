@@ -32,12 +32,12 @@ export const useNoteActions = (conversationId: string | undefined, setNotes: Rea
           id,
           conversation_id,
           content,
-          created_at,
+          timestamp,
           user_id,
           user_name
         `)
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: false })
+        .order('timestamp', { ascending: false })
         .range(startFrom, startFrom + limit - 1);
 
       if (error) {
