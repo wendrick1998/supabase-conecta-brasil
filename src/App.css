@@ -22,7 +22,7 @@
 }
 
 .vendah-card:hover {
-  @apply shadow-purple border-vendah-purple/30 -translate-y-1;
+  @apply shadow-purple border-vendah-purple/40 -translate-y-1;
 }
 
 /* Neon effects */
@@ -38,12 +38,13 @@
 
 /* Elegant glass panels */
 .glass-panel {
-  @apply bg-surface/80 backdrop-blur-md border border-white/10 rounded-xl;
+  @apply bg-surface/80 backdrop-blur-md border border-white/10 rounded-xl relative overflow-hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Form elements */
 .vendah-input {
-  @apply bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)];
+  @apply bg-[#202027] border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)];
 }
 
 /* Enhanced tooltips */
@@ -53,14 +54,14 @@
 
 /* Micro-interactions */
 .hover-glow {
-  @apply transition-all duration-300;
+  @apply transition-all duration-200;
 }
 .hover-glow:hover {
   @apply shadow-neon;
 }
 
 .hover-glow-purple {
-  @apply transition-all duration-300;
+  @apply transition-all duration-200;
 }
 .hover-glow-purple:hover {
   @apply shadow-purple;
@@ -83,4 +84,33 @@
 }
 .status-badge.inactive {
   @apply bg-gray-400/20 text-gray-400;
+}
+
+/* Search input styling */
+.search-input {
+  @apply bg-[#202027] border border-vendah-purple/30 rounded-md px-9 py-2 text-white;
+}
+.search-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-vendah-neon/70;
+}
+
+/* Dropdown menu with proper background */
+.vendah-dropdown-content {
+  @apply bg-surface border border-vendah-purple/20 rounded-md shadow-lg p-1 z-50;
+}
+
+/* Automation blocks styling */
+.automation-block {
+  @apply bg-surface border border-vendah-purple/30 rounded-md p-4 mb-4 shadow-sm;
+}
+.automation-block-header {
+  @apply text-white font-medium mb-2 flex items-center;
+}
+.automation-block-body {
+  @apply text-text-muted text-sm;
+}
+
+/* Modal footers */
+.modal-footer {
+  @apply flex justify-end space-x-2 mt-6 pt-4 border-t border-vendah-purple/20;
 }

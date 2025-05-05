@@ -40,7 +40,7 @@ const MoveLeadsDialog: React.FC<MoveLeadsDialogProps> = ({
 }) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-surface border-vendah-purple/20">
         <AlertDialogHeader>
           <AlertDialogTitle>Mover leads</AlertDialogTitle>
           <AlertDialogDescription>
@@ -53,10 +53,10 @@ const MoveLeadsDialog: React.FC<MoveLeadsDialogProps> = ({
           value={targetEstagio}
           onValueChange={onEstagioChange}
         >
-          <SelectTrigger>
+          <SelectTrigger className="bg-[#202027] border-vendah-purple/40">
             <SelectValue placeholder="Selecione um estágio" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-surface border-vendah-purple/30">
             {estagios.map((estagio) => (
               <SelectItem key={estagio.id} value={estagio.id}>
                 {estagio.nome}
@@ -70,6 +70,7 @@ const MoveLeadsDialog: React.FC<MoveLeadsDialogProps> = ({
           <AlertDialogAction 
             onClick={onConfirm}
             disabled={!targetEstagio}
+            className="bg-vendah-purple hover:bg-vendah-purple/90"
           >
             Mover
           </AlertDialogAction>

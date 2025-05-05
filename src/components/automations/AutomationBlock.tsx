@@ -79,7 +79,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         {...attributes}
         {...listeners}
         className={cn(
-          `rounded-md shadow-md ${blockColor} ${blockStatusClass} ${connectionClass} transition-all`,
+          `automation-block rounded-md shadow-md ${blockColor} ${blockStatusClass} ${connectionClass} transition-all px-5 py-4`,
           isHovered && !isConnecting ? 'shadow-lg scale-[1.02]' : '',
           isConnectionSource ? 'rotate-1' : ''
         )}
@@ -88,8 +88,8 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-2">
+        <div>
+          <div className="flex justify-between items-center mb-3">
             <BlockHeader 
               blockType={blockInfo.name} 
               blockIcon={blockInfo.icon} 

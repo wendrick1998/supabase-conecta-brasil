@@ -14,7 +14,7 @@ const PipelineHeader: React.FC<PipelineHeaderProps> = ({
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Pipeline de Vendas</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-white">Pipeline de Vendas</h1>
         <p className="text-muted-foreground">Visualize e gerencie seus leads por estágios</p>
       </div>
       <div className="mt-4 md:mt-0 flex space-x-2">

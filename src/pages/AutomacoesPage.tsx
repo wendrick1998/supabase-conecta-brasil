@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Plus, AlertTriangle, Filter } from 'lucide-react';
@@ -127,7 +126,7 @@ const AutomacoesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Automações | ResolveClick</title>
+        <title>Automações | Vendah+</title>
       </Helmet>
       <div className="container py-6">
         <div className="flex flex-col gap-6">
@@ -139,7 +138,8 @@ const AutomacoesPage = () => {
               </p>
             </div>
             <Button 
-              className="bg-pink-600 hover:bg-pink-700 text-white"
+              variant="accent"
+              className="hover-glow btn-press"
               onClick={() => navigate('/automacoes/nova')}
             >
               <Plus className="mr-2 h-4 w-4" />

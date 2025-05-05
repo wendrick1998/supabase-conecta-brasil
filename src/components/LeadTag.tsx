@@ -16,13 +16,18 @@ export const LeadTag: React.FC<LeadTagProps> = ({ tag, size = 'md' }) => {
     lg: 'text-base py-1 px-2.5'
   };
   
+  // Enhance tag contrast by darkening or lightening as needed
+  const enhancedColor = tag.cor;
+  const textColor = isLightColor(tag.cor) ? '#000000' : '#ffffff';
+  
   return (
     <Badge 
       style={{ 
-        backgroundColor: tag.cor,
-        color: isLightColor(tag.cor) ? '#000' : '#fff'
+        backgroundColor: `${enhancedColor}40`, // 25% opacity
+        color: textColor,
+        borderColor: `${enhancedColor}80` // 50% opacity border
       }}
-      className={`mr-1 mb-1 ${sizeClasses[size]}`}
+      className={`mr-1 mb-1 ${sizeClasses[size]} border`}
     >
       {tag.nome}
     </Badge>

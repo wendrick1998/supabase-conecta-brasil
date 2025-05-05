@@ -26,7 +26,7 @@ const DeleteLeadsDialog: React.FC<DeleteLeadsDialogProps> = ({
 }) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-surface border-vendah-purple/20">
         <AlertDialogHeader>
           <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
           <AlertDialogDescription>

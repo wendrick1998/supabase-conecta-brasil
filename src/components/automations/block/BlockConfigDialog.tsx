@@ -29,7 +29,7 @@ export const BlockConfigDialog: React.FC<BlockConfigDialogProps> = ({
     <Dialog open={showConfig} onOpenChange={setShowConfig}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
+          <DialogTitle className="flex items-center text-white">
             {blockInfo.icon && <span className="mr-2">{blockInfo.icon}</span>}
             Configurar {blockInfo.name}
           </DialogTitle>
@@ -46,7 +46,7 @@ export const BlockConfigDialog: React.FC<BlockConfigDialogProps> = ({
           <Button variant="outline" onClick={() => setShowConfig(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSaveConfig} className="bg-pink-500 hover:bg-pink-600 text-white">
+          <Button onClick={handleSaveConfig} className="bg-vendah-purple hover:bg-vendah-purple/90">
             Salvar
           </Button>
         </DialogFooter>
