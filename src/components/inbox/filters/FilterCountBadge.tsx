@@ -14,6 +14,7 @@ const FilterCountBadge: React.FC<FilterCountBadgeProps> = ({ activeFilters }) =>
     if (activeFilters.status && activeFilters.status.length > 0) count += activeFilters.status.length;
     if (activeFilters.dateRange) count += 1;
     if (activeFilters.priority) count += 1;
+    if (activeFilters.accountId) count += 1;
     return count;
   };
   

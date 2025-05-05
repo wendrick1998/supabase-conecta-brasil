@@ -56,12 +56,10 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         <PopoverContent className="w-80" align="start">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-sm">Filtros Avançados</h3>
-            {activeFilters && (
-              <FilterCountBadge activeFilters={activeFilters} /> && (
-                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onClearFilters}>
-                  Limpar filtros
-                </Button>
-              )
+            {Object.keys(activeFilters).length > 0 && (
+              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onClearFilters}>
+                Limpar filtros
+              </Button>
             )}
           </div>
           

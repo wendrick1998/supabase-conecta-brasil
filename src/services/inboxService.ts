@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -28,15 +29,15 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Apply channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Convert to simple string array to avoid TypeScript complexity
-        const channelValues = filters.canais.map(c => c.toString());
+        // Convert channels to simple string array to avoid TypeScript complexity
+        const channelValues = [...filters.canais].map(c => c.toString());
         query = query.in('canal', channelValues);
       }
       
       // Apply status filter
       if (filters.status && filters.status.length > 0) {
-        // Convert to simple string array to avoid TypeScript complexity
-        const statusValues = filters.status.map(s => s.toString());
+        // Convert status to simple string array to avoid TypeScript complexity
+        const statusValues = [...filters.status].map(s => s.toString());
         query = query.in('status', statusValues);
       }
       
