@@ -12,9 +12,21 @@ export const useBlockManagement = () => {
 
   // Helper to determine block category based on type
   const getBlockCategory = (blockType: BlockType): BlockCategory => {
-    if (['new_lead', 'lead_moved', 'message_received'].includes(blockType)) {
+    if ([
+      'new_lead', 
+      'lead_moved', 
+      'message_received', 
+      'form_submitted', 
+      'schedule_triggered'
+    ].includes(blockType)) {
       return 'trigger';
-    } else if (['lead_status', 'lead_source', 'value_greater'].includes(blockType)) {
+    } else if ([
+      'lead_status', 
+      'lead_source', 
+      'value_greater', 
+      'has_tag', 
+      'date_condition'
+    ].includes(blockType)) {
       return 'condition';
     } else {
       return 'action';
@@ -46,7 +58,7 @@ export const useBlockManagement = () => {
       category,
       position,
       configured: false,
-      config: {},
+      config: getDefaultConfig(type),
       connections: []
     };
     
@@ -60,6 +72,46 @@ export const useBlockManagement = () => {
     
     toast.info(`Bloco de ${newBlock.type} adicionado`);
   }, []);
+
+  // Get default configuration based on block type
+  const getDefaultConfig = (blockType: BlockType): Record<string, any> => {
+    switch (blockType) {
+      case 'new_lead':
+        return { source: 'none' };
+      case 'lead_moved':
+        return { fromStage: 'any', toStage: 'none' };
+      case 'message_received':
+        return { channel: 'any' };
+      case 'form_submitted':
+        return { formId: 'any', createLead: true };
+      case 'schedule_triggered':
+        return { frequency: 'daily', time: '08:00' };
+      case 'lead_status':
+        return { field: 'status', operator: 'equals' };
+      case 'lead_source':
+        return { operator: 'equals', value: 'none' };
+      case 'value_greater':
+        return { field: 'valor', operator: 'greater' };
+      case 'has_tag':
+        return { operator: 'has' };
+      case 'date_condition':
+        return { field: 'created_at', operator: 'before' };
+      case 'send_message':
+        return { channel: 'none' };
+      case 'create_task':
+        return { priority: 'medium', taskType: 'general' };
+      case 'move_pipeline':
+        return { pipeline: 'default', stage: 'none' };
+      case 'add_tag':
+        return { action: 'add', createIfMissing: true };
+      case 'assign_user':
+        return { assignmentType: 'specific', assignedUser: 'none' };
+      case 'send_notification':
+        return { notificationType: 'info', recipients: 'all' };
+      default:
+        return {};
+    }
+  };
 
   const handleConfigureBlock = useCallback((blockId: string) => {
     setBlocks(currentBlocks => 

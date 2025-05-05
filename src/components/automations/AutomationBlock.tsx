@@ -3,14 +3,15 @@ import React, { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import { Block } from '@/types/automation';
-import { getBlockInfo } from '@/utils/automationUtils';
+import { getBlockInfo, getBlockAccessibility } from '@/utils/automationUtils';
 import { BlockConnectionPoints } from './BlockConnectionPoints';
 import { BlockHeader } from './block/BlockHeader';
 import { BlockActions } from './block/BlockActions';
 import { BlockSummary } from './block/BlockSummary';
 import { BlockConfigDialog } from './block/BlockConfigDialog';
 import { useBlockStyles } from './block/useBlockStyles';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertCircle, InfoIcon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AutomationBlockProps {
   block: Block;
@@ -43,6 +44,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   const [showConfig, setShowConfig] = useState(false);
   const [blockConfig, setBlockConfig] = useState<Record<string, any>>(block.config);
   const blockInfo = getBlockInfo(block.type);
+  const accessibility = getBlockAccessibility(block.type);
   
   const {
     style,
@@ -75,6 +77,19 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   const handleUpdateBlockConfig = (newConfig: Record<string, any>) => {
     setBlockConfig(newConfig);
   };
+  
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setShowConfig(true);
+    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      onDelete();
+    } else if (e.key === 'c' && e.altKey) {
+      e.preventDefault();
+      handleConnectFrom(e as unknown as React.MouseEvent);
+    }
+  };
 
   // Customizado para acompanhar o esquema de cores do aplicativo
   const getCategoryColor = () => {
@@ -105,6 +120,22 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         return '';
     }
   };
+  
+  // Determina ícone com base no tipo de bloco e status do teste
+  const getStatusIcon = () => {
+    if (!testResult) return null;
+    
+    switch (testResult.status) {
+      case 'success':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'error':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'pending':
+        return <Clock className="h-5 w-5 text-amber-500 animate-pulse" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
@@ -121,10 +152,18 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
           !block.configured ? 'border-dashed' : 'border-solid',
           testResult ? getTestResultColor() : ''
         )}
-        aria-labelledby={`block-title-${block.id}`}
+        aria-label={accessibility.ariaLabel || `Bloco de ${blockInfo.name}`}
+        aria-description={accessibility.description || blockInfo.description}
+        role="button"
+        tabIndex={0}
+        data-block-type={block.type}
+        data-block-category={block.category}
+        data-configured={block.configured ? 'true' : 'false'}
+        data-test-status={testResult?.status || 'none'}
         onClick={() => !isConnecting && setShowConfig(true)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onKeyDown={handleKeyPress}
       >
         <div>
           <div className="flex justify-between items-center mb-3">
@@ -135,12 +174,42 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
             
             <div className="flex space-x-1">
               {testResult && (
-                <div className="mr-2" title={testResult.message}>
-                  {testResult.status === 'success' && <CheckCircle className="h-5 w-5 text-green-500" />}
-                  {testResult.status === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
-                  {testResult.status === 'pending' && <Clock className="h-5 w-5 text-amber-500 animate-pulse" />}
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="mr-2 cursor-help">{getStatusIcon()}</div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs bg-gray-900 text-white border-vendah-purple/30">
+                    <p>{testResult.message}</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
+              
+              {!block.configured && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="mr-1">
+                      <AlertCircle className="h-5 w-5 text-amber-500" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-gray-900 text-white border-vendah-purple/30">
+                    <p>Este bloco precisa ser configurado</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              
+              {blockInfo.description && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="mr-2 cursor-help">
+                      <InfoIcon className="h-4 w-4 text-gray-400" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs bg-gray-900 text-white border-vendah-purple/30">
+                    <p>{blockInfo.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              
               <BlockActions 
                 onOpenConfig={() => setShowConfig(true)}
                 onDelete={onDelete}

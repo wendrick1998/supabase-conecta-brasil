@@ -6,14 +6,21 @@ export type BlockType =
   | 'new_lead'
   | 'lead_moved'
   | 'message_received'
+  | 'form_submitted'
+  | 'schedule_triggered'
   // Condition types
   | 'lead_status'
   | 'lead_source'
   | 'value_greater'
+  | 'has_tag'
+  | 'date_condition'
   // Action types
   | 'send_message'
   | 'create_task'
-  | 'move_pipeline';
+  | 'move_pipeline'
+  | 'add_tag'
+  | 'assign_user'
+  | 'send_notification';
 
 export interface Block {
   id: string;
@@ -32,6 +39,18 @@ export interface AutomationTemplate {
   id: string;
   name: string;
   description: string;
-  category?: string; // Add category field
+  category?: string;
   blocks: Block[];
+}
+
+export interface TestResult {
+  blockId: string;
+  status: 'success' | 'error' | 'pending';
+  message: string;
+}
+
+export interface BlockAccessibility {
+  ariaLabel?: string;
+  description?: string;
+  shortcutKey?: string;
 }

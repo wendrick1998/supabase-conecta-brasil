@@ -12,6 +12,7 @@ import { AutomationWizard } from '@/components/automations/AutomationWizard';
 import { useResponsiveAutomationEditor } from '@/hooks/useResponsiveAutomationEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const AutomacaoEditorPage = () => {
   const {
@@ -259,7 +260,7 @@ const AutomacaoEditorPage = () => {
   }
 
   return (
-    <>
+    <TooltipProvider>
       <Helmet>
         <title>{automationName} | Vendah+</title>
       </Helmet>
@@ -343,7 +344,7 @@ const AutomacaoEditorPage = () => {
         handleSaveWithDescription={handleSaveWithDescription}
         handleRestoreVersion={handleRestoreVersion}
       />
-    </>
+    </TooltipProvider>
   );
 };
 

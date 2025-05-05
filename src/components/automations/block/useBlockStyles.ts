@@ -1,43 +1,83 @@
 
-import { useState, CSSProperties } from 'react';
-import { Block } from '@/types/automation';
-import { getBlockColor } from '@/utils/automationUtils';
+import React, { useState } from 'react';
+import { Block, BlockCategory } from '@/types/automation';
 
 export const useBlockStyles = (
-  block: Block, 
-  transform: any,
-  isConnecting: boolean = false,
-  isConnectionSource: boolean = false
+  block: Block,
+  transform: { x: number; y: number } | null,
+  isConnecting: boolean,
+  isConnectionSource: boolean
 ) => {
   const [isHovered, setIsHovered] = useState(false);
-  const blockColor = getBlockColor(block.category);
-
-  // Fixed TypeScript type issue with position by properly typing it as CSSProperties
-  const style: CSSProperties = transform ? {
+  
+  // Style for the block position
+  const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     position: 'absolute',
-    top: block.position.y,
     left: block.position.x,
-    width: '300px',
-    zIndex: isConnecting ? (isConnectionSource ? 30 : 20) : 10,
+    top: block.position.y,
+    zIndex: isHovered || isConnectionSource ? 10 : 5,
+    width: 'auto',
+    minWidth: '260px',
+    maxWidth: '300px',
+    opacity: isConnecting && !isConnectionSource ? 0.7 : 1,
   } : {
     position: 'absolute',
-    top: block.position.y,
     left: block.position.x,
-    width: '300px',
-    zIndex: isConnecting ? (isConnectionSource ? 30 : 20) : 10,
+    top: block.position.y,
+    zIndex: isHovered || isConnectionSource ? 10 : 5,
+    width: 'auto',
+    minWidth: '260px',
+    maxWidth: '300px',
+    opacity: isConnecting && !isConnectionSource ? 0.7 : 1,
   };
-
-  // Determine status class for visual feedback
-  const blockStatusClass = !block.configured 
-    ? 'border-2 border-dashed border-red-500' 
-    : 'border';
-
-  // Add visual feedback for connecting state and hover
-  const connectionClass = isConnecting
-    ? (isConnectionSource ? 'ring-2 ring-pink-500 shadow-lg' : 'ring-1 ring-blue-300')
-    : '';
-
+  
+  // Get block color based on its category
+  const getBlockColor = (category: BlockCategory) => {
+    switch (category) {
+      case 'trigger':
+        return 'border-blue-500';
+      case 'condition':
+        return 'border-amber-500';
+      case 'action':
+        return 'border-green-500';
+      default:
+        return 'border-gray-500';
+    }
+  };
+  
+  // Get block status class
+  const getBlockStatusClass = () => {
+    if (!block.configured) {
+      return 'border-dashed border-2 bg-opacity-50';
+    }
+    
+    return `border ${isHovered ? 'border-2' : 'border'} ${isConnectionSource ? 'border-vendah-purple' : getBlockColor(block.category)}`;
+  };
+  
+  // Get connection class
+  const getConnectionClass = () => {
+    if (isConnecting) {
+      if (isConnectionSource) {
+        return 'ring-2 ring-vendah-purple pulse-outline cursor-pointer';
+      }
+      
+      const canConnect = true; // In the future, add logic to determine if connection is valid
+      
+      if (canConnect) {
+        return 'cursor-pointer hover:ring-2 hover:ring-vendah-purple/60 hover:shadow-lg';
+      } else {
+        return 'opacity-50 cursor-not-allowed';
+      }
+    }
+    
+    return '';
+  };
+  
+  const blockColor = getBlockColor(block.category);
+  const blockStatusClass = getBlockStatusClass();
+  const connectionClass = getConnectionClass();
+  
   return {
     style,
     blockColor,
