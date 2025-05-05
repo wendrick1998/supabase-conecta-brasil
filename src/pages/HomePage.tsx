@@ -15,9 +15,11 @@ const HomePage = () => {
       <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24">
         <nav className="flex justify-between items-center mb-20">
           <div className="flex items-center">
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-vendah-purple to-vendah-neon">
-              Vendah<span className="text-vendah-neon">+</span>
-            </span>
+            <img 
+              src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+              alt="Vendah+" 
+              className="h-10 md:h-12"
+            />
           </div>
           
           <div className="flex gap-4">
@@ -235,9 +237,11 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-vendah-purple to-vendah-neon">
-                Vendah<span className="text-vendah-neon">+</span>
-              </span>
+              <img 
+                src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+                alt="Vendah+" 
+                className="h-8"
+              />
             </div>
             <div className="text-gray-500 text-sm">
               © 2024 Vendah+. Todos os direitos reservados.

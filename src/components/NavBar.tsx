@@ -22,12 +22,16 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 w-full border-b border-vendah-purple/20 bg-vendah-black/95 backdrop-blur-sm">
       <div className="container flex h-16 items-center">
         {/* Logo */}
         <div className="mr-4 flex">
           <Link to="/dashboard" className="flex items-center space-x-2">
-            <span className="text-lg font-bold text-blue-700">ResolveClick</span>
+            <img 
+              src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+              alt="Vendah+" 
+              className="h-8"
+            />
           </Link>
         </div>
 
@@ -39,18 +43,18 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left">
+          <SheetContent side="left" className="bg-vendah-black border-vendah-purple/20">
             <div className="flex flex-col space-y-4 px-2 py-6">
               <Button
                 variant="ghost"
-                className="flex w-full justify-start"
+                className="flex w-full justify-start text-white hover:text-vendah-neon hover:bg-vendah-purple/10"
                 onClick={() => handleNavigation('/dashboard')}
               >
                 Dashboard
               </Button>
               <Button
                 variant="ghost"
-                className="flex w-full justify-start"
+                className="flex w-full justify-start text-white hover:text-vendah-neon hover:bg-vendah-purple/10"
                 onClick={() => handleNavigation('/leads')}
               >
                 Leads
@@ -65,7 +69,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                `px-3 py-2 rounded-md text-white ${isActive ? 'bg-vendah-purple/20 text-vendah-neon' : 'hover:bg-vendah-purple/10 hover:text-vendah-neon'}`
               }
             >
               Dashboard
@@ -73,7 +77,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
             <NavLink
               to="/leads"
               className={({ isActive }) =>
-                `px-3 py-2 rounded-md ${isActive ? 'bg-muted' : 'hover:bg-muted/50'}`
+                `px-3 py-2 rounded-md text-white ${isActive ? 'bg-vendah-purple/20 text-vendah-neon' : 'hover:bg-vendah-purple/10 hover:text-vendah-neon'}`
               }
             >
               Leads
