@@ -8,6 +8,7 @@ import { formatMessageTime, getInitials } from '@/utils/conversationUtils';
 const channelColors: Record<Conversation['canal'], string> = {
   'WhatsApp': 'bg-green-500',
   'Instagram': 'bg-purple-500',
+  'Facebook': 'bg-blue-500',
   'Email': 'bg-blue-500',
 };
 
@@ -29,7 +30,8 @@ const ConversationItem = ({ conversation, onClick }: ConversationItemProps) => {
         </Avatar>
         <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center ${channelColors[conversation.canal]} text-white text-[8px] font-bold`}>
           {conversation.canal === 'WhatsApp' ? 'W' : 
-           conversation.canal === 'Instagram' ? 'I' : 'E'}
+           conversation.canal === 'Instagram' ? 'I' : 
+           conversation.canal === 'Facebook' ? 'F' : 'E'}
         </div>
       </div>
       

@@ -55,7 +55,7 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     // Cast the results to ensure proper type conversion
     return (data || []).map(conversation => ({
       ...conversation,
-      canal: conversation.canal as 'WhatsApp' | 'Instagram' | 'Email',
+      canal: conversation.canal as 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email',
       status: conversation.status as 'Aberta' | 'Fechada'
     }));
   } catch (error: any) {

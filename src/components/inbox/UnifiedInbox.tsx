@@ -115,7 +115,7 @@ export const UnifiedInbox: React.FC = () => {
       );
     }
     
-    // Apply status filters
+    // Filter by status
     if (filters.status && filters.status.length > 0) {
       filtered = filtered.filter(conv => 
         filters.status?.includes(conv.status as 'Aberta' | 'Fechada')
