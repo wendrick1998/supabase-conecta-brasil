@@ -26,6 +26,7 @@ import ConversationList from "./components/conversations/ConversationList";
 import ConversationDetail from "./components/conversations/ConversationDetail";
 import NewConversation from "./components/conversations/NewConversation";
 import InboxPage from "./pages/InboxPage";
+import ChannelManagementPage from "./pages/ChannelManagementPage";
 
 // Create a redirect component to handle the inbox to conversations redirect
 const InboxToConversationRedirect = () => {
@@ -64,6 +65,9 @@ const App = () => (
                   
                   {/* New multicanal inbox */}
                   <Route path="inbox" element={<InboxPage />} />
+                  
+                  {/* Channel management */}
+                  <Route path="channels" element={<ChannelManagementPage />} />
                   
                   {/* Original conversation routes */}
                   <Route path="conversations" element={<ConversationList />} />

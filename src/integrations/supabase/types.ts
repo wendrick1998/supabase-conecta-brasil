@@ -9,9 +9,55 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      automacao_execucoes: {
+        Row: {
+          automacao_id: string
+          canal: string | null
+          criado_em: string
+          detalhes: Json | null
+          id: string
+          lead_id: string | null
+          status: string
+        }
+        Insert: {
+          automacao_id: string
+          canal?: string | null
+          criado_em?: string
+          detalhes?: Json | null
+          id?: string
+          lead_id?: string | null
+          status: string
+        }
+        Update: {
+          automacao_id?: string
+          canal?: string | null
+          criado_em?: string
+          detalhes?: Json | null
+          id?: string
+          lead_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automacao_execucoes_automacao_id_fkey"
+            columns: ["automacao_id"]
+            isOneToOne: false
+            referencedRelation: "automacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automacao_execucoes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automacoes: {
         Row: {
           atualizado_em: string
+          canal: string | null
           criado_em: string
           id: string
           nome: string
@@ -21,6 +67,7 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          canal?: string | null
           criado_em?: string
           id?: string
           nome: string
@@ -30,6 +77,7 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          canal?: string | null
           criado_em?: string
           id?: string
           nome?: string
@@ -165,6 +213,54 @@ export type Database = {
           criado_em?: string
           id?: string
           nome?: string
+        }
+        Relationships: []
+      }
+      canais_conectados: {
+        Row: {
+          acesso_token: string | null
+          atualizado_em: string
+          canal: string | null
+          configuracao: Json | null
+          criado_em: string
+          id: string
+          nome: string
+          qr_code: string | null
+          refresh_token: string | null
+          status: boolean | null
+          token_expira_em: string | null
+          usuario_id: string | null
+          webhook_token: string | null
+        }
+        Insert: {
+          acesso_token?: string | null
+          atualizado_em?: string
+          canal?: string | null
+          configuracao?: Json | null
+          criado_em?: string
+          id?: string
+          nome: string
+          qr_code?: string | null
+          refresh_token?: string | null
+          status?: boolean | null
+          token_expira_em?: string | null
+          usuario_id?: string | null
+          webhook_token?: string | null
+        }
+        Update: {
+          acesso_token?: string | null
+          atualizado_em?: string
+          canal?: string | null
+          configuracao?: Json | null
+          criado_em?: string
+          id?: string
+          nome?: string
+          qr_code?: string | null
+          refresh_token?: string | null
+          status?: boolean | null
+          token_expira_em?: string | null
+          usuario_id?: string | null
+          webhook_token?: string | null
         }
         Relationships: []
       }
@@ -437,6 +533,7 @@ export type Database = {
       messages: {
         Row: {
           attachment: Json | null
+          conexao_id: string | null
           content: string
           conversation_id: string
           id: string
@@ -446,6 +543,7 @@ export type Database = {
         }
         Insert: {
           attachment?: Json | null
+          conexao_id?: string | null
           content: string
           conversation_id: string
           id?: string
@@ -455,6 +553,7 @@ export type Database = {
         }
         Update: {
           attachment?: Json | null
+          conexao_id?: string | null
           content?: string
           conversation_id?: string
           id?: string
@@ -468,6 +567,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_conexao_id_fkey"
+            columns: ["conexao_id"]
+            isOneToOne: false
+            referencedRelation: "canais_conectados"
             referencedColumns: ["id"]
           },
           {

@@ -53,4 +53,8 @@ export interface BlockAccessibility {
   ariaLabel?: string;
   description?: string;
   shortcutKey?: string;
+  focusable?: boolean;
+  role?: string;
+  status?: 'configured' | 'unconfigured' | 'error';
+  channelType?: 'whatsapp' | 'instagram' | 'facebook' | 'email' | 'all';
 }
