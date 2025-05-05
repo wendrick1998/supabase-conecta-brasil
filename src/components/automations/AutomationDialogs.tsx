@@ -4,6 +4,7 @@ import { Block } from '@/types/automation';
 import { PreviewDialog } from '@/components/automations/PreviewDialog';
 import { TemplatesDialog } from '@/components/automations/TemplatesDialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 
 interface AutomationDialogsProps {
   showTemplates: boolean;
@@ -32,7 +33,15 @@ export const AutomationDialogs: React.FC<AutomationDialogsProps> = ({
         open={showTemplates} 
         onOpenChange={setShowTemplates} 
         onApplyTemplate={handleApplyTemplate}
-      />
+      >
+        {blocks.length > 0 && (
+          <div className="flex items-center mb-2">
+            <Badge variant="count">
+              {blocks.length} {blocks.length === 1 ? 'bloco' : 'blocos'}
+            </Badge>
+          </div>
+        )}
+      </TemplatesDialog>
       
       {/* Preview dialog */}
       <PreviewDialog 

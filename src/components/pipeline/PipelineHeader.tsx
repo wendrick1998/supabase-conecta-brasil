@@ -12,7 +12,7 @@ const PipelineHeader: React.FC<PipelineHeaderProps> = ({
   onConfigurePipeline
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 px-4 md:px-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">Pipeline de Vendas</h1>
         <p className="text-muted-foreground">Visualize e gerencie seus leads por estágios</p>
@@ -21,12 +21,10 @@ const PipelineHeader: React.FC<PipelineHeaderProps> = ({
         <Button 
           onClick={onAddNewLead}
           variant="accent"
-          className="hover-glow btn-press"
         >
           Novo Lead
         </Button>
         <Button 
-          className="bg-vendah-purple hover:bg-vendah-purple/90 hover-glow-purple btn-press"
           onClick={onConfigurePipeline}
         >
           Configurar Pipeline

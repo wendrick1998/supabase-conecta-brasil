@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -31,21 +32,21 @@ export const AutomationSidebar: React.FC<AutomationSidebarProps> = ({
   
   // Define block templates
   const triggerBlocks = [
-    { id: 'new_lead', label: 'Novo Lead', icon: <Users size={16} />, color: 'bg-blue-100' },
-    { id: 'lead_moved', label: 'Lead Movido', icon: <ArrowRight size={16} />, color: 'bg-blue-100' },
-    { id: 'message_received', label: 'Mensagem Recebida', icon: <MessageSquare size={16} />, color: 'bg-blue-100' },
+    { id: 'new_lead', label: 'Novo Lead', icon: <Users size={16} />, color: 'bg-vendah-purple/20 text-white' },
+    { id: 'lead_moved', label: 'Lead Movido', icon: <ArrowRight size={16} />, color: 'bg-vendah-purple/20 text-white' },
+    { id: 'message_received', label: 'Mensagem Recebida', icon: <MessageSquare size={16} />, color: 'bg-vendah-purple/20 text-white' },
   ];
   
   const conditionBlocks = [
-    { id: 'lead_status', label: 'Status do Lead', icon: <AlertTriangle size={16} />, color: 'bg-yellow-100' },
-    { id: 'lead_source', label: 'Canal de Origem', icon: <PipetteIcon size={16} />, color: 'bg-yellow-100' },
-    { id: 'value_greater', label: 'Valor Maior Que', icon: <ArrowRight size={16} />, color: 'bg-yellow-100' },
+    { id: 'lead_status', label: 'Status do Lead', icon: <AlertTriangle size={16} />, color: 'bg-vendah-neon/10 text-white' },
+    { id: 'lead_source', label: 'Canal de Origem', icon: <PipetteIcon size={16} />, color: 'bg-vendah-neon/10 text-white' },
+    { id: 'value_greater', label: 'Valor Maior Que', icon: <ArrowRight size={16} />, color: 'bg-vendah-neon/10 text-white' },
   ];
   
   const actionBlocks = [
-    { id: 'send_message', label: 'Enviar Mensagem', icon: <MessageSquare size={16} />, color: 'bg-green-100' },
-    { id: 'create_task', label: 'Criar Tarefa', icon: <CalendarCheck size={16} />, color: 'bg-green-100' },
-    { id: 'move_pipeline', label: 'Mover no Pipeline', icon: <ZapIcon size={16} />, color: 'bg-green-100' },
+    { id: 'send_message', label: 'Enviar Mensagem', icon: <MessageSquare size={16} />, color: 'bg-vendah-blue/20 text-white' },
+    { id: 'create_task', label: 'Criar Tarefa', icon: <CalendarCheck size={16} />, color: 'bg-vendah-blue/20 text-white' },
+    { id: 'move_pipeline', label: 'Mover no Pipeline', icon: <ZapIcon size={16} />, color: 'bg-vendah-blue/20 text-white' },
   ];
 
   const renderBlockTemplates = (blocks: { id: string; label: string; icon: React.ReactNode; color: string }[]) => {
@@ -53,7 +54,7 @@ export const AutomationSidebar: React.FC<AutomationSidebarProps> = ({
       <div
         key={block.id}
         id={`template-${block.id}`}
-        className={`flex items-center p-3 mb-2 rounded-md shadow-sm border cursor-move ${block.color} hover:shadow-md transition-shadow`}
+        className={`flex items-center p-3 mb-2 rounded-md bg-surface border border-vendah-purple/20 cursor-move hover:shadow-md transition-all ${block.color}`}
         draggable
         onClick={() => onBlockClick(block.id)}
       >
@@ -64,8 +65,8 @@ export const AutomationSidebar: React.FC<AutomationSidebarProps> = ({
   };
 
   return (
-    <div className={`border-r bg-white flex flex-col ${collapsed ? 'w-[60px]' : 'w-[250px]'}`}>
-      <div className="p-2 flex justify-end border-b">
+    <div className={`border-r border-vendah-purple/20 bg-surface flex flex-col ${collapsed ? 'w-[60px]' : 'w-[250px]'}`}>
+      <div className="p-2 flex justify-end border-b border-vendah-purple/20">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -82,15 +83,15 @@ export const AutomationSidebar: React.FC<AutomationSidebarProps> = ({
           {collapsed ? (
             <div className="space-y-4">
               <div>
-                <h4 className="text-xs text-gray-500 mb-2 text-center">Gatilhos</h4>
+                <h4 className="text-xs text-text-muted mb-2 text-center">Gatilhos</h4>
                 {renderBlockTemplates(triggerBlocks)}
               </div>
               <div>
-                <h4 className="text-xs text-gray-500 mb-2 text-center">Condições</h4>
+                <h4 className="text-xs text-text-muted mb-2 text-center">Condições</h4>
                 {renderBlockTemplates(conditionBlocks)}
               </div>
               <div>
-                <h4 className="text-xs text-gray-500 mb-2 text-center">Ações</h4>
+                <h4 className="text-xs text-text-muted mb-2 text-center">Ações</h4>
                 {renderBlockTemplates(actionBlocks)}
               </div>
             </div>

@@ -1,11 +1,21 @@
 
 import React from "react";
 import { Outlet, NavLink } from "react-router-dom";
-import { Inbox, BarChart, Users, Zap } from "lucide-react";
+import { LayoutGrid, BarChart, Users, Zap, Inbox, Activity } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserAccountNav } from "./UserAccountNav";
 
 const DashboardLayout: React.FC = () => {
+  // Navigation items ordered by priority
+  const navigationItems = [
+    { path: "/dashboard", label: "Dashboard", icon: <LayoutGrid size={24} /> },
+    { path: "/leads", label: "Leads", icon: <Users size={24} /> },
+    { path: "/pipeline", label: "Pipeline", icon: <BarChart size={24} /> },
+    { path: "/automacoes", label: "Automações", icon: <Zap size={24} /> },
+    { path: "/conversations", label: "Conversas", icon: <Inbox size={24} /> },
+    { path: "/pulse", label: "Pulse", icon: <Activity size={24} /> },
+  ];
+
   return (
     <div className="min-h-screen flex bg-gradient-radial">
       {/* Sidebar */}
@@ -24,73 +34,29 @@ const DashboardLayout: React.FC = () => {
         {/* Navigation */}
         <nav className="flex flex-col items-center md:items-start space-y-6 w-full px-4">
           <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <NavLink 
-                  to="/leads" 
-                  className={({ isActive }) => 
-                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
-                  }
-                >
-                  <Users size={24} />
-                  <span className="hidden md:inline">Leads</span>
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="md:hidden">
-                Leads
-              </TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <NavLink 
-                  to="/pipeline" 
-                  className={({ isActive }) => 
-                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
-                  }
-                >
-                  <BarChart size={24} />
-                  <span className="hidden md:inline">Pipeline</span>
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="md:hidden">
-                Pipeline
-              </TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <NavLink 
-                  to="/conversations" 
-                  className={({ isActive }) => 
-                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
-                  }
-                >
-                  <Inbox size={24} />
-                  <span className="hidden md:inline">Conversas</span>
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="md:hidden">
-                Conversas
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <NavLink 
-                  to="/automacoes" 
-                  className={({ isActive }) => 
-                    `flex items-center space-x-3 hover-glow btn-press ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
-                  }
-                >
-                  <Zap size={24} />
-                  <span className="hidden md:inline">Automações</span>
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="md:hidden">
-                Automações
-              </TooltipContent>
-            </Tooltip>
+            {navigationItems.map((item) => (
+              <Tooltip key={item.path}>
+                <TooltipTrigger asChild>
+                  <NavLink 
+                    to={item.path}
+                    title={item.label}
+                    className={({ isActive }) => 
+                      `flex items-center space-x-3 hover-glow btn-press ${
+                        isActive 
+                          ? 'text-vendah-neon bg-vendah-neon/10'
+                          : 'text-text-muted hover:text-white'
+                      } transition-colors`
+                    }
+                  >
+                    {item.icon}
+                    <span className="hidden md:inline">{item.label}</span>
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="md:hidden">
+                  {item.label}
+                </TooltipContent>
+              </Tooltip>
+            ))}
           </TooltipProvider>
         </nav>
       </aside>

@@ -33,7 +33,6 @@ const HomePage = () => {
           <div className="flex gap-4">
             {user ? (
               <Button 
-                className="text-white hover:text-vendah-neon bg-transparent"
                 variant="ghost"
                 asChild
               >
@@ -42,14 +41,13 @@ const HomePage = () => {
             ) : (
               <>
                 <Button 
-                  className="text-white hover:text-vendah-neon bg-transparent"
                   variant="ghost"
                   asChild
                 >
                   <Link to="/auth?tab=login">Entrar</Link>
                 </Button>
                 <Button 
-                  className="accent-button"
+                  variant="accent"
                   asChild
                 >
                   <Link to="/auth?tab=signup">Cadastrar</Link>
@@ -72,15 +70,16 @@ const HomePage = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center lg:justify-start">
               <Button 
-                className="accent-button text-lg px-8 py-6"
+                variant="accent"
+                size="lg"
                 asChild
               >
                 <Link to="/auth?tab=signup">Começar agora</Link>
               </Button>
               
               <Button 
-                className="border border-text-muted text-white hover:border-white hover:text-white text-lg px-8 py-6"
                 variant="outline"
+                size="lg"
                 asChild
               >
                 <Link to="#features">Ver recursos</Link>
@@ -91,11 +90,11 @@ const HomePage = () => {
       </div>
       
       {/* Features Section */}
-      <div id="features" className="bg-surface py-24 relative">
+      <div id="features" className="bg-surface py-24 relative section-spacing">
         <div className="absolute left-1/4 top-0 w-72 h-72 bg-vendah-purple/5 rounded-full filter blur-2xl"></div>
         <div className="absolute right-1/4 bottom-1/2 w-64 h-64 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
               <span className="vendah-gradient-text">Recursos</span> Poderosos
@@ -142,12 +141,12 @@ const HomePage = () => {
       </div>
       
       {/* CTA Section */}
-      <div className="py-20 bg-surface relative overflow-hidden">
+      <div className="py-20 bg-surface relative overflow-hidden section-spacing">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-vendah-purple to-vendah-neon"></div>
         <div className="absolute left-1/3 bottom-0 w-80 h-80 bg-vendah-neon/3 rounded-full filter blur-3xl"></div>
         <div className="absolute right-1/4 top-1/2 w-48 h-48 bg-vendah-purple/5 rounded-full filter blur-xl"></div>
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
               Pronto para <span className="vendah-gradient-text">potencializar suas vendas</span>?
@@ -157,7 +156,8 @@ const HomePage = () => {
             </p>
             
             <Button 
-              className="accent-button text-lg px-8 py-6"
+              variant="accent"
+              size="lg"
               asChild
             >
               <Link to="/auth?tab=signup">Começar agora</Link>

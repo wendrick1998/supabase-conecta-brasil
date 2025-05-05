@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, BarChart, Users, Zap, Inbox, LayoutGrid } from 'lucide-react';
 import { UserAccountNav } from './UserAccountNav';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface NavBarProps {
   currentPath?: string;
@@ -20,6 +21,14 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
     setIsOpen(false);
     navigate(path);
   };
+
+  const navigationItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: <LayoutGrid size={20} /> },
+    { path: '/leads', label: 'Leads', icon: <Users size={20} /> },
+    { path: '/pipeline', label: 'Pipeline', icon: <BarChart size={20} /> },
+    { path: '/automacoes', label: 'Automações', icon: <Zap size={20} /> },
+    { path: '/conversations', label: 'Conversas', icon: <Inbox size={20} /> },
+  ];
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-vendah-purple/20 bg-bg/95 backdrop-blur-sm">
@@ -45,44 +54,49 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
           </SheetTrigger>
           <SheetContent side="left" className="bg-bg border-vendah-purple/20">
             <div className="flex flex-col space-y-4 px-2 py-6">
-              <Button
-                variant="ghost"
-                className="flex w-full justify-start text-white hover:text-vendah-neon hover:bg-vendah-purple/10"
-                onClick={() => handleNavigation('/dashboard')}
-              >
-                Dashboard
-              </Button>
-              <Button
-                variant="ghost"
-                className="flex w-full justify-start text-white hover:text-vendah-neon hover:bg-vendah-purple/10"
-                onClick={() => handleNavigation('/leads')}
-              >
-                Leads
-              </Button>
+              {navigationItems.map((item) => (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className="flex w-full justify-start text-white hover:text-vendah-neon hover:bg-vendah-purple/10"
+                  onClick={() => handleNavigation(item.path)}
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  {item.label}
+                </Button>
+              ))}
             </div>
           </SheetContent>
         </Sheet>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-          <nav className="flex items-center space-x-1 text-sm font-medium">
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-white ${isActive ? 'bg-vendah-purple/20 text-vendah-neon' : 'hover:bg-vendah-purple/10 hover:text-vendah-neon'}`
-              }
-            >
-              Dashboard
-            </NavLink>
-            <NavLink
-              to="/leads"
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-white ${isActive ? 'bg-vendah-purple/20 text-vendah-neon' : 'hover:bg-vendah-purple/10 hover:text-vendah-neon'}`
-              }
-            >
-              Leads
-            </NavLink>
-          </nav>
+          <TooltipProvider>
+            <nav className="flex items-center space-x-1 text-sm font-medium">
+              {navigationItems.map((item) => (
+                <Tooltip key={item.path}>
+                  <TooltipTrigger asChild>
+                    <NavLink
+                      to={item.path}
+                      className={({ isActive }) =>
+                        `px-3 py-2 rounded-md flex items-center ${
+                          isActive 
+                            ? 'bg-vendah-neon/10 text-vendah-neon' 
+                            : 'text-text-muted hover:bg-vendah-purple/10 hover:text-white'
+                        }`
+                      }
+                    >
+                      <span className="mr-2">{item.icon}</span>
+                      {item.label}
+                    </NavLink>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    {item.label}
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </nav>
+          </TooltipProvider>
         </div>
 
         {/* User Account Navigation */}

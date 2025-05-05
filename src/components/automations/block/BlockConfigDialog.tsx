@@ -27,7 +27,7 @@ export const BlockConfigDialog: React.FC<BlockConfigDialogProps> = ({
   
   return (
     <Dialog open={showConfig} onOpenChange={setShowConfig}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-surface border-vendah-purple/20 rounded-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center text-white">
             {blockInfo.icon && <span className="mr-2">{blockInfo.icon}</span>}
@@ -42,11 +42,11 @@ export const BlockConfigDialog: React.FC<BlockConfigDialogProps> = ({
           onUpdateConfig={handleUpdateBlockConfig}
         />
         
-        <DialogFooter>
+        <DialogFooter className="border-t border-vendah-purple/20 pt-4 mt-6">
           <Button variant="outline" onClick={() => setShowConfig(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSaveConfig} className="bg-vendah-purple hover:bg-vendah-purple/90">
+          <Button onClick={handleSaveConfig}>
             Salvar
           </Button>
         </DialogFooter>

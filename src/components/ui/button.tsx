@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold tracking-wide uppercase ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 transition-all duration-200",
   {
     variants: {
       variant: {
@@ -14,12 +14,12 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-transparent hover:bg-vendah-purple/10 hover:text-vendah-neon btn-press",
+          "border border-text-muted bg-transparent text-text-muted hover:border-white hover:bg-vendah-purple/10 hover:text-white btn-press",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-vendah-purple/10 hover:text-vendah-neon",
+        ghost: "hover:bg-vendah-purple/10 hover:text-white",
         link: "text-primary underline-offset-4 hover:underline",
-        accent: "bg-vendah-neon text-vendah-black hover:bg-vendah-neon/90 hover:shadow-neon font-bold btn-press"
+        accent: "bg-vendah-neon text-vendah-black hover:bg-vendah-neon/90 hover:shadow-neon hover:brightness-110 font-bold btn-press"
       },
       size: {
         default: "h-10 px-4 py-2",
