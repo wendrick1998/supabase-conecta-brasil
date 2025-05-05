@@ -6,6 +6,7 @@ import { AutomationHeader } from '@/components/automations/AutomationHeader';
 import { AutomationWorkspace } from '@/components/automations/AutomationWorkspace';
 import { AutomationDialogs } from '@/components/automations/AutomationDialogs';
 import AutomationGuide from '@/components/automations/AutomationGuide';
+import { Loader2 } from 'lucide-react';
 
 const AutomacaoEditorPage = () => {
   const {
@@ -19,6 +20,7 @@ const AutomacaoEditorPage = () => {
     setShowPreview,
     isMobile,
     setIsMobile,
+    isLoading,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
@@ -56,6 +58,15 @@ const AutomacaoEditorPage = () => {
       setIsFirstVisit(false);
     }
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full min-h-[calc(100vh-4rem)] bg-[#121212] items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-vendah-purple mb-4" />
+        <p className="text-lg">Carregando automação...</p>
+      </div>
+    );
+  }
 
   return (
     <>

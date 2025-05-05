@@ -9,6 +9,71 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      automacoes: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          id: string
+          nome: string
+          status: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          nome: string
+          status: string
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          nome?: string
+          status?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      blocos_automacao: {
+        Row: {
+          automacao_id: string
+          conteudo_config: Json
+          id: string
+          ordem: number
+          tipo: string
+          x: number
+          y: number
+        }
+        Insert: {
+          automacao_id: string
+          conteudo_config?: Json
+          id?: string
+          ordem: number
+          tipo: string
+          x: number
+          y: number
+        }
+        Update: {
+          automacao_id?: string
+          conteudo_config?: Json
+          id?: string
+          ordem?: number
+          tipo?: string
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocos_automacao_automacao_id_fkey"
+            columns: ["automacao_id"]
+            isOneToOne: false
+            referencedRelation: "automacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       canais: {
         Row: {
           criado_em: string
@@ -26,6 +91,39 @@ export type Database = {
           nome?: string
         }
         Relationships: []
+      }
+      conexoes_blocos: {
+        Row: {
+          id: string
+          id_destino: string
+          id_origem: string
+        }
+        Insert: {
+          id?: string
+          id_destino: string
+          id_origem: string
+        }
+        Update: {
+          id?: string
+          id_destino?: string
+          id_origem?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conexoes_blocos_id_destino_fkey"
+            columns: ["id_destino"]
+            isOneToOne: false
+            referencedRelation: "blocos_automacao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conexoes_blocos_id_origem_fkey"
+            columns: ["id_origem"]
+            isOneToOne: false
+            referencedRelation: "blocos_automacao"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
