@@ -9,13 +9,17 @@ interface VideoPreviewProps {
   isPaused?: boolean;
   recordedMedia: RecordedMedia | null;
   stream: MediaStream | null;
+  onSaveRecording?: () => void;
+  onReset?: () => void;
 }
 
 const VideoPreview: React.FC<VideoPreviewProps> = ({
   isRecording,
   isPaused = false,
   recordedMedia,
-  stream
+  stream,
+  onSaveRecording,
+  onReset
 }) => {
   // Live recording preview
   if (stream && isRecording) {
@@ -48,11 +52,30 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   // Recorded video preview
   if (recordedMedia && !isRecording) {
     return (
-      <video 
-        src={recordedMedia.url} 
-        controls 
-        className="w-full h-64 bg-gray-100 rounded-md object-cover mb-4"
-      />
+      <div className="flex flex-col items-center w-full">
+        <video 
+          src={recordedMedia.url} 
+          controls 
+          className="w-full h-64 bg-gray-100 rounded-md object-cover mb-4"
+        />
+        
+        {onSaveRecording && onReset && (
+          <div className="flex gap-3 mt-2">
+            <button 
+              onClick={onSaveRecording}
+              className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700 transition-colors"
+            >
+              Enviar
+            </button>
+            <button 
+              onClick={onReset}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+            >
+              Descartar
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
   
