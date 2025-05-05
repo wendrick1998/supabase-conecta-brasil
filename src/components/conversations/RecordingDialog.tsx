@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ interface RecordingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mediaType: MediaType;
-  onSave: (file: File) => void;
+  onSave: (file: File, type: MediaType) => void;
 }
 
 const RecordingDialog = ({ 
@@ -26,6 +26,8 @@ const RecordingDialog = ({
   onSave 
 }: RecordingDialogProps) => {
   const [recordingTime, setRecordingTime] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  
   const { 
     isRecording, 
     recordedMedia, 
@@ -33,7 +35,9 @@ const RecordingDialog = ({
     startRecording, 
     stopRecording, 
     resetRecording,
-    stopMediaStream 
+    stopMediaStream,
+    pauseRecording,
+    resumeRecording
   } = useRecording({ 
     mediaType 
   });
@@ -41,6 +45,7 @@ const RecordingDialog = ({
   const closeDialog = () => {
     stopMediaStream();
     resetRecording();
+    setIsPaused(false);
     onOpenChange(false);
   };
 
@@ -54,20 +59,52 @@ const RecordingDialog = ({
         type: recordedMedia.blob.type
       });
       
-      onSave(file);
+      onSave(file, mediaType);
       closeDialog();
     }
   };
 
   const handleReset = () => {
     resetRecording();
+    setIsPaused(false);
   };
 
-  React.useEffect(() => {
+  const handlePauseRecording = () => {
+    if (isRecording) {
+      pauseRecording();
+      setIsPaused(true);
+    }
+  };
+
+  const handleResumeRecording = () => {
+    if (isPaused) {
+      resumeRecording();
+      setIsPaused(false);
+    }
+  };
+
+  const getDialogTitle = () => {
+    const mediaTypeText = 
+      mediaType === 'audio' ? 'áudio' : 
+      mediaType === 'video' ? 'vídeo' : 'foto';
+    
+    if (isRecording && !isPaused) {
+      return `Gravando ${mediaTypeText}...`;
+    } else if (isPaused) {
+      return `Gravação de ${mediaTypeText} pausada`;
+    } else if (recordedMedia) {
+      return `Revisar ${mediaTypeText}`;
+    } else {
+      return `Gravar ${mediaTypeText}`;
+    }
+  };
+
+  useEffect(() => {
     // Reset state when dialog opens
     if (open) {
       resetRecording();
       setRecordingTime(0);
+      setIsPaused(false);
     } else {
       stopMediaStream();
     }
@@ -77,7 +114,7 @@ const RecordingDialog = ({
     <Dialog 
       open={open} 
       onOpenChange={(newOpen) => {
-        if (isRecording) {
+        if (isRecording && !isPaused) {
           // Prevent closing while recording
           return;
         }
@@ -93,28 +130,26 @@ const RecordingDialog = ({
         }}
       >
         <DialogHeader>
-          <DialogTitle>
-            {isRecording 
-              ? `Gravando ${mediaType === 'audio' ? 'áudio' : 'vídeo'}...` 
-              : recordedMedia 
-                ? `Revisar ${mediaType === 'audio' ? 'áudio' : 'vídeo'}`
-                : `Gravar ${mediaType === 'audio' ? 'áudio' : 'vídeo'}`}
-          </DialogTitle>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
         </DialogHeader>
         
         <div className="flex flex-col items-center justify-center p-4">
           <MediaPreview 
             mediaType={mediaType}
             isRecording={isRecording}
+            isPaused={isPaused}
             recordedMedia={recordedMedia}
             stream={stream}
           />
           
           <RecordingControls 
             isRecording={isRecording}
+            isPaused={isPaused}
             hasRecordedMedia={!!recordedMedia}
             onStartRecording={startRecording}
             onStopRecording={stopRecording}
+            onPauseRecording={handlePauseRecording}
+            onResumeRecording={handleResumeRecording}
             onSaveRecording={handleSaveRecording}
             onReset={handleReset}
           />

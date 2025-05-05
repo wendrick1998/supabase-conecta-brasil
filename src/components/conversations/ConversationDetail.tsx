@@ -72,9 +72,7 @@ const ConversationDetail = () => {
             conversationId={conversation.id}
             onSendMessage={handleSendMessage}
             onSaveNote={handleSaveNote}
-            onRecordAudio={(file) => handleSendMediaMessage(file, 'Áudio enviado')}
-            onRecordVideo={() => {}}
-            openRecordingModal={() => {}}
+            onSendMediaMessage={handleSendMediaMessage}
             sendingMessage={sendingMessage}
           />
         </>

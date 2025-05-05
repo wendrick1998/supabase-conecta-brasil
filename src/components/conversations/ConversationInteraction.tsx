@@ -10,9 +10,7 @@ interface ConversationInteractionProps {
   conversationId: string;
   onSendMessage: (message: string) => void;
   onSaveNote: (noteContent: string) => void;
-  onRecordAudio: (file: File) => void;
-  onRecordVideo: () => void;
-  openRecordingModal: (type: 'audio' | 'video') => void;
+  onSendMediaMessage: (file: File, contentText: string) => void;
   sendingMessage: boolean;
 }
 
@@ -20,9 +18,7 @@ const ConversationInteraction = ({
   conversationId,
   onSendMessage,
   onSaveNote,
-  onRecordAudio,
-  onRecordVideo,
-  openRecordingModal,
+  onSendMediaMessage,
   sendingMessage,
 }: ConversationInteractionProps) => {
   const [showNoteForm, setShowNoteForm] = useState(false);
@@ -30,7 +26,51 @@ const ConversationInteraction = ({
   const [mediaType, setMediaType] = useState<MediaType>('audio');
 
   const handleFileUpload = () => {
-    toast.info('Funcionalidade de anexo em desenvolvimento');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = false;
+    input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar,.jpg,.jpeg,.png,.gif';
+    
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files[0]) {
+        const file = target.files[0];
+        handleSendFile(file);
+      }
+    };
+    
+    input.click();
+  };
+
+  const handleGalleryUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = false;
+    input.accept = 'image/*,video/*';
+    
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files[0]) {
+        const file = target.files[0];
+        handleSendFile(file);
+      }
+    };
+    
+    input.click();
+  };
+
+  const handleSendFile = (file: File) => {
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    const isAudio = file.type.startsWith('audio/');
+    
+    let messageText = 'Arquivo enviado';
+    
+    if (isImage) messageText = 'Imagem enviada';
+    if (isVideo) messageText = 'Vídeo enviado';
+    if (isAudio) messageText = 'Áudio enviado';
+    
+    onSendMediaMessage(file, messageText);
   };
 
   const handleSaveNote = (noteContent: string) => {
@@ -38,23 +78,19 @@ const ConversationInteraction = ({
     setShowNoteForm(false);
   };
 
-  const handleOpenAudioRecording = () => {
-    setMediaType('audio');
+  const handleOpenRecordingModal = (type: MediaType) => {
+    setMediaType(type);
     setRecordingDialogOpen(true);
   };
 
-  const handleOpenVideoRecording = () => {
-    setMediaType('video');
-    setRecordingDialogOpen(true);
-  };
-
-  const handleSaveRecording = (file: File) => {
-    if (mediaType === 'audio') {
-      onRecordAudio(file);
-    } else {
-      // Handle video differently if needed
-      onRecordVideo();
-    }
+  const handleSaveRecording = (file: File, type: MediaType) => {
+    let messageText = 'Mídia enviada';
+    
+    if (type === 'audio') messageText = 'Áudio enviado';
+    if (type === 'video') messageText = 'Vídeo enviado';
+    if (type === 'photo') messageText = 'Foto enviada';
+    
+    onSendMediaMessage(file, messageText);
   };
 
   return (
@@ -69,8 +105,8 @@ const ConversationInteraction = ({
           onSend={onSendMessage}
           onFileUpload={handleFileUpload}
           onAddNote={() => setShowNoteForm(true)}
-          onRecordAudio={() => handleOpenAudioRecording()}
-          onRecordVideo={handleOpenVideoRecording}
+          onOpenRecordingModal={handleOpenRecordingModal}
+          onGalleryUpload={handleGalleryUpload}
           isLoading={sendingMessage}
         />
       )}

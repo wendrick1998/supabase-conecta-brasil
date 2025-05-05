@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, To } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "./components/Layout";
@@ -24,6 +24,12 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import ConversationList from "./components/conversations/ConversationList";
 import ConversationDetail from "./components/conversations/ConversationDetail";
 import NewConversation from "./components/conversations/NewConversation";
+
+// Create a redirect component to handle the inbox to conversations redirect
+const InboxToConversationRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/conversations/${id}`} replace />;
+};
 
 const queryClient = new QueryClient();
 
@@ -59,9 +65,7 @@ const App = () => (
                   <Route path="conversations/:id" element={<ConversationDetail />} />
                   
                   {/* Redirect for backward compatibility - inbox → conversations */}
-                  <Route path="inbox/:id" element={
-                    <Navigate to={`/conversations/:id`} />
-                  } />
+                  <Route path="inbox/:id" element={<InboxToConversationRedirect />} />
                 </Route>
               </Route>
               

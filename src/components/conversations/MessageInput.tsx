@@ -4,15 +4,15 @@ import { Textarea } from '@/components/ui/textarea';
 import ActionsMenu from './input/ActionsMenu';
 import NoteButton from './input/NoteButton';
 import SendButton from './input/SendButton';
-import { Button } from '@/components/ui/button';
-import { Mic } from 'lucide-react';
+import AudioRecordButton from './input/AudioRecordButton';
+import CameraButton from './input/CameraButton';
 
 interface MessageInputProps {
   onSend: (message: string) => void;
   onFileUpload: () => void;
   onAddNote: () => void;
-  onRecordAudio?: (file: File) => void;
-  onRecordVideo?: () => void;
+  onOpenRecordingModal: (type: 'audio' | 'video' | 'photo') => void;
+  onGalleryUpload: () => void;
   isLoading: boolean;
 }
 
@@ -20,12 +20,11 @@ const MessageInput = ({
   onSend, 
   onFileUpload, 
   onAddNote, 
-  onRecordAudio, 
-  onRecordVideo,
+  onOpenRecordingModal,
+  onGalleryUpload,
   isLoading 
 }: MessageInputProps) => {
   const [message, setMessage] = useState('');
-  const [showAudioRecording, setShowAudioRecording] = useState(false);
   
   const handleSend = () => {
     if (message.trim()) {
@@ -38,12 +37,6 @@ const MessageInput = ({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
-    }
-  };
-
-  const handleOpenAudioRecording = () => {
-    if (onRecordAudio) {
-      setShowAudioRecording(true);
     }
   };
 
@@ -60,24 +53,21 @@ const MessageInput = ({
       
       <div className="flex justify-between items-center">
         <div className="flex space-x-2">
-          {/* Simple Audio Button */}
-          {onRecordAudio && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleOpenAudioRecording}
-              className="hover:bg-blue-50"
-              title="Gravar áudio"
-            >
-              <Mic className="h-4 w-4" />
-            </Button>
-          )}
+          {/* Audio Recording Button */}
+          <AudioRecordButton 
+            onClick={() => onOpenRecordingModal('audio')} 
+          />
 
-          {/* Actions Menu */}
+          {/* File Attachment Button */}
           <ActionsMenu 
             onFileUpload={onFileUpload}
-            onStartRecording={handleOpenAudioRecording}
-            onRecordVideo={onRecordVideo}
+          />
+
+          {/* Camera Button (Photo/Video) */}
+          <CameraButton 
+            onTakePhoto={() => onOpenRecordingModal('photo')}
+            onRecordVideo={() => onOpenRecordingModal('video')}
+            onAttachFromGallery={onGalleryUpload}
           />
 
           {/* Note Button */}

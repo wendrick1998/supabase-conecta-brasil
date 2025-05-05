@@ -1,27 +1,33 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, Square, Send, Trash2 } from "lucide-react";
+import { Mic, Square, Send, Trash2, Pause, Play } from "lucide-react";
 
 interface RecordingControlsProps {
   isRecording: boolean;
+  isPaused: boolean;
   hasRecordedMedia: boolean;
   onStartRecording: () => void;
   onStopRecording: () => void;
+  onPauseRecording: () => void;
+  onResumeRecording: () => void;
   onSaveRecording: () => void;
   onReset?: () => void;
 }
 
 const RecordingControls: React.FC<RecordingControlsProps> = ({
   isRecording,
+  isPaused,
   hasRecordedMedia,
   onStartRecording,
   onStopRecording,
+  onPauseRecording,
+  onResumeRecording,
   onSaveRecording,
   onReset
 }) => {
   return (
-    <div className="flex gap-3 justify-center">
+    <div className="flex gap-3 flex-wrap justify-center">
       {!isRecording && !hasRecordedMedia && (
         <Button
           onClick={onStartRecording}
@@ -33,15 +39,49 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
         </Button>
       )}
       
-      {isRecording && (
-        <Button
-          onClick={onStopRecording}
-          variant="destructive"
-          size="lg"
-        >
-          <Square className="h-4 w-4 mr-2" />
-          Parar Gravação
-        </Button>
+      {isRecording && !isPaused && (
+        <>
+          <Button
+            onClick={onPauseRecording}
+            variant="outline"
+            size="sm"
+          >
+            <Pause className="h-4 w-4 mr-2" />
+            Pausar
+          </Button>
+          
+          <Button
+            onClick={onStopRecording}
+            variant="destructive"
+            size="sm"
+          >
+            <Square className="h-4 w-4 mr-2" />
+            Parar
+          </Button>
+        </>
+      )}
+
+      {isRecording && isPaused && (
+        <>
+          <Button
+            onClick={onResumeRecording}
+            variant="outline"
+            size="sm"
+            className="bg-blue-50 border-blue-200 hover:bg-blue-100"
+          >
+            <Play className="h-4 w-4 mr-2" />
+            Retomar
+          </Button>
+          
+          <Button
+            onClick={onStopRecording}
+            variant="destructive"
+            size="sm"
+          >
+            <Square className="h-4 w-4 mr-2" />
+            Parar
+          </Button>
+        </>
       )}
       
       {hasRecordedMedia && !isRecording && (

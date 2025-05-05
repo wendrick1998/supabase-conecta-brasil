@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export type MediaType = 'audio' | 'video';
+export type MediaType = 'audio' | 'video' | 'photo';
 
 interface RecordingState {
   isRecording: boolean;
@@ -26,6 +26,7 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaChunksRef = useRef<BlobPart[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const isPausedRef = useRef<boolean>(false);
   
   const stopMediaStream = () => {
     if (streamRef.current) {
@@ -43,10 +44,18 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
 
   const startRecording = async () => {
     try {
-      const constraints = {
-        audio: true,
-        video: mediaType === 'video'
-      };
+      let constraints;
+      
+      if (mediaType === 'photo') {
+        constraints = {
+          video: true
+        };
+      } else {
+        constraints = {
+          audio: true,
+          video: mediaType === 'video'
+        };
+      }
 
       // Stop any existing stream
       stopMediaStream();
@@ -54,6 +63,15 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
       // Request media permissions
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
+      
+      if (mediaType === 'photo') {
+        // For photos, we just need to access the camera stream without recording
+        setRecordingState(prev => ({ 
+          ...prev, 
+          isRecording: true 
+        }));
+        return;
+      }
       
       // Reset chunks
       mediaChunksRef.current = [];
@@ -84,6 +102,8 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
           }
         });
         
+        isPausedRef.current = false;
+        
         if (onStop) onStop();
       };
       
@@ -98,8 +118,29 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
   };
 
   const stopRecording = () => {
+    if (mediaType === 'photo' && streamRef.current) {
+      // For photos, we would capture the image here, but for now just stop the stream
+      stopMediaStream();
+      setRecordingState({ isRecording: false, recordedMedia: null });
+      return;
+    }
+    
     if (mediaRecorderRef.current && recordingState.isRecording) {
       mediaRecorderRef.current.stop();
+    }
+  };
+
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.pause();
+      isPausedRef.current = true;
+    }
+  };
+
+  const resumeRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'paused') {
+      mediaRecorderRef.current.resume();
+      isPausedRef.current = false;
     }
   };
 
@@ -108,6 +149,12 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
       isRecording: false,
       recordedMedia: null
     });
+    
+    if (recordingState.recordedMedia?.url) {
+      URL.revokeObjectURL(recordingState.recordedMedia.url);
+    }
+    
+    isPausedRef.current = false;
   };
 
   return {
@@ -115,6 +162,8 @@ export const useRecording = ({ mediaType, onStop }: UseRecordingProps) => {
     stream: streamRef.current,
     startRecording,
     stopRecording,
+    pauseRecording,
+    resumeRecording,
     resetRecording,
     stopMediaStream
   };
