@@ -1,94 +1,80 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { isIOS } from '@/pwaFeatures';
+import { isIOS } from '@/pwa/deviceDetection';
+import { hapticFeedback } from '@/utils/deviceUtils';
 
-// Type definition for biometric authentication status
-type BiometricStatus = 'available' | 'unavailable' | 'unknown';
+interface BiometricAuthResult {
+  isSupported: boolean;
+  isEnrolled: boolean;
+  authenticate: () => Promise<boolean>;
+}
 
-// Hook for biometric authentication
-const useBiometricAuth = () => {
-  const [biometricAvailable, setBiometricAvailable] = useState<BiometricStatus>('unknown');
-  const [authenticating, setAuthenticating] = useState(false);
+const useBiometricAuth = (): BiometricAuthResult => {
+  const [isSupported, setIsSupported] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
-  // Check biometric availability on mount
   useEffect(() => {
-    checkBiometricAvailability();
+    const checkBiometricSupport = async () => {
+      if (isIOS()) {
+        setIsSupported(false);
+        setIsEnrolled(false);
+        return;
+      }
+
+      if (typeof window.PublicKeyCredential !== 'undefined' &&
+          window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+        try {
+          const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+          setIsSupported(available);
+        } catch (error) {
+          console.error('Error checking biometric support:', error);
+          setIsSupported(false);
+        }
+      } else {
+        setIsSupported(false);
+      }
+    };
+
+    checkBiometricSupport();
   }, []);
 
-  // Check if biometric authentication is available
-  const checkBiometricAvailability = async () => {
-    try {
-      // We can use PublicKeyCredential API as a way to detect if the device
-      // supports biometric authentication
-      if (window.PublicKeyCredential && 
-          PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
-        const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-        setBiometricAvailable(available ? 'available' : 'unavailable');
-      } else {
-        setBiometricAvailable('unavailable');
-      }
-    } catch (error) {
-      console.error('Error checking biometric availability:', error);
-      setBiometricAvailable('unavailable');
-    }
-  };
-
-  // Authenticate with biometrics - returns success status
   const authenticate = async (): Promise<boolean> => {
-    // If biometrics aren't available, return false
-    if (biometricAvailable !== 'available') {
-      toast.error('Autenticação biométrica não disponível neste dispositivo');
+    if (!isSupported) {
+      toast.error('Biometria não suportada neste dispositivo.');
       return false;
     }
 
-    setAuthenticating(true);
-
     try {
-      // Create a simple credential to verify user presence
-      // This will trigger TouchID/FaceID on devices that support it
-      const publicKey: PublicKeyCredentialCreationOptions = {
-        challenge: new Uint8Array([1, 2, 3, 4]),
-        rp: { name: 'Vendah+' },
-        user: {
-          id: new Uint8Array([1, 2, 3, 4]), 
-          name: 'vendah-user',
-          displayName: 'Usuário Vendah+'
+      hapticFeedback();
+      const credential = await navigator.credentials.get({
+        mediation: 'conditional',
+        publicKey: {
+          challenge: new Uint8Array(32),
+          timeout: 60000,
+          rpId: window.location.hostname,
+          allowCredentials: [],
+          userVerification: 'required',
         },
-        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
-        timeout: 60000,
-        authenticatorSelection: {
-          authenticatorAttachment: 'platform' as AuthenticatorAttachment,
-          userVerification: 'required' 
-        }
-      };
+      });
 
-      // Attempt to create a credential (triggers biometric)
-      await navigator.credentials.create({ publicKey });
-      
-      setAuthenticating(false);
-      toast.success('Autenticação biométrica concluída');
-      return true;
-    } catch (error) {
-      console.error('Error using biometric auth:', error);
-      
-      // Custom message for user cancel
-      if (error instanceof DOMException && error.name === 'NotAllowedError') {
-        toast.error('Autenticação biométrica cancelada pelo usuário');
+      if (credential) {
+        toast.success('Autenticação biométrica realizada com sucesso!');
+        return true;
       } else {
-        toast.error('Falha na autenticação biométrica');
+        toast.error('Falha na autenticação biométrica.');
+        return false;
       }
-      
-      setAuthenticating(false);
+    } catch (error: any) {
+      console.error('Erro durante a autenticação biométrica:', error);
+      toast.error(`Erro na autenticação: ${error.message}`);
       return false;
     }
   };
 
   return {
-    biometricAvailable,
-    authenticating,
+    isSupported,
+    isEnrolled,
     authenticate,
-    checkBiometricAvailability
   };
 };
 
