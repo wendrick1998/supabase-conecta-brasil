@@ -70,17 +70,17 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
     isViewed: !conversation.nao_lida
   } : undefined;
   return <Card ref={setNodeRef} style={style} className={cn("bg-white backdrop-blur-sm cursor-pointer transition-all min-w-[260px]", isDragging ? "shadow-lg scale-[1.02] border border-vendah-neon/40 rotate-1 z-10 shadow-vendah-neon/20" : "hover:shadow-md hover:-translate-y-1 hover:border-vendah-purple/30")} onClick={handleClick} aria-label={`Lead: ${lead.nome}`} role="button">
-      <CardContent className="p-3 bg-violet-500">
+      <CardContent className="p-3">
         {/* Card Header with Name and Actions */}
         <div className="flex justify-between items-start">
           <div className="flex-grow">
-            <h4 className="font-semibold text-base truncate">{lead.nome}</h4>
-            {lead.empresa && <span className="text-xs text-indigo-950">{lead.empresa}</span>}
+            <h4 className="font-semibold text-base truncate text-slate-950">{lead.nome}</h4>
+            {lead.empresa && <span className="text-xs text-gray-500">{lead.empresa}</span>}
           </div>
           
           <div className="flex items-center space-x-1">
             {/* Drag handle - mais visível e melhor feedback */}
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing hover:bg-vendah-purple/10 rounded-full bg-slate-500 hover:bg-slate-400 text-gray-950">
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing hover:bg-vendah-purple/10 rounded-full mx-[10px] my-[10px] py-[10px] px-[10px]">
               <Move className="h-3 w-3 text-vendah-blue" />
             </Button>
             
