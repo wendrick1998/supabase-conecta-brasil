@@ -68,7 +68,7 @@ const MessageInput = ({
             onFileUpload={onFileUpload}
           />
 
-          {/* Camera Button (Direct action) */}
+          {/* Camera Button with dropdown */}
           <CameraButton 
             onAttachFromGallery={onGalleryUpload}
           />
