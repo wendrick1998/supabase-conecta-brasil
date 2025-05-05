@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, LayoutList, MessageSquare, BarChart, Zap, Award, Shield } from 'lucide-react';
@@ -9,16 +10,21 @@ const HomePage = () => {
   const { user } = useAuth();
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#221F26] to-[#2A2730] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#2A2730] to-[#333039] text-white relative overflow-hidden">
+      {/* Visual details - decorative elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-vendah-purple/10 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-vendah-neon/5 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div className="absolute top-1/3 right-10 w-64 h-64 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
+      
       {/* Hero Section */}
-      <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24">
+      <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24 relative z-10">
         <nav className="flex justify-between items-center mb-20">
           <div className="flex items-center">
             <div className="logo-container p-4 flex items-center justify-center">
               <img 
                 src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
                 alt="Vendah+" 
-                className="h-40 md:h-48 drop-shadow-[0_0_15px_rgba(93,46,140,0.85)]"
+                className="h-44 md:h-52 drop-shadow-[0_0_20px_rgba(93,46,140,0.9)]"
               />
             </div>
           </div>
@@ -67,8 +73,9 @@ const HomePage = () => {
       </div>
       
       {/* Features Section */}
-      <div className="bg-[#1C1920] py-24">
-        <div className="container mx-auto px-4">
+      <div className="bg-[#252329] py-24 relative">
+        <div className="absolute left-1/4 top-0 w-72 h-72 bg-vendah-purple/5 rounded-full filter blur-2xl"></div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
               <span className="vendah-gradient-text">Recursos</span> Poderosos
@@ -160,8 +167,9 @@ const HomePage = () => {
       </div>
       
       {/* CTA Section */}
-      <div className="py-20 bg-[#262229] relative overflow-hidden">
+      <div className="py-20 bg-[#2D2933] relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-vendah-purple to-vendah-neon"></div>
+        <div className="absolute left-1/3 bottom-0 w-80 h-80 bg-vendah-neon/3 rounded-full filter blur-3xl"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
@@ -175,7 +183,7 @@ const HomePage = () => {
       </div>
       
       {/* Footer */}
-      <footer className="bg-[#1C1920] py-10 border-t border-vendah-purple/20">
+      <footer className="bg-[#252329] py-10 border-t border-vendah-purple/20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
@@ -183,7 +191,7 @@ const HomePage = () => {
                 <img 
                   src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
                   alt="Vendah+" 
-                  className="h-32 drop-shadow-[0_0_15px_rgba(93,46,140,0.85)]"
+                  className="h-36 drop-shadow-[0_0_20px_rgba(93,46,140,0.9)]"
                 />
               </div>
             </div>

@@ -14,20 +14,26 @@ const AuthLayout = ({ children, pageTitle }: AuthLayoutProps) => {
         <title>Vendah+ - {pageTitle}</title>
       </Helmet>
       
-      <div className="min-h-screen bg-gradient-to-b from-[#221F26] to-[#2A2730] flex flex-col justify-center items-center px-4 py-10">
-        <div className="mb-8 flex flex-col items-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#2A2730] to-[#333039] flex flex-col justify-center items-center px-4 py-10 relative overflow-hidden">
+        {/* Visual details - decorative circles */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-vendah-purple/10 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-vendah-neon/5 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        
+        <div className="mb-8 flex flex-col items-center z-10">
           <div className="logo-container p-6 mb-2 flex items-center justify-center">
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+"
-              className="h-40 md:h-44 drop-shadow-[0_0_15px_rgba(93,46,140,0.85)]" 
+              className="h-44 md:h-48 drop-shadow-[0_0_20px_rgba(93,46,140,0.9)]" 
             />
           </div>
         </div>
         
-        {children}
+        <div className="z-10 w-full">
+          {children}
+        </div>
         
-        <div className="mt-8 text-gray-400 text-sm font-medium">
+        <div className="mt-8 text-gray-400 text-sm font-medium z-10">
           © 2025 Vendah+. Todos os direitos reservados.
         </div>
       </div>
