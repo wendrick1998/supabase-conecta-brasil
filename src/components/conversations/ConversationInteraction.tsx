@@ -58,6 +58,7 @@ const ConversationInteraction = ({
     input.type = 'file';
     input.multiple = false;
     input.accept = 'image/*,video/*';
+    input.capture = 'environment'; // Add capture attribute for camera access
     
     input.onchange = (e) => {
       const target = e.target as HTMLInputElement;

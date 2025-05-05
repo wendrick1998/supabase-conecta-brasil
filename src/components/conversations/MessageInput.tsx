@@ -68,10 +68,8 @@ const MessageInput = ({
             onFileUpload={onFileUpload}
           />
 
-          {/* Camera Button (Photo/Video) */}
+          {/* Camera Button (Direct action) */}
           <CameraButton 
-            onTakePhoto={() => onOpenRecordingModal('photo')}
-            onRecordVideo={() => onOpenRecordingModal('video')}
             onAttachFromGallery={onGalleryUpload}
           />
 
