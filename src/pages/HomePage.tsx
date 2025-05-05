@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, LayoutList, MessageSquare, BarChart, Zap, Award, Shield } from 'lucide-react';
@@ -10,16 +9,18 @@ const HomePage = () => {
   const { user } = useAuth();
   
   return (
-    <div className="min-h-screen bg-dark-gradient text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#221F26] to-[#2A2730] text-white">
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-12 lg:pt-20 pb-24">
         <nav className="flex justify-between items-center mb-20">
           <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
-              alt="Vendah+" 
-              className="h-32 md:h-40"
-            />
+            <div className="logo-container p-4 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center shadow-xl">
+              <img 
+                src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+                alt="Vendah+" 
+                className="h-32 md:h-40 drop-shadow-[0_0_8px_rgba(93,46,140,0.7)]"
+              />
+            </div>
           </div>
           
           <div className="flex gap-4">
@@ -66,7 +67,7 @@ const HomePage = () => {
       </div>
       
       {/* Features Section */}
-      <div className="bg-vendah-black py-24">
+      <div className="bg-[#1C1920] py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
@@ -159,7 +160,7 @@ const HomePage = () => {
       </div>
       
       {/* CTA Section */}
-      <div className="py-20 bg-vendah-dark relative overflow-hidden">
+      <div className="py-20 bg-[#262229] relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-vendah-purple to-vendah-neon"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -174,15 +175,17 @@ const HomePage = () => {
       </div>
       
       {/* Footer */}
-      <footer className="bg-vendah-black py-10 border-t border-vendah-purple/20">
+      <footer className="bg-[#1C1920] py-10 border-t border-vendah-purple/20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <img 
-                src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
-                alt="Vendah+" 
-                className="h-24"
-              />
+              <div className="logo-container p-2 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                <img 
+                  src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+                  alt="Vendah+" 
+                  className="h-24 drop-shadow-[0_0_8px_rgba(93,46,140,0.7)]"
+                />
+              </div>
             </div>
             <div className="text-gray-500 text-sm">
               © 2024 Vendah+. Todos os direitos reservados.

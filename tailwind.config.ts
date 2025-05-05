@@ -72,8 +72,13 @@ export default {
 				'vendah-neon': '#39FF14',
 				'vendah-black': '#0B0B0B',
 				'vendah-dark': '#121212',
-				'vendah-gradient-start': '#0B0B0B',
-				'vendah-gradient-end': '#1E1E1E',
+				'vendah-gray': {
+					DEFAULT: '#221F26',
+					dark: '#1C1920',
+					light: '#2A2730',
+				},
+				'vendah-gradient-start': '#221F26',
+				'vendah-gradient-end': '#2A2730',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -119,10 +124,11 @@ export default {
 			boxShadow: {
 				'neon': '0 0 5px #39FF14, 0 0 10px #39FF14',
 				'neon-intense': '0 0 10px #39FF14, 0 0 20px #39FF14, 0 0 30px #39FF14',
-				'neon-subtle': '0 0 5px rgba(57, 255, 20, 0.5)'
+				'neon-subtle': '0 0 5px rgba(57, 255, 20, 0.5)',
+				'purple': '0 0 15px rgba(93, 46, 140, 0.5)'
 			},
 			backgroundImage: {
-				'dark-gradient': 'linear-gradient(to bottom, #0B0B0B, #1E1E1E)',
+				'dark-gradient': 'linear-gradient(to bottom, #221F26, #2A2730)',
 				'purple-gradient': 'linear-gradient(to right, #5D2E8C, #144D8C)',
 				'button-gradient': 'linear-gradient(to right, #5D2E8C, #7039AD)'
 			}
