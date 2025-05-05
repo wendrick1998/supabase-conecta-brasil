@@ -1,7 +1,31 @@
 
 import React, { useState } from 'react';
-import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  DragOverEvent, 
+  DragStartEvent,
+  pointerWithin,
+  MouseSensor, 
+  TouchSensor, 
+  useSensor, 
+  useSensors,
+  MeasuringStrategy,
+  defaultDropAnimationSideEffects,
+  DropAnimation
+} from '@dnd-kit/core';
 import PipelineContent from './PipelineContent';
+
+// Configuração da animação de drop para melhorar a UX
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: '0.5',
+      },
+    },
+  }),
+};
 
 interface PipelineDndContextProps {
   onMoveCard: (leadId: string, newStageId: string) => Promise<void>;
@@ -15,19 +39,19 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
   const [activeLeadId, setActiveLeadId] = useState<string | null>(null);
   const [overStageId, setOverStageId] = useState<string | null>(null);
 
-  // Configure sensors for drag & drop
+  // Configure sensors for drag & drop with improved response
   const mouseSensor = useSensor(MouseSensor, {
-    // Require the mouse to move by 10 pixels before activating
+    // Reduzindo a distância para resposta mais rápida
     activationConstraint: {
-      distance: 10,
+      distance: 5,
     },
   });
   
   const touchSensor = useSensor(TouchSensor, {
-    // Press delay helps distinguish between a tap and a drag
+    // Reduzindo o delay para melhorar a resposta
     activationConstraint: {
-      delay: 200,
-      tolerance: 8,
+      delay: 150,
+      tolerance: 5,
     },
   });
   
@@ -91,6 +115,22 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      collisionDetection={pointerWithin}
+      measuring={{
+        droppable: {
+          strategy: MeasuringStrategy.Always,
+        },
+      }}
+      autoScroll={{
+        threshold: {
+          x: 0.2,
+          y: 0.2
+        },
+        speed: {
+          x: 10,
+          y: 10
+        }
+      }}
     >
       {childrenWithProps}
     </DndContext>

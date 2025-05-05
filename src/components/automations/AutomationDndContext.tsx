@@ -57,7 +57,7 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
   // Define measuring configuration with correct types
   const measuring: MeasuringConfiguration = {
     droppable: {
-      strategy: "always", // Change from 'rects' to 'always' which is a valid MeasuringStrategy
+      strategy: "always" as const, // Use a const assertion to fix the type error
     },
   };
 

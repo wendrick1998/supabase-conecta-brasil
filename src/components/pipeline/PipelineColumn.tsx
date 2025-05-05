@@ -53,8 +53,10 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
     <div 
       ref={setNodeRef}
       className={cn(
-        "flex flex-col rounded-lg p-4 min-h-[400px] transition-colors duration-200",
-        isOver && !isActiveLeadInThisColumn ? "bg-blue-50 border border-blue-200" : "bg-gray-50",
+        "flex flex-col rounded-lg p-4 min-h-[400px] transition-all duration-200",
+        isOver && !isActiveLeadInThisColumn ? 
+          "bg-gradient-to-b from-vendah-blue/10 to-vendah-purple/5 border border-vendah-blue/30 shadow-lg" : 
+          "bg-surface/30 backdrop-blur-sm border border-vendah-purple/10",
         isActiveLeadInThisColumn ? "opacity-90" : ""
       )}
       aria-label={`Estágio: ${estagio.nome}`}
@@ -72,11 +74,11 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-vendah-purple/10">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-surface/90 backdrop-blur-md border-vendah-purple/20">
             <DropdownMenuItem asChild>
               <Link to="/leads/novo" state={{ initialStageId: estagio.id }} className="flex items-center cursor-pointer">
                 <Plus className="mr-2 h-4 w-4" />
@@ -93,7 +95,7 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
         </DropdownMenu>
       </div>
       
-      <div className="flex flex-col gap-2 flex-grow">
+      <div className="flex flex-col gap-3 flex-grow">
         {isMovingLead ? (
           <div className="flex-grow flex items-center justify-center">
             <p className="text-sm text-gray-400 text-center">
@@ -102,7 +104,7 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
           </div>
         ) : leads.length === 0 ? (
           <div className="flex-grow flex items-center justify-center">
-            <p className="text-sm text-gray-400 text-center">
+            <p className="text-sm text-text-muted text-center">
               Não há leads neste estágio
             </p>
           </div>

@@ -37,13 +37,13 @@ const PipelinePage: React.FC = () => {
         <title>Pipeline de Vendas</title>
       </Helmet>
       
-      <div className="container py-6">
+      <div className="container px-0 md:px-4 py-6">
         <PipelineHeader 
           onAddNewLead={handleAddNewLead}
           onConfigurePipeline={handleConfigurePipeline}
         />
 
-        <div className="mt-6">
+        <div className="mt-6 bg-gradient-to-b from-vendah-blue/5 to-vendah-purple/5 p-4 rounded-lg border border-vendah-purple/10 shadow-md">
           <PipelineDndContext onMoveCard={handleMoveCard}>
             <PipelineContent
               estagios={estagios}

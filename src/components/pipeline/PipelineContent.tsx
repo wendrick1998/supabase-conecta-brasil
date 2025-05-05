@@ -29,13 +29,14 @@ const PipelineContent: React.FC<PipelineContentProps> = ({
 }) => {
   if (estagios.length === 0) {
     return (
-      <div className="col-span-full bg-gray-50 rounded-lg p-8 text-center">
-        <h3 className="text-lg font-medium mb-2">Nenhum estágio configurado</h3>
+      <div className="col-span-full bg-surface/30 backdrop-blur-sm rounded-lg p-8 text-center border border-vendah-purple/10">
+        <h3 className="text-lg font-medium mb-2 text-white">Nenhum estágio configurado</h3>
         <p className="text-muted-foreground mb-4">
           Configure os estágios do seu funil de vendas para visualizar seus leads no pipeline.
         </p>
         <Button 
-          className="bg-blue-600 hover:bg-blue-700"
+          variant="accent"
+          className="font-semibold tracking-wide"
           onClick={onConfigurePipeline}
         >
           Configurar Pipeline
@@ -45,8 +46,8 @@ const PipelineContent: React.FC<PipelineContentProps> = ({
   }
 
   return (
-    <ScrollArea className="w-full">
-      <div className="grid grid-flow-col auto-cols-[minmax(280px,_1fr)] gap-4 pb-4 pr-4 min-h-[calc(100vh-220px)]">
+    <ScrollArea className="w-full rounded-lg">
+      <div className="grid grid-flow-col auto-cols-[minmax(280px,_1fr)] gap-4 pb-6 pr-6 min-h-[calc(100vh-220px)]">
         {estagios.map((estagio) => (
           <PipelineColumn 
             key={estagio.id} 
