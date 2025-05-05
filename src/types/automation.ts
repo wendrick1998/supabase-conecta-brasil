@@ -32,5 +32,6 @@ export interface AutomationTemplate {
   id: string;
   name: string;
   description: string;
+  category?: string; // Add category field
   blocks: Block[];
 }
