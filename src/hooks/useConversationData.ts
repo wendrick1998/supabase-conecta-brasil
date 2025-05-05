@@ -3,110 +3,256 @@ import { useState, useEffect } from 'react';
 import { toast } from "@/components/ui/sonner";
 import { Conversation, Message, InternalNote } from '@/types/conversation';
 import { mockConversation, mockMessages, mockNotes } from '@/data/mockConversations';
+import { supabase } from "@/integrations/supabase/client";
 
 export const useConversationData = (id: string | undefined) => {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [notes, setNotes] = useState<InternalNote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [sendingMessage, setSendingMessage] = useState(false);
 
   // Load conversation data
   useEffect(() => {
     const fetchData = async () => {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (id === '1') {
-        setConversation(mockConversation);
-        setMessages(mockMessages);
-        setNotes(mockNotes);
-      } else {
-        // Just for demo, in real app we would fetch from API
-        setConversation({
-          ...mockConversation,
-          id,
-          lead_nome: `Lead ${id}`,
-          canal: id === '2' ? 'Instagram' : id === '3' ? 'Email' : 'WhatsApp',
-        });
-        setMessages([
-          {
-            id: '1',
-            conversation_id: id || '',
-            content: `Esta é uma conversa de exemplo para o ID ${id}`,
-            timestamp: new Date().toISOString(),
-            sender_type: 'lead',
-            status: 'read',
-          }
-        ]);
-        setNotes([]);
+      if (!id) {
+        setLoading(false);
+        setError("ID de conversa não fornecido");
+        return;
       }
       
-      setLoading(false);
+      setLoading(true);
+      setError(null);
+
+      try {
+        // First, check if the ID is a conversation ID
+        let { data: conversationData, error: conversationError } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        // If not found as conversation ID, try as lead ID
+        if (conversationError || !conversationData) {
+          const { data: leadConversation, error: leadError } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('lead_id', id)
+            .order('horario', { ascending: false })
+            .limit(1)
+            .single();
+
+          if (leadError || !leadConversation) {
+            // For demo/development, use mock data if no real data found
+            if (id === '1') {
+              setConversation(mockConversation);
+              setMessages(mockMessages);
+              setNotes(mockNotes);
+            } else {
+              // Create a new placeholder conversation for this lead
+              const placeholderConversation = {
+                id: `new-${id}`,
+                lead_id: id,
+                lead_nome: `Lead ${id}`,
+                canal: 'WhatsApp' as const,
+                ultima_mensagem: 'Este lead ainda não possui histórico de conversa.',
+                horario: new Date().toISOString(),
+                nao_lida: false,
+                status: 'Aberta' as const
+              };
+              
+              setConversation(placeholderConversation);
+              setMessages([]);
+              setNotes([]);
+            }
+          } else {
+            // Found a conversation for this lead
+            setConversation(leadConversation);
+            
+            // Fetch messages for this conversation
+            const { data: messagesData } = await supabase
+              .from('messages')
+              .select('*')
+              .eq('conversation_id', leadConversation.id)
+              .order('timestamp', { ascending: true });
+              
+            setMessages(messagesData || []);
+            
+            // Fetch internal notes
+            const { data: notesData } = await supabase
+              .from('internal_notes')
+              .select('*')
+              .eq('conversation_id', leadConversation.id)
+              .order('timestamp', { ascending: true });
+              
+            setNotes(notesData || []);
+            
+            // Mark as read if it was unread
+            if (leadConversation.nao_lida) {
+              await supabase
+                .from('conversations')
+                .update({ nao_lida: false })
+                .eq('id', leadConversation.id);
+            }
+          }
+        } else {
+          // Found the conversation directly
+          setConversation(conversationData);
+          
+          // Fetch messages
+          const { data: messagesData } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', id)
+            .order('timestamp', { ascending: true });
+            
+          setMessages(messagesData || []);
+          
+          // Fetch internal notes
+          const { data: notesData } = await supabase
+            .from('internal_notes')
+            .select('*')
+            .eq('conversation_id', id)
+            .order('timestamp', { ascending: true });
+            
+          setNotes(notesData || []);
+          
+          // Mark as read if it was unread
+          if (conversationData.nao_lida) {
+            await supabase
+              .from('conversations')
+              .update({ nao_lida: false })
+              .eq('id', conversationData.id);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching conversation data:', err);
+        setError('Erro ao carregar dados da conversa');
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchData();
   }, [id]);
 
   // Message handling
-  const handleSendMessage = (newMessage: string) => {
+  const handleSendMessage = async (newMessage: string) => {
+    if (!conversation) return;
+    
     setSendingMessage(true);
     
-    // Simulate sending message
-    setTimeout(() => {
-      const newMsg: Message = {
-        id: `new-${Date.now()}`,
-        conversation_id: id || '',
-        content: newMessage,
-        timestamp: new Date().toISOString(),
-        sender_type: 'user',
-        status: 'sent',
-      };
+    try {
+      // Add message to database
+      const { data: messageData, error: messageError } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversation.id,
+          content: newMessage,
+          sender_type: 'user',
+          status: 'sent',
+        })
+        .select()
+        .single();
       
-      setMessages(prevMessages => [...prevMessages, newMsg]);
-      setSendingMessage(false);
+      if (messageError) throw messageError;
+      
+      // Update conversation with latest message
+      await supabase
+        .from('conversations')
+        .update({
+          ultima_mensagem: newMessage,
+          horario: new Date().toISOString(),
+          nao_lida: false,
+        })
+        .eq('id', conversation.id);
+      
+      // Add new message to state
+      setMessages(prevMessages => [...prevMessages, messageData as Message]);
       toast.success('Mensagem enviada');
-    }, 500);
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+      toast.error('Não foi possível enviar a mensagem');
+    } finally {
+      setSendingMessage(false);
+    }
   };
 
   // Note handling
-  const handleSaveNote = (noteContent: string) => {
-    const newNoteItem: InternalNote = {
-      id: `note-${Date.now()}`,
-      conversation_id: id || '',
-      content: noteContent,
-      timestamp: new Date().toISOString(),
-      user_id: 'current-user',
-      user_name: 'Você',
-    };
+  const handleSaveNote = async (noteContent: string) => {
+    if (!conversation) return;
     
-    setNotes(prevNotes => [...prevNotes, newNoteItem]);
-    toast.success('Nota adicionada');
+    try {
+      const { data: noteData, error: noteError } = await supabase
+        .from('internal_notes')
+        .insert({
+          conversation_id: conversation.id,
+          content: noteContent,
+          user_id: 'current-user',
+          user_name: 'Você',
+        })
+        .select()
+        .single();
+      
+      if (noteError) throw noteError;
+      
+      setNotes(prevNotes => [...prevNotes, noteData as InternalNote]);
+      toast.success('Nota adicionada');
+    } catch (error) {
+      console.error('Erro ao adicionar nota:', error);
+      toast.error('Não foi possível adicionar a nota');
+    }
   };
 
   // Media message handling
-  const handleSendMediaMessage = (file: File, contentText: string) => {
+  const handleSendMediaMessage = async (file: File, contentText: string) => {
+    if (!conversation) return;
+    
     setSendingMessage(true);
     
-    setTimeout(() => {
-      const newMsg: Message = {
-        id: `media-${Date.now()}`,
-        conversation_id: id || '',
-        content: contentText,
-        timestamp: new Date().toISOString(),
-        sender_type: 'user',
-        status: 'sent',
-        attachment: {
-          name: file.name,
-          url: URL.createObjectURL(file),
-          type: file.type,
-        },
+    try {
+      // For real implementation, upload file to Supabase storage first
+      // For now, create a temporary URL
+      const fileUrl = URL.createObjectURL(file);
+      
+      const attachment = {
+        name: file.name,
+        url: fileUrl,
+        type: file.type,
       };
       
-      setMessages(prevMessages => [...prevMessages, newMsg]);
-      setSendingMessage(false);
+      const { data: messageData, error: messageError } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversation.id,
+          content: contentText,
+          sender_type: 'user',
+          status: 'sent',
+          attachment,
+        })
+        .select()
+        .single();
+      
+      if (messageError) throw messageError;
+      
+      await supabase
+        .from('conversations')
+        .update({
+          ultima_mensagem: contentText,
+          horario: new Date().toISOString(),
+          nao_lida: false,
+        })
+        .eq('id', conversation.id);
+      
+      setMessages(prevMessages => [...prevMessages, messageData as Message]);
       toast.success(`${contentText}`);
-    }, 500);
+    } catch (error) {
+      console.error('Erro ao enviar mídia:', error);
+      toast.error('Não foi possível enviar a mídia');
+    } finally {
+      setSendingMessage(false);
+    }
   };
 
   return {
@@ -114,6 +260,7 @@ export const useConversationData = (id: string | undefined) => {
     messages,
     notes,
     loading,
+    error,
     sendingMessage,
     handleSendMessage,
     handleSaveNote,

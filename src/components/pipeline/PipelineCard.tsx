@@ -57,7 +57,8 @@ const PipelineCard: React.FC<PipelineCardProps> = ({
 
   const navigateToChat = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/inbox/${lead.id}`);
+    // Update this path to use the conversations route instead of inbox
+    navigate(`/conversations/${lead.id}`);
   };
 
   // Prepare conversation data for the preview component
