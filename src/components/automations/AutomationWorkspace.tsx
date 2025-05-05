@@ -17,9 +17,11 @@ interface AutomationWorkspaceProps {
   blocks: Block[];
   canvasRef: React.RefObject<HTMLDivElement>;
   isMobile: boolean;
+  isEditMode: boolean;
   setShowTemplates: (show: boolean) => void;
   setShowPreview: (show: boolean) => void;
   setShowTestResults: (show: boolean) => void;
+  setShowVersionHistory: (show: boolean) => void;
   handleDragStart: any;
   handleDragEnd: any;
   handleDragOver?: (event: DragOverEvent) => void;
@@ -34,9 +36,11 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
   blocks,
   canvasRef,
   isMobile,
+  isEditMode,
   setShowTemplates,
   setShowPreview,
   setShowTestResults,
+  setShowVersionHistory,
   handleDragStart,
   handleDragEnd,
   handleDragOver,
@@ -75,6 +79,8 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
           <AutomationCanvasControls
             onShowPreview={() => setShowPreview(true)}
             onShowTestResults={() => setShowTestResults(true)}
+            onShowVersionHistory={() => setShowVersionHistory(true)}
+            hasVersionHistory={isEditMode}
           />
         </main>
       </AutomationDndContext>

@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useParams } from 'react-router-dom';
 import { useAutomationEditor } from '@/hooks/useAutomationEditor';
 import { AutomationHeader } from '@/components/automations/AutomationHeader';
 import { AutomationWorkspace } from '@/components/automations/AutomationWorkspace';
@@ -9,6 +10,8 @@ import AutomationGuide from '@/components/automations/AutomationGuide';
 import { Loader2 } from 'lucide-react';
 import { AutomationWizard } from '@/components/automations/AutomationWizard';
 import { useResponsiveAutomationEditor } from '@/hooks/useResponsiveAutomationEditor';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const AutomacaoEditorPage = () => {
   const {
@@ -41,6 +44,14 @@ const AutomacaoEditorPage = () => {
     handleApplyTemplate
   } = useAutomationEditor();
 
+  // Version control states
+  const [currentVersion, setCurrentVersion] = useState<number>(1);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const { id } = useParams();
+
   // Use responsive editor hook for mobile wizard UI
   const {
     wizardStep,
@@ -54,6 +65,123 @@ const AutomacaoEditorPage = () => {
 
   // State for first visit detection
   const [isFirstVisit, setIsFirstVisit] = useState(true);
+
+  // Load current version when editing an existing automation
+  useEffect(() => {
+    if (id) {
+      setIsEditMode(true);
+      loadCurrentVersion();
+    } else {
+      setIsEditMode(false);
+      setCurrentVersion(1);
+    }
+  }, [id]);
+
+  const loadCurrentVersion = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('automacoes')
+        .select('versao')
+        .eq('id', id)
+        .single();
+        
+      if (error) throw error;
+      if (data) {
+        setCurrentVersion(data.versao || 1);
+      }
+    } catch (error) {
+      console.error("Error loading automation version:", error);
+    }
+  };
+
+  // Handle save with version description
+  const handleSaveWithDescription = async (description: string) => {
+    setIsSaving(true);
+    try {
+      // Save the automation first
+      const automationId = await handleSaveAutomation();
+      
+      if (!automationId) {
+        toast.error("Erro ao salvar a automação");
+        return;
+      }
+      
+      // Create a version record
+      if (description.trim()) {
+        const { error } = await supabase
+          .from('automacoes_versoes')
+          .insert({
+            automacao_id: automationId,
+            version: currentVersion,
+            user_name: (await supabase.auth.getUser()).data.user?.email || 'Usuário',
+            description: description
+          });
+          
+        if (error) throw error;
+      }
+      
+      setShowSaveDialog(false);
+      
+      // Refresh the current version
+      if (id) {
+        loadCurrentVersion();
+      }
+      
+    } catch (error) {
+      console.error("Error saving automation version:", error);
+      toast.error("Erro ao salvar a versão da automação");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle version restore
+  const handleRestoreVersion = async (versionId: string) => {
+    try {
+      // Get version data
+      const { data: versionData, error: versionError } = await supabase
+        .from('automacoes_versoes')
+        .select('*')
+        .eq('id', versionId)
+        .single();
+        
+      if (versionError) throw versionError;
+      
+      if (!versionData || !versionData.automacao_id) {
+        throw new Error("Dados da versão não encontrados");
+      }
+      
+      // Get blocks for this version
+      const { data: blocksData, error: blocksError } = await supabase
+        .from('automacoes_versoes_blocos')
+        .select('*')
+        .eq('versao_id', versionId);
+        
+      if (blocksError) throw blocksError;
+      
+      if (!blocksData || blocksData.length === 0) {
+        throw new Error("Nenhum bloco encontrado para esta versão");
+      }
+      
+      // Update the current version in the automation record
+      const { error: updateError } = await supabase
+        .from('automacoes')
+        .update({ 
+          versao: versionData.version,
+          atualizado_em: new Date().toISOString()
+        })
+        .eq('id', versionData.automacao_id);
+        
+      if (updateError) throw updateError;
+      
+      // Reload the page to show the restored version
+      window.location.reload();
+      
+    } catch (error) {
+      console.error("Error restoring version:", error);
+      throw error;
+    }
+  };
 
   // Handle window resize for mobile detection
   useEffect(() => {
@@ -82,6 +210,15 @@ const AutomacaoEditorPage = () => {
     }
   }, []);
 
+  // Modified save handler to show the save dialog
+  const handleSaveWithDialog = () => {
+    if (isEditMode) {
+      setShowSaveDialog(true);
+    } else {
+      handleSaveAutomation();
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col h-full min-h-[calc(100vh-4rem)] bg-[#121212] items-center justify-center">
@@ -102,9 +239,12 @@ const AutomacaoEditorPage = () => {
         <AutomationHeader
           automationName={automationName}
           setAutomationName={setAutomationName}
-          onSave={handleSaveAutomation}
+          onSave={handleSaveWithDialog}
           onTest={handleTestAutomation}
           onCancel={handleCancelAutomation}
+          onShowVersionHistory={() => setShowVersionHistory(true)}
+          currentVersion={currentVersion}
+          hasVersionHistory={isEditMode}
         />
 
         {/* Main workspace with sidebar and canvas */}
@@ -131,9 +271,11 @@ const AutomacaoEditorPage = () => {
               blocks={blocks}
               canvasRef={canvasRef}
               isMobile={isMobile}
+              isEditMode={isEditMode}
               setShowTemplates={setShowTemplates}
               setShowPreview={setShowPreview}
               setShowTestResults={setShowTestResults}
+              setShowVersionHistory={setShowVersionHistory}
               handleDragStart={handleDragStart}
               handleDragEnd={handleDragEnd}
               handleDragOver={handleDragOver}
@@ -155,12 +297,21 @@ const AutomacaoEditorPage = () => {
         setShowPreview={setShowPreview}
         showTestResults={showTestResults}
         setShowTestResults={setShowTestResults}
+        showSaveDialog={showSaveDialog}
+        setShowSaveDialog={setShowSaveDialog}
+        showVersionHistory={showVersionHistory}
+        setShowVersionHistory={setShowVersionHistory}
         blocks={blocks}
         testResults={testResults}
         testSummary={testSummary}
         isTestRunning={isTestRunning}
+        automationId={id}
+        currentVersion={currentVersion}
+        isSaving={isSaving}
         handleApplyTemplate={handleApplyTemplate}
         handleRunTest={handleTestAutomation}
+        handleSaveWithDescription={handleSaveWithDescription}
+        handleRestoreVersion={handleRestoreVersion}
       />
     </>
   );

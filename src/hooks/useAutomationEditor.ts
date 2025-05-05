@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Block, BlockType } from '@/types/automation';
 import { useBlockManagement } from './automation/useBlockManagement';
@@ -142,7 +142,7 @@ export const useAutomationEditor = () => {
       errors.forEach(error => {
         toast.error(error);
       });
-      return;
+      return null;
     }
     
     try {
@@ -150,21 +150,35 @@ export const useAutomationEditor = () => {
       
       // Mapear o estado dos blocos para o formato do banco
       const mappedBlocks = blocks.map(block => ({
-        tipo: block.category,
+        tipo: block.type,
         conteudo_config: block.config,
         ordem: 0, // TODO: Implementar ordem de execução se necessário
         x: block.position.x,
         y: block.position.y
       }));
       
+      let automationId = id;
+      
       // Se for edição, atualizar a automação existente
       if (id) {
+        // Obter a versão atual para incrementar
+        const { data: versionData, error: versionError } = await supabase
+          .from('automacoes')
+          .select('versao')
+          .eq('id', id)
+          .single();
+          
+        if (versionError) throw versionError;
+        
+        const nextVersion = (versionData?.versao || 1) + 1;
+        
         // Atualizar a automação
         const { error: updateError } = await supabase
           .from('automacoes')
           .update({ 
             nome: automationName,
-            atualizado_em: new Date().toISOString()
+            atualizado_em: new Date().toISOString(),
+            versao: nextVersion
           })
           .eq('id', id);
           
@@ -204,7 +218,8 @@ export const useAutomationEditor = () => {
               if (fromBlockId && targetBlockId) {
                 connections.push({
                   id_origem: fromBlockId,
-                  id_destino: targetBlockId
+                  id_destino: targetBlockId,
+                  automacao_id: id
                 });
               }
             }
@@ -218,6 +233,39 @@ export const useAutomationEditor = () => {
             
           if (insertConnectionsError) throw insertConnectionsError;
         }
+        
+        // Create version snapshot (we'll just store the version ID in the automacoes_versoes table,
+        // actual blocks are stored in automacoes_versoes_blocos)
+        const { data: versionInsertData, error: versionInsertError } = await supabase
+          .from('automacoes_versoes')
+          .insert({
+            automacao_id: id,
+            version: nextVersion,
+            user_name: (await supabase.auth.getUser()).data.user?.email || 'Usuário'
+          })
+          .select('id')
+          .single();
+          
+        if (versionInsertError) throw versionInsertError;
+        
+        // Store version blocks data
+        if (versionInsertData?.id) {
+          const versionBlocks = insertedBlocks.map((block: any) => ({
+            versao_id: versionInsertData.id,
+            bloco_id: block.id,
+            tipo: block.tipo,
+            conteudo_config: block.conteudo_config,
+            x: block.x,
+            y: block.y
+          }));
+          
+          const { error: versionBlocksError } = await supabase
+            .from('automacoes_versoes_blocos')
+            .insert(versionBlocks);
+            
+          if (versionBlocksError) throw versionBlocksError;
+        }
+        
       } 
       // Se for criação, criar uma nova automação
       else {
@@ -227,12 +275,15 @@ export const useAutomationEditor = () => {
           .insert({ 
             nome: automationName,
             status: 'inativa',
+            versao: 1,
             usuario_id: (await supabase.auth.getUser()).data.user?.id
           })
           .select()
           .single();
           
         if (createError) throw createError;
+        
+        automationId = newAutomation.id;
         
         // Criar blocos
         const { data: insertedBlocks, error: insertBlocksError } = await supabase
@@ -260,7 +311,8 @@ export const useAutomationEditor = () => {
               if (fromBlockId && targetBlockId) {
                 connections.push({
                   id_origem: fromBlockId,
-                  id_destino: targetBlockId
+                  id_destino: targetBlockId,
+                  automacao_id: newAutomation.id
                 });
               }
             }
@@ -274,13 +326,52 @@ export const useAutomationEditor = () => {
             
           if (insertConnectionsError) throw insertConnectionsError;
         }
+        
+        // Create initial version snapshot
+        const { data: versionInsertData, error: versionInsertError } = await supabase
+          .from('automacoes_versoes')
+          .insert({
+            automacao_id: newAutomation.id,
+            version: 1,
+            user_name: (await supabase.auth.getUser()).data.user?.email || 'Usuário',
+            description: 'Versão inicial'
+          })
+          .select('id')
+          .single();
+          
+        if (versionInsertError) throw versionInsertError;
+        
+        // Store version blocks data
+        if (versionInsertData?.id && insertedBlocks) {
+          const versionBlocks = insertedBlocks.map((block: any) => ({
+            versao_id: versionInsertData.id,
+            bloco_id: block.id,
+            tipo: block.tipo,
+            conteudo_config: block.conteudo_config,
+            x: block.x,
+            y: block.y
+          }));
+          
+          const { error: versionBlocksError } = await supabase
+            .from('automacoes_versoes_blocos')
+            .insert(versionBlocks);
+            
+          if (versionBlocksError) throw versionBlocksError;
+        }
       }
       
       toast.success('Automação salva com sucesso!');
-      navigate('/automacoes');
+      
+      // If creating a new automation, redirect to edit mode
+      if (!id) {
+        navigate(`/automacoes/${automationId}/editar`);
+      }
+      
+      return automationId;
     } catch (error) {
       console.error('Erro ao salvar automação:', error);
       toast.error('Não foi possível salvar a automação');
+      return null;
     } finally {
       setIsLoading(false);
     }
