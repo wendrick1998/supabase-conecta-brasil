@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, To } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "./components/Layout";
@@ -60,7 +60,7 @@ const App = () => (
                   
                   {/* Redirect for backward compatibility - inbox → conversations */}
                   <Route path="inbox/:id" element={
-                    <Navigate to={pathParams => `/conversations/${pathParams.params.id}`} replace />
+                    <Navigate to={(params) => `/conversations/${params.params.id}`} />
                   } />
                 </Route>
               </Route>
