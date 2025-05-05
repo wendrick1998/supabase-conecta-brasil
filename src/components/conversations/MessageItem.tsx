@@ -12,6 +12,7 @@ const AudioPlayer = ({ url, name }: { url: string; name: string }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Format time to mm:ss
@@ -41,7 +42,15 @@ const AudioPlayer = ({ url, name }: { url: string; name: string }) => {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        // Reset if at the end
+        if (audioRef.current.currentTime >= audioRef.current.duration) {
+          audioRef.current.currentTime = 0;
+        }
+        
+        audioRef.current.play().catch(err => {
+          console.error('Error playing audio:', err);
+          setError('Erro ao reproduzir áudio');
+        });
       }
     }
   };
@@ -57,12 +66,27 @@ const AudioPlayer = ({ url, name }: { url: string; name: string }) => {
       setIsPlaying(false);
       setCurrentTime(0);
     };
+    const handleError = () => {
+      console.error('Error loading audio:', audio.error);
+      setError('Erro ao carregar áudio');
+    };
+    
+    // Add audio loading callback
+    const handleCanPlay = () => {
+      console.log('Audio can be played', url);
+      setError(null);
+    };
 
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('loadedmetadata', handleMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('canplay', handleCanPlay);
+
+    // Try to load the audio
+    audio.load();
 
     return () => {
       audio.removeEventListener('play', handlePlay);
@@ -70,11 +94,25 @@ const AudioPlayer = ({ url, name }: { url: string; name: string }) => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('loadedmetadata', handleMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('canplay', handleCanPlay);
     };
-  }, []);
+  }, [url]);
 
   // Calculate progress percentage
   const progress = duration ? (currentTime / duration) * 100 : 0;
+
+  if (error) {
+    return (
+      <div className="mt-2 flex flex-col p-2 bg-red-50 rounded-lg border border-red-200 text-red-600 text-sm">
+        <div className="flex items-center mb-1">
+          <Mic className="h-4 w-4 mr-2 flex-shrink-0" />
+          <span className="truncate font-medium">{name}</span>
+        </div>
+        <div className="text-xs">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2 flex flex-col p-2 bg-white bg-opacity-80 rounded-lg border border-gray-200">
@@ -87,6 +125,7 @@ const AudioPlayer = ({ url, name }: { url: string; name: string }) => {
         <button 
           onClick={togglePlayPause}
           className={`p-1 rounded-full ${isPlaying ? 'bg-blue-100' : 'bg-gray-100'} hover:bg-blue-200 transition-colors`}
+          aria-label={isPlaying ? "Pausar" : "Reproduzir"}
         >
           {isPlaying ? (
             <Pause className="h-4 w-4 text-blue-600" />
@@ -134,6 +173,7 @@ const MessageItem = ({ message }: MessageItemProps) => {
             controls 
             className="max-w-full rounded"
             style={{ maxHeight: '200px' }}
+            preload="metadata"
           >
             <source src={message.attachment.url} type={message.attachment.type} />
             Your browser does not support the video element.
@@ -152,6 +192,7 @@ const MessageItem = ({ message }: MessageItemProps) => {
             alt={message.attachment.name} 
             className="max-w-full rounded"
             style={{ maxHeight: '200px' }}
+            loading="lazy"
           />
           <span className="text-xs text-gray-500 mt-1">{message.attachment.name}</span>
         </div>

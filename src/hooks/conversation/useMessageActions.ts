@@ -7,9 +7,19 @@ import { supabase } from "@/integrations/supabase/client";
 export const useMessageActions = (conversationId: string | undefined, setMessages: React.Dispatch<React.SetStateAction<Message[]>>) => {
   const [sendingMessage, setSendingMessage] = useState(false);
 
+  // Helper function to validate UUID
+  const isValidUUID = (uuid: string): boolean => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+  };
+
   // Message handling
   const handleSendMessage = async (newMessage: string) => {
     if (!conversationId) return;
+    if (!isValidUUID(conversationId)) {
+      toast.error('ID de conversa inválido');
+      return;
+    }
     
     setSendingMessage(true);
     
@@ -58,14 +68,32 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
 
   // Media message handling
   const handleSendMediaMessage = async (file: File, contentText: string) => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      toast.error('ID de conversa não encontrado');
+      return;
+    }
+    
+    if (!isValidUUID(conversationId)) {
+      toast.error('ID de conversa inválido');
+      return;
+    }
+    
+    if (!file || file.size === 0) {
+      toast.error('Arquivo inválido ou vazio');
+      return;
+    }
     
     setSendingMessage(true);
     
     try {
-      console.log('Sending media message:', { fileName: file.name, fileType: file.type, fileSize: file.size });
+      console.log('Sending media message:', { 
+        fileName: file.name, 
+        fileType: file.type, 
+        fileSize: file.size,
+        conversationId
+      });
       
-      // Generate a unique file path
+      // Generate a unique file path with proper validation
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${conversationId}/${fileName}`;
@@ -79,7 +107,10 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
           cacheControl: '3600'
         });
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
       
       // Get public URL for the uploaded file
       const { data: publicUrlData } = supabase
@@ -88,6 +119,7 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
         .getPublicUrl(filePath);
       
       const fileUrl = publicUrlData.publicUrl;
+      console.log('File uploaded successfully, URL:', fileUrl);
       
       // Create message attachment object
       const attachment = {

@@ -1,14 +1,15 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
 import { MediaType } from './recording/types';
-import useRecordingDialog from './recording/useRecordingDialog';
+import useAudioRecorder from '@/hooks/useAudioRecorder';
 import RecordingStatus from './recording/RecordingStatus';
 import RecordingControls from './recording/RecordingControls';
 import AudioPlayerPreview from './recording/AudioPlayerPreview';
+import { toast } from '@/components/ui/sonner';
 
 interface RecordingDialogProps {
   open: boolean;
@@ -34,15 +35,66 @@ const RecordingDialog = ({
     pauseRecording,
     resumeRecording,
     stopRecording,
-    resetRecording,
-    handleSaveRecording,
-    handleCloseDialog
-  } = useRecordingDialog({
-    open,
-    onOpenChange,
-    mediaType,
-    onSave
-  });
+    resetRecording
+  } = useAudioRecorder();
+
+  // Handle closing dialog
+  const handleCloseDialog = () => {
+    if (isRecording || isPaused) {
+      // Prevent closing while recording is active
+      return;
+    }
+    resetRecording();
+    onOpenChange(false);
+  };
+
+  // Handle saving the recording
+  const handleSaveRecording = () => {
+    if (!recordedAudio || !recordedAudio.blob) {
+      console.error('No recorded audio available');
+      toast.error('Nenhum áudio disponível para salvar');
+      return;
+    }
+
+    try {
+      console.log(`Creating file from blob: ${recordedAudio.blob.size} bytes`);
+      
+      // Validate blob size
+      if (recordedAudio.blob.size === 0) {
+        toast.error('O arquivo de áudio está vazio');
+        return;
+      }
+      
+      const file = new File([recordedAudio.blob], recordedAudio.fileName, {
+        type: 'audio/webm'
+      });
+      
+      console.log(`File created successfully: ${file.name}, ${file.size} bytes`);
+      onSave(file, mediaType);
+      resetRecording();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error creating file from blob:', error);
+      toast.error('Erro ao processar áudio');
+    }
+  };
+
+  // Start recording when dialog opens
+  useEffect(() => {
+    if (open && state === 'idle' && mediaType === 'audio') {
+      const timer = setTimeout(() => {
+        console.log('Auto-starting recording');
+        startRecording();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    
+    // Cleanup when dialog closes
+    if (!open && (isRecording || isPaused)) {
+      console.log('Dialog closed, resetting recording');
+      resetRecording();
+    }
+  }, [open, state, mediaType, isRecording, isPaused, startRecording, resetRecording]);
 
   return (
     <Dialog 
@@ -78,7 +130,7 @@ const RecordingDialog = ({
           />
           
           {/* Audio playback */}
-          {recordedAudio && !isRecording && !isPaused && (
+          {recordedAudio && recordedAudio.url && !isRecording && !isPaused && (
             <AudioPlayerPreview audioUrl={recordedAudio.url} />
           )}
           
