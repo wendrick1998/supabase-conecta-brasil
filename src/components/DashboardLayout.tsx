@@ -45,9 +45,9 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-surface/90 backdrop-blur-md border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
+      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-gradient-to-b from-vendah-purple/20 to-vendah-blue/10 backdrop-blur-md border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
         {/* Logo */}
-        <div className="mb-8 px-0 md:px-6">
+        <div className="mb-12 px-0 md:px-6">
           <div className="h-16 md:h-24 flex justify-center md:justify-start">
             <img 
               alt="Vendah+" 
@@ -58,7 +58,7 @@ const DashboardLayout: React.FC = () => {
         </div>
         
         {/* Navigation */}
-        <nav className="flex flex-col items-center md:items-start space-y-4 w-full px-4">
+        <nav className="flex flex-col items-center md:items-start space-y-5 w-full px-4">
           <TooltipProvider>
             {navigationItems.map(item => (
               <Tooltip key={item.path}>
@@ -66,17 +66,19 @@ const DashboardLayout: React.FC = () => {
                   <NavLink 
                     to={item.path} 
                     title={item.label} 
-                    className={({isActive}) => `flex items-center space-x-3 py-2 px-3 rounded-md w-full transition-all duration-200 ${
+                    className={({isActive}) => `flex items-center space-x-3 py-3 px-4 rounded-lg w-full transition-all duration-300 ${
                       isPathActive(item.path) 
                         ? 'text-vendah-neon bg-vendah-neon/10 shadow-neon-subtle' 
-                        : 'text-text-muted hover:text-white hover:bg-vendah-purple/10'
+                        : 'text-text-muted hover:text-white hover:bg-vendah-purple/20'
                     }`}
                   >
-                    {item.icon}
-                    <span className="hidden md:inline">{item.label}</span>
+                    <div className={`${isPathActive(item.path) ? 'text-vendah-neon' : 'text-text-muted'} transition-colors`}>
+                      {item.icon}
+                    </div>
+                    <span className="hidden md:inline font-medium">{item.label}</span>
                   </NavLink>
                 </TooltipTrigger>
-                <TooltipContent side="right" className="md:hidden bg-surface border-vendah-purple/20">
+                <TooltipContent side="right" className="md:hidden bg-surface/90 border-vendah-purple/20">
                   {item.label}
                 </TooltipContent>
               </Tooltip>
@@ -88,7 +90,7 @@ const DashboardLayout: React.FC = () => {
       {/* Main content */}
       <main className="flex-1 ml-20 md:ml-64">
         {/* Header with user account */}
-        <header className="h-16 bg-surface/90 backdrop-blur-md border-b border-vendah-purple/20 px-6 flex items-center justify-end shadow-sm">
+        <header className="h-16 bg-gradient-to-r from-vendah-purple/5 to-vendah-blue/5 backdrop-blur-md border-b border-vendah-purple/20 px-6 flex items-center justify-end shadow-sm">
           <UserAccountNav />
         </header>
 
