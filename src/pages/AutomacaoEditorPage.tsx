@@ -7,6 +7,8 @@ import { AutomationWorkspace } from '@/components/automations/AutomationWorkspac
 import { AutomationDialogs } from '@/components/automations/AutomationDialogs';
 import AutomationGuide from '@/components/automations/AutomationGuide';
 import { Loader2 } from 'lucide-react';
+import { AutomationWizard } from '@/components/automations/AutomationWizard';
+import { useResponsiveAutomationEditor } from '@/hooks/useResponsiveAutomationEditor';
 
 const AutomacaoEditorPage = () => {
   const {
@@ -34,6 +36,17 @@ const AutomacaoEditorPage = () => {
     handleApplyTemplate
   } = useAutomationEditor();
 
+  // Use responsive editor hook for mobile wizard UI
+  const {
+    wizardStep,
+    hasTrigger,
+    hasCondition,
+    hasAction,
+    updateWizardSteps,
+    nextStep,
+    prevStep
+  } = useResponsiveAutomationEditor();
+
   // State for first visit detection
   const [isFirstVisit, setIsFirstVisit] = useState(true);
 
@@ -46,6 +59,11 @@ const AutomacaoEditorPage = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [setIsMobile]);
+
+  // Update wizard steps when blocks change
+  useEffect(() => {
+    updateWizardSteps(blocks);
+  }, [blocks, updateWizardSteps]);
 
   // Check if this is user's first visit to automation editor
   useEffect(() => {
@@ -88,20 +106,37 @@ const AutomacaoEditorPage = () => {
         <div className="relative flex-grow">
           <AutomationGuide isFirstVisit={isFirstVisit} />
           
-          <AutomationWorkspace 
-            blocks={blocks}
-            canvasRef={canvasRef}
-            isMobile={isMobile}
-            setShowTemplates={setShowTemplates}
-            setShowPreview={setShowPreview}
-            handleDragStart={handleDragStart}
-            handleDragEnd={handleDragEnd}
-            handleDragOver={handleDragOver}
-            handleConfigureBlock={handleConfigureBlock}
-            handleDeleteBlock={handleDeleteBlock}
-            handleCreateConnection={handleCreateConnection}
-            onAddBlockByClick={handleAddBlockByClick}
-          />
+          {isMobile ? (
+            <div className="p-4">
+              <AutomationWizard
+                wizardStep={wizardStep}
+                blocks={blocks}
+                hasTrigger={hasTrigger}
+                hasCondition={hasCondition}
+                hasAction={hasAction}
+                onAddBlock={handleAddBlockByClick}
+                onConfigureBlock={handleConfigureBlock}
+                onNextStep={nextStep}
+                onPrevStep={prevStep}
+                onCreateConnection={handleCreateConnection}
+              />
+            </div>
+          ) : (
+            <AutomationWorkspace 
+              blocks={blocks}
+              canvasRef={canvasRef}
+              isMobile={isMobile}
+              setShowTemplates={setShowTemplates}
+              setShowPreview={setShowPreview}
+              handleDragStart={handleDragStart}
+              handleDragEnd={handleDragEnd}
+              handleDragOver={handleDragOver}
+              handleConfigureBlock={handleConfigureBlock}
+              handleDeleteBlock={handleDeleteBlock}
+              handleCreateConnection={handleCreateConnection}
+              onAddBlockByClick={handleAddBlockByClick}
+            />
+          )}
         </div>
       </div>
       
