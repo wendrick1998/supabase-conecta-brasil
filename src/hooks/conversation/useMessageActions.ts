@@ -4,10 +4,12 @@ import { toast } from "@/components/ui/sonner";
 import { Message } from '@/types/conversation';
 import { supabase } from "@/integrations/supabase/client";
 import useMediaUpload from '@/hooks/useMediaUpload';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useMessageActions = (conversationId: string | undefined, setMessages: React.Dispatch<React.SetStateAction<Message[]>>) => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const { uploadMedia } = useMediaUpload(conversationId);
+  const { user } = useAuth();
 
   // Helper function to validate UUID
   const isValidUUID = (uuid: string): boolean => {
@@ -17,9 +19,18 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
 
   // Message handling
   const handleSendMessage = async (newMessage: string) => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      toast.error('ID de conversa não encontrado');
+      return;
+    }
+    
     if (!isValidUUID(conversationId)) {
       toast.error('ID de conversa inválido');
+      return;
+    }
+    
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar mensagens');
       return;
     }
     
@@ -38,10 +49,13 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
         .select()
         .single();
       
-      if (messageError) throw messageError;
+      if (messageError) {
+        console.error('Message error:', messageError);
+        throw messageError;
+      }
       
       // Update conversation with latest message
-      await supabase
+      const { error: conversationError } = await supabase
         .from('conversations')
         .update({
           ultima_mensagem: newMessage,
@@ -49,6 +63,11 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
           nao_lida: false,
         })
         .eq('id', conversationId);
+      
+      if (conversationError) {
+        console.error('Conversation update error:', conversationError);
+        // Continue even if conversation update fails - the message was already saved
+      }
       
       // Add new message to state - ensure proper typing
       const typedMessage: Message = {
@@ -75,13 +94,18 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
       return;
     }
     
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar mídia');
+      return;
+    }
+    
     try {
       const success = await uploadMedia(file, contentText);
       
       if (success) {
         // The message is already added to the database in uploadMedia
         // We need to fetch the latest messages to update the UI
-        const { data: latestMessages } = await supabase
+        const { data: latestMessages, error: fetchError } = await supabase
           .from('messages')
           .select('*')
           .eq('conversation_id', conversationId)
@@ -89,6 +113,11 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
           .limit(1)
           .single();
           
+        if (fetchError) {
+          console.error('Error fetching latest message:', fetchError);
+          return;
+        }
+        
         if (latestMessages) {
           // Add new message to state
           const typedMessage: Message = {

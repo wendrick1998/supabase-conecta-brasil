@@ -7,6 +7,7 @@ import RecordingDialog from './RecordingDialog';
 import { MediaType } from './recording/types';
 import useMediaUpload from '@/hooks/useMediaUpload';
 import { getMediaType } from '@/utils/mediaCompression';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ConversationInteractionProps {
   conversationId: string;
@@ -27,9 +28,15 @@ const ConversationInteraction = ({
   const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>('audio');
   const { isUploading, uploadMedia } = useMediaUpload(conversationId);
+  const { user } = useAuth();
 
   // Photo library (gallery) upload handler
   const handlePhotoLibraryUpload = () => {
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar mídia.');
+      return;
+    }
+    
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = false;
@@ -57,6 +64,11 @@ const ConversationInteraction = ({
 
   // Camera capture handler
   const handleCameraCaptureUpload = () => {
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar mídia.');
+      return;
+    }
+    
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = false;
@@ -84,6 +96,11 @@ const ConversationInteraction = ({
 
   // Document file upload handler
   const handleDocumentFileUpload = () => {
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar documentos.');
+      return;
+    }
+    
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = false;
@@ -109,6 +126,11 @@ const ConversationInteraction = ({
   };
 
   const handleSendFile = async (file: File) => {
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar arquivos.');
+      return;
+    }
+
     const fileType = getMediaType(file);
     
     let messageText = 'Arquivo enviado';
@@ -129,32 +151,60 @@ const ConversationInteraction = ({
         messageText = `Arquivo enviado: ${file.name}`;
     }
     
-    const success = await uploadMedia(file, messageText);
-    if (success) {
-      onSendMediaMessage(file, messageText);
+    try {
+      const success = await uploadMedia(file, messageText);
+      if (success) {
+        onSendMediaMessage(file, messageText);
+        toast.success(`${messageText} com sucesso!`);
+      }
+    } catch (error) {
+      console.error('Erro ao enviar arquivo:', error);
+      toast.error('Não foi possível enviar o arquivo. Tente novamente.');
     }
   };
 
   const handleSaveNote = (noteContent: string) => {
+    if (!user) {
+      toast.error('Você precisa estar logado para adicionar notas.');
+      return;
+    }
+    
     onSaveNote(noteContent);
     setShowNoteForm(false);
+    toast.success('Nota adicionada com sucesso!');
   };
 
   const handleOpenRecordingModal = (type: MediaType) => {
+    if (!user) {
+      toast.error('Você precisa estar logado para gravar mídia.');
+      return;
+    }
+    
     setMediaType(type);
     setRecordingDialogOpen(true);
   };
 
   const handleSaveRecording = async (file: File, type: MediaType) => {
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar gravações.');
+      return;
+    }
+    
     let messageText = 'Mídia enviada';
     
     if (type === 'audio') messageText = 'Áudio enviado';
     if (type === 'video') messageText = 'Vídeo enviado';
     if (type === 'photo') messageText = 'Foto enviada';
     
-    const success = await uploadMedia(file, messageText);
-    if (success) {
-      onSendMediaMessage(file, messageText);
+    try {
+      const success = await uploadMedia(file, messageText);
+      if (success) {
+        onSendMediaMessage(file, messageText);
+        toast.success(`${messageText} com sucesso!`);
+      }
+    } catch (error) {
+      console.error('Erro ao enviar gravação:', error);
+      toast.error('Não foi possível enviar a gravação. Tente novamente.');
     }
   };
 
@@ -167,7 +217,13 @@ const ConversationInteraction = ({
         />
       ) : (
         <MessageInput 
-          onSend={onSendMessage}
+          onSend={(message) => {
+            if (!user) {
+              toast.error('Você precisa estar logado para enviar mensagens.');
+              return;
+            }
+            onSendMessage(message);
+          }}
           onFileUpload={handleDocumentFileUpload}
           onAddNote={() => setShowNoteForm(true)}
           onOpenRecordingModal={handleOpenRecordingModal}

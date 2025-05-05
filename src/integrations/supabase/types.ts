@@ -69,6 +69,13 @@ export type Database = {
             referencedRelation: "leads"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_conversations_lead"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
         ]
       }
       estagios_pipeline: {
@@ -156,6 +163,13 @@ export type Database = {
           user_name?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_internal_notes_conversation"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "internal_notes_conversation_id_fkey"
             columns: ["conversation_id"]
@@ -276,6 +290,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_messages_conversation"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "messages_conversation_id_fkey"
             columns: ["conversation_id"]
             isOneToOne: false
@@ -389,7 +410,16 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      conversation_canal:
+        | "WhatsApp"
+        | "Email"
+        | "Telefone"
+        | "Facebook"
+        | "Instagram"
+        | "Site"
+      conversation_status: "Aberta" | "Fechada"
+      message_sender: "user" | "lead"
+      message_status: "sent" | "delivered" | "read"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -504,6 +534,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      conversation_canal: [
+        "WhatsApp",
+        "Email",
+        "Telefone",
+        "Facebook",
+        "Instagram",
+        "Site",
+      ],
+      conversation_status: ["Aberta", "Fechada"],
+      message_sender: ["user", "lead"],
+      message_status: ["sent", "delivered", "read"],
+    },
   },
 } as const

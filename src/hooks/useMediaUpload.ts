@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage, getMediaType, validateFileSize, getBucketForFile, getFileDisplayName } from '@/utils/mediaCompression';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useMediaUpload = (conversationId: string | undefined) => {
   const [isUploading, setIsUploading] = useState(false);
+  const { user } = useAuth();
   
   // Helper function to validate UUID
   const isValidUUID = (uuid: string): boolean => {
@@ -26,6 +28,12 @@ export const useMediaUpload = (conversationId: string | undefined) => {
     
     if (!file || file.size === 0) {
       toast.error('Arquivo inválido ou vazio');
+      return false;
+    }
+    
+    // Verificar autenticação
+    if (!user) {
+      toast.error('Você precisa estar logado para enviar mídia');
       return false;
     }
     
@@ -61,8 +69,14 @@ export const useMediaUpload = (conversationId: string | undefined) => {
       // Compress file if it's an image
       let fileToUpload = file;
       if (mediaType === 'image') {
-        fileToUpload = await compressImage(file);
-        console.log('Image compressed from', file.size, 'to', fileToUpload.size, 'bytes');
+        try {
+          fileToUpload = await compressImage(file);
+          console.log('Image compressed from', file.size, 'to', fileToUpload.size, 'bytes');
+        } catch (compressError) {
+          console.error('Error compressing image:', compressError);
+          // Continue with original file if compression fails
+          toast.warning('Não foi possível otimizar a imagem. Enviando arquivo original.');
+        }
       }
       
       // Generate a unique file path with proper validation
@@ -79,7 +93,8 @@ export const useMediaUpload = (conversationId: string | undefined) => {
         .from(bucketId)
         .upload(filePath, fileToUpload, {
           contentType: file.type,
-          cacheControl: '3600'
+          cacheControl: '3600',
+          upsert: false
         });
       
       if (uploadError) {
@@ -118,10 +133,13 @@ export const useMediaUpload = (conversationId: string | undefined) => {
         .select()
         .single();
       
-      if (messageError) throw messageError;
+      if (messageError) {
+        console.error('Message error:', messageError);
+        throw new Error(`Erro ao salvar mensagem: ${messageError.message}`);
+      }
       
       // Update conversation with latest message
-      await supabase
+      const { error: conversationError } = await supabase
         .from('conversations')
         .update({
           ultima_mensagem: messageText,
@@ -130,11 +148,15 @@ export const useMediaUpload = (conversationId: string | undefined) => {
         })
         .eq('id', conversationId);
       
-      toast.success(`${messageText}`);
+      if (conversationError) {
+        console.error('Conversation update error:', conversationError);
+        // Continue even if conversation update fails - the message was already saved
+      }
+      
       return true;
     } catch (error) {
       console.error('Erro ao enviar mídia:', error);
-      toast.error('Não foi possível enviar a mídia');
+      toast.error('Não foi possível enviar a mídia. Tente novamente.');
       return false;
     } finally {
       setIsUploading(false);
