@@ -26,8 +26,11 @@ const RecordingDialog = ({
   const {
     isPaused,
     isRecording,
+    isInitializing,
+    initError,
     recordedMedia,
     stream,
+    browserSupport,
     startRecording,
     stopRecording,
     handlePauseRecording,
@@ -72,8 +75,11 @@ const RecordingDialog = ({
           mediaType={mediaType}
           isRecording={isRecording}
           isPaused={isPaused}
+          isInitializing={isInitializing}
+          initError={initError}
           recordedMedia={recordedMedia}
           stream={stream}
+          browserSupport={browserSupport}
           onStartRecording={startRecording}
           onStopRecording={stopRecording}
           onPauseRecording={handlePauseRecording}

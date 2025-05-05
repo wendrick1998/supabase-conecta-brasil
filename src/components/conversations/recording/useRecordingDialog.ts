@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useRecording } from './hooks/useRecording';
 import { MediaType } from './types';
@@ -19,9 +20,13 @@ export const useRecordingDialog = ({
   const [isPaused, setIsPaused] = useState(false);
   
   const { 
-    isRecording, 
+    isRecording,
+    isInitializing,
+    initError, 
+    recordingTime: currentRecordingTime,
     recordedMedia, 
     stream,
+    browserSupport,
     startRecording, 
     stopRecording, 
     resetRecording,
@@ -32,7 +37,13 @@ export const useRecordingDialog = ({
     mediaType 
   });
 
+  // Update recording time from the hook
+  useEffect(() => {
+    setRecordingTime(currentRecordingTime);
+  }, [currentRecordingTime]);
+
   const closeDialog = () => {
+    console.log('Closing recording dialog');
     stopMediaStream();
     resetRecording();
     setIsPaused(false);
@@ -45,6 +56,7 @@ export const useRecordingDialog = ({
 
   const handleSaveRecording = () => {
     if (recordedMedia && recordedMedia.blob) {
+      console.log('Saving recorded media:', recordedMedia);
       const file = new File([recordedMedia.blob], recordedMedia.fileName, {
         type: recordedMedia.blob.type
       });
@@ -55,12 +67,14 @@ export const useRecordingDialog = ({
   };
 
   const handleReset = () => {
+    console.log('Resetting recording');
     resetRecording();
     setIsPaused(false);
   };
 
   const handlePauseRecording = () => {
     if (isRecording) {
+      console.log('Pausing recording');
       pauseRecording();
       setIsPaused(true);
     }
@@ -68,14 +82,16 @@ export const useRecordingDialog = ({
 
   const handleResumeRecording = () => {
     if (isPaused) {
+      console.log('Resuming recording');
       resumeRecording();
       setIsPaused(false);
     }
   };
 
+  // Reset state when dialog opens or closes
   useEffect(() => {
-    // Reset state when dialog opens
     if (open) {
+      console.log('Recording dialog opened');
       resetRecording();
       setRecordingTime(0);
       setIsPaused(false);
@@ -88,8 +104,11 @@ export const useRecordingDialog = ({
     recordingTime,
     isPaused,
     isRecording,
+    isInitializing,
+    initError,
     recordedMedia,
     stream,
+    browserSupport,
     startRecording,
     stopRecording,
     handlePauseRecording,

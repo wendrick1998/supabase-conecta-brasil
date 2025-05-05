@@ -46,6 +46,7 @@ const AudioPreview: React.FC<AudioPreviewProps> = ({
             src={recordedMedia.url} 
             controls 
             className="w-full"
+            autoPlay
           />
         </div>
         <div className="text-xs text-gray-500">

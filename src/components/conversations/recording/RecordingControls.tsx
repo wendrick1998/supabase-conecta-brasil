@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, Square, Send, Trash2, Pause, Play } from "lucide-react";
+import { Mic, Square, Send, Trash2, Pause, Play, Loader2 } from "lucide-react";
 
 interface RecordingControlsProps {
   isRecording: boolean;
   isPaused: boolean;
+  isInitializing?: boolean;
   hasRecordedMedia: boolean;
   onStartRecording: () => void;
   onStopRecording: () => void;
@@ -18,6 +19,7 @@ interface RecordingControlsProps {
 const RecordingControls: React.FC<RecordingControlsProps> = ({
   isRecording,
   isPaused,
+  isInitializing = false,
   hasRecordedMedia,
   onStartRecording,
   onStopRecording,
@@ -26,9 +28,26 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   onSaveRecording,
   onReset
 }) => {
-  return (
-    <div className="flex gap-3 flex-wrap justify-center">
-      {!isRecording && !hasRecordedMedia && (
+  // Show initializing state
+  if (isInitializing) {
+    return (
+      <div className="flex justify-center mt-2">
+        <Button
+          disabled
+          variant="outline"
+          className="bg-blue-50 border-blue-100"
+        >
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Iniciando...
+        </Button>
+      </div>
+    );
+  }
+
+  // Not recording and no media recorded yet
+  if (!isRecording && !hasRecordedMedia) {
+    return (
+      <div className="flex gap-3 flex-wrap justify-center">
         <Button
           onClick={onStartRecording}
           className="bg-blue-600 hover:bg-blue-700 px-6"
@@ -37,74 +56,85 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
           <Mic className="h-4 w-4 mr-2" />
           Iniciar Gravação
         </Button>
-      )}
-      
-      {isRecording && !isPaused && (
-        <>
-          <Button
-            onClick={onPauseRecording}
-            variant="outline"
-            size="sm"
-          >
-            <Pause className="h-4 w-4 mr-2" />
-            Pausar
-          </Button>
-          
-          <Button
-            onClick={onStopRecording}
-            variant="destructive"
-            size="sm"
-          >
-            <Square className="h-4 w-4 mr-2" />
-            Parar
-          </Button>
-        </>
-      )}
+      </div>
+    );
+  }
+  
+  // Currently recording, not paused
+  if (isRecording && !isPaused) {
+    return (
+      <div className="flex gap-3 flex-wrap justify-center">
+        <Button
+          onClick={onPauseRecording}
+          variant="outline"
+          size="sm"
+        >
+          <Pause className="h-4 w-4 mr-2" />
+          Pausar
+        </Button>
+        
+        <Button
+          onClick={onStopRecording}
+          variant="destructive"
+          size="sm"
+        >
+          <Square className="h-4 w-4 mr-2" />
+          Parar
+        </Button>
+      </div>
+    );
+  }
 
-      {isRecording && isPaused && (
-        <>
-          <Button
-            onClick={onResumeRecording}
-            variant="outline"
-            size="sm"
-            className="bg-blue-50 border-blue-200 hover:bg-blue-100"
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Retomar
-          </Button>
-          
-          <Button
-            onClick={onStopRecording}
-            variant="destructive"
-            size="sm"
-          >
-            <Square className="h-4 w-4 mr-2" />
-            Parar
-          </Button>
-        </>
-      )}
-      
-      {hasRecordedMedia && !isRecording && (
-        <>
-          <Button
-            onClick={onReset || onStartRecording}
-            variant="outline"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Regravar
-          </Button>
-          
-          <Button
-            onClick={onSaveRecording}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Salvar e Enviar
-          </Button>
-        </>
-      )}
-    </div>
-  );
+  // Recording is paused
+  if (isRecording && isPaused) {
+    return (
+      <div className="flex gap-3 flex-wrap justify-center">
+        <Button
+          onClick={onResumeRecording}
+          variant="outline"
+          size="sm"
+          className="bg-blue-50 border-blue-200 hover:bg-blue-100"
+        >
+          <Play className="h-4 w-4 mr-2" />
+          Retomar
+        </Button>
+        
+        <Button
+          onClick={onStopRecording}
+          variant="destructive"
+          size="sm"
+        >
+          <Square className="h-4 w-4 mr-2" />
+          Parar
+        </Button>
+      </div>
+    );
+  }
+  
+  // Has recorded media, not recording
+  if (hasRecordedMedia && !isRecording) {
+    return (
+      <div className="flex gap-3 flex-wrap justify-center">
+        <Button
+          onClick={onReset || onStartRecording}
+          variant="outline"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Regravar
+        </Button>
+        
+        <Button
+          onClick={onSaveRecording}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          <Send className="h-4 w-4 mr-2" />
+          Salvar e Enviar
+        </Button>
+      </div>
+    );
+  }
+  
+  return null;
 };
 
 export default RecordingControls;
