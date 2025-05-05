@@ -1,20 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
+import { InboxFiltersBase } from "@/types/inboxTypes";
 
-// Interface for filters
-export interface InboxFilters {
-  search?: string;
-  canais?: string[];
-  status?: string[];
-  dateRange?: {
-    from: Date;
-    to: Date;
-  };
-  priority?: string;
-  accountId?: string;
-  channel?: string;
-}
+// Re-export the interface with the base type to prevent circular references
+export interface InboxFilters extends InboxFiltersBase {}
 
 // Get all conversations
 export const getConversations = async (filters?: InboxFilters): Promise<Conversation[]> => {
@@ -26,14 +16,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Fix the type error by using a simple string array
-        query = query.in('canal', filters.canais);
+        // Use simple string array with explicit type
+        query = query.in('canal', filters.canais as string[]);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Fix the type error by using a simple string array
-        query = query.in('status', filters.status);
+        // Use simple string array with explicit type
+        query = query.in('status', filters.status as string[]);
       }
       
       // Priority filter
@@ -48,9 +38,9 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       
       // Search filter
       if (filters.search) {
-        const pattern = `%${filters.search}%`;
-        // Use a more direct approach for the OR condition
-        query = query.or(`lead_nome.ilike.${pattern},ultima_mensagem.ilike.${pattern}`);
+        // Fix the pattern creation to avoid recursion
+        const searchTerm = filters.search;
+        query = query.or(`lead_nome.ilike.%${searchTerm}%,ultima_mensagem.ilike.%${searchTerm}%`);
       }
       
       // Date range filter

@@ -2,12 +2,13 @@
 import { useState, useEffect } from 'react';
 import { Conversation } from '@/types/conversation';
 import { InboxFilters, getConnectedAccounts } from '@/services/inboxService';
+import { FilterChannels, FilterStatus } from '@/types/inboxTypes';
 
 export const useInboxFilters = (conversations: Conversation[]) => {
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
   const [activeFilters, setActiveFilters] = useState<InboxFilters>({
-    canais: [],
-    status: ['Aberta']
+    canais: [] as FilterChannels,
+    status: ['Aberta'] as FilterStatus
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
@@ -100,7 +101,7 @@ export const useInboxFilters = (conversations: Conversation[]) => {
   // Handle channel filter change
   const handleChannelFilterChange = (channel: string) => {
     setActiveFilters(prev => {
-      const channelFilters = prev.canais || [];
+      const channelFilters = prev.canais || [] as FilterChannels;
       const newChannelFilters = channelFilters.includes(channel)
         ? channelFilters.filter(c => c !== channel)
         : [...channelFilters, channel];
@@ -115,7 +116,7 @@ export const useInboxFilters = (conversations: Conversation[]) => {
   // Handle status filter change
   const handleStatusFilterChange = (status: string) => {
     setActiveFilters(prev => {
-      const statusFilters = prev.status || [];
+      const statusFilters = prev.status || [] as FilterStatus;
       const newStatusFilters = statusFilters.includes(status)
         ? statusFilters.filter(s => s !== status)
         : [...statusFilters, status];

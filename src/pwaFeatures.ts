@@ -1,15 +1,10 @@
-
 import { toast } from 'sonner';
 import { requestNotificationPermission } from './registerServiceWorker';
+import { SafeTouchEvent, getTouchPosition } from './types/touchEvents';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
-
-// Add TouchEvent interface for TypeScript
-interface TouchEventWithTouches extends TouchEvent {
-  touches: TouchList;
 }
 
 // Store the deferred prompt for later use
@@ -99,41 +94,6 @@ export function showInstallPrompt() {
   }
 }
 
-// Show instructions for installing on iOS
-function showIOSInstallInstructions() {
-  // Only show if in Safari on iOS and not already installed
-  if (isIOS() && !isRunningAsPWA() && navigator.userAgent.includes('Safari')) {
-    toast('Instale o Vendah+ no seu iPhone', {
-      action: {
-        label: 'Como instalar',
-        onClick: () => {
-          // Show modal with installation instructions
-          const modal = document.createElement('div');
-          modal.className = 'fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4';
-          modal.innerHTML = `
-            <div class="bg-surface p-6 rounded-lg max-w-md w-full">
-              <h3 class="text-lg font-bold mb-4">Instale o Vendah+ no seu iPhone</h3>
-              <ol class="list-decimal pl-5 space-y-2 mb-4">
-                <li>Toque no botão de compartilhamento <span class="inline-block w-5 h-5 bg-blue-500 text-white rounded text-xs flex items-center justify-center">↑</span></li>
-                <li>Role para baixo e toque em "Adicionar à Tela de Início"</li>
-                <li>Confirme tocando em "Adicionar"</li>
-              </ol>
-              <button class="w-full bg-vendah-purple text-white py-2 rounded-md" id="close-modal">Entendi</button>
-            </div>
-          `;
-          document.body.appendChild(modal);
-          
-          // Add event listener to close button
-          document.getElementById('close-modal')?.addEventListener('click', () => {
-            document.body.removeChild(modal);
-          });
-        }
-      },
-      duration: 10000,
-    });
-  }
-}
-
 // Setup iOS specific features
 function setupIOSSpecificFeatures() {
   if (isIOS()) {
@@ -157,14 +117,14 @@ function updateViewportForNotch() {
   document.body.style.paddingRight = 'env(safe-area-inset-right)';
 }
 
-// Setup iOS-specific interactions
+// Setup iOS-specific interactions with fixed TypeScript types
 function setupIOSInteractions() {
   // Disable text selection to feel more native
   document.body.style.webkitUserSelect = 'none';
   
-  // Use proper CSS property names with TypeScript
-  // Use setAttribute to apply non-standard webkit properties
-  document.body.setAttribute('style', document.body.getAttribute('style') + '-webkit-touch-callout: none;');
+  // Apply webkit properties correctly
+  const style = document.body.getAttribute('style') || '';
+  document.body.setAttribute('style', style + '-webkit-touch-callout: none;');
   
   // Disable long-press context menu on links and images
   document.addEventListener('contextmenu', (e) => {
@@ -239,7 +199,42 @@ async function tryRequestNotificationPermission() {
   }
 }
 
-// Setup pull-to-refresh functionality for iOS-like experience
+// Show instructions for installing on iOS
+function showIOSInstallInstructions() {
+  // Only show if in Safari on iOS and not already installed
+  if (isIOS() && !isRunningAsPWA() && navigator.userAgent.includes('Safari')) {
+    toast('Instale o Vendah+ no seu iPhone', {
+      action: {
+        label: 'Como instalar',
+        onClick: () => {
+          // Show modal with installation instructions
+          const modal = document.createElement('div');
+          modal.className = 'fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4';
+          modal.innerHTML = `
+            <div class="bg-surface p-6 rounded-lg max-w-md w-full">
+              <h3 class="text-lg font-bold mb-4">Instale o Vendah+ no seu iPhone</h3>
+              <ol class="list-decimal pl-5 space-y-2 mb-4">
+                <li>Toque no botão de compartilhamento <span class="inline-block w-5 h-5 bg-blue-500 text-white rounded text-xs flex items-center justify-center">↑</span></li>
+                <li>Role para baixo e toque em "Adicionar à Tela de Início"</li>
+                <li>Confirme tocando em "Adicionar"</li>
+              </ol>
+              <button class="w-full bg-vendah-purple text-white py-2 rounded-md" id="close-modal">Entendi</button>
+            </div>
+          `;
+          document.body.appendChild(modal);
+          
+          // Add event listener to close button
+          document.getElementById('close-modal')?.addEventListener('click', () => {
+            document.body.removeChild(modal);
+          });
+        }
+      },
+      duration: 10000,
+    });
+  }
+}
+
+// Setup pull-to-refresh functionality with fixed TypeScript types
 function setupPullToRefresh() {
   // Only setup on iOS or in PWA mode
   if (isIOS() || isRunningAsPWA()) {
@@ -257,10 +252,12 @@ function setupPullToRefresh() {
       indicator.innerHTML = '<div class="bg-vendah-purple/80 text-white px-4 py-2 rounded-full flex items-center gap-2"><svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Atualizando...</div>';
       document.body.appendChild(indicator);
       
-      // Touch start event
+      // Touch start event with proper typing
       container.addEventListener('touchstart', (e: Event) => {
-        // Cast Event to TouchEvent since we know this is a touch event
-        const touchEvent = e as TouchEventWithTouches;
+        // Only process if it's a touch event 
+        if (!('touches' in e)) return;
+        
+        const touchEvent = e as SafeTouchEvent;
         
         // Only trigger if at the top of the container
         if ((container as HTMLElement).scrollTop === 0) {
@@ -269,12 +266,11 @@ function setupPullToRefresh() {
         }
       }, { passive: true });
       
-      // Touch move event
+      // Touch move event with proper typing
       container.addEventListener('touchmove', (e: Event) => {
-        if (!isPulling) return;
+        if (!isPulling || !('touches' in e)) return;
         
-        // Cast Event to TouchEvent
-        const touchEvent = e as TouchEventWithTouches;
+        const touchEvent = e as SafeTouchEvent;
         
         pullDistance = Math.max(0, touchEvent.touches[0].clientY - startY);
         
@@ -310,3 +306,9 @@ function setupPullToRefresh() {
   }
 }
 
+// Export all the necessary functions
+export {
+  showInstallPrompt,
+  isIOS,
+  isRunningAsPWA
+};
