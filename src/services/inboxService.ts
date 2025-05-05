@@ -27,14 +27,16 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Cast to string[] to avoid complex type inference
-        query = query.in('canal', filters.canais as string[]);
+        // Use type assertion to primitive array to avoid deep type instantiation
+        const channelFilters = [...filters.canais] as string[];
+        query = query.in('canal', channelFilters);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Cast to string[] to avoid complex type inference
-        query = query.in('status', filters.status as string[]);
+        // Use type assertion to primitive array to avoid deep type instantiation
+        const statusFilters = [...filters.status] as string[];
+        query = query.in('status', statusFilters);
       }
       
       // Priority filter
@@ -50,8 +52,8 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       // Search filter
       if (filters.search) {
         const pattern = `%${filters.search}%`;
-        // Use string template to construct the filter condition
-        query = query.or(`lead_nome.ilike.${pattern},ultima_mensagem.ilike.${pattern}`);
+        // Use direct string concatenation to avoid complex type inference
+        query = query.or('lead_nome.ilike.' + pattern + ',ultima_mensagem.ilike.' + pattern);
       }
       
       // Date range filter
