@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -19,44 +20,65 @@ export interface InboxFilters {
 // Get all conversations
 export const getConversations = async (filters?: InboxFilters): Promise<Conversation[]> => {
   try {
+    // Build query conditions first instead of chaining
+    const conditions: Record<string, any> = {};
+    let searchFilter = '';
+    
+    // Apply filters to our conditions object
+    if (filters) {
+      // Filter by channels
+      if (filters.canais && filters.canais.length > 0) {
+        conditions.canal = filters.canais;
+      }
+      
+      // Filter by status
+      if (filters.status && filters.status.length > 0) {
+        conditions.status = filters.status;
+      }
+      
+      // Filter by priority
+      if (filters.priority) {
+        conditions.prioridade = filters.priority;
+      }
+      
+      // Filter by connected account
+      if (filters.accountId) {
+        conditions.conexao_id = filters.accountId;
+      }
+      
+      // Filter by search term - handled separately
+      if (filters.search) {
+        searchFilter = `lead_nome.ilike.%${filters.search}%,ultima_mensagem.ilike.%${filters.search}%`;
+      }
+    }
+    
     // Start with the base query
     let query = supabase
       .from('conversations')
       .select('*');
     
-    // Apply filters
-    if (filters) {
-      // Filter by search term
-      if (filters.search) {
-        query = query.or(`lead_nome.ilike.%${filters.search}%,ultima_mensagem.ilike.%${filters.search}%`);
+    // Apply the condition filters
+    if (Object.keys(conditions).length > 0) {
+      // Apply each filter condition
+      for (const [key, value] of Object.entries(conditions)) {
+        if (Array.isArray(value)) {
+          query = query.in(key, value);
+        } else {
+          query = query.eq(key, value);
+        }
       }
-      
-      // Filter by channels - fixed the type instantiation issue
-      if (filters.canais && filters.canais.length > 0) {
-        query = query.in('canal', filters.canais);
-      }
-      
-      // Filter by status - fixed the type instantiation issue
-      if (filters.status && filters.status.length > 0) {
-        query = query.in('status', filters.status);
-      }
-      
-      // Filter by date range
-      if (filters.dateRange) {
-        const fromDate = filters.dateRange.from.toISOString();
-        const toDate = filters.dateRange.to.toISOString();
-        query = query.gte('horario', fromDate).lte('horario', toDate);
-      }
-      
-      // Filter by priority
-      if (filters.priority) {
-        query = query.eq('prioridade', filters.priority);
-      }
-      
-      // Filter by connected account
-      if (filters.accountId) {
-        query = query.eq('conexao_id', filters.accountId);
-      }
+    }
+    
+    // Apply search filter if it exists
+    if (searchFilter) {
+      query = query.or(searchFilter);
+    }
+    
+    // Apply date range filter separately
+    if (filters?.dateRange) {
+      const fromDate = filters.dateRange.from.toISOString();
+      const toDate = filters.dateRange.to.toISOString();
+      query = query.gte('horario', fromDate).lte('horario', toDate);
     }
     
     // Add ordering at the end
