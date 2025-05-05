@@ -18,6 +18,19 @@ const AudioWaveform: React.FC<AudioWaveformProps> = ({
   const levels = audioLevel && audioLevel.length > 0 
     ? audioLevel 
     : new Array(10).fill(0.1);
+    
+  // Determine bar color based on recording state
+  const getBarColor = () => {
+    if (isRecording && !isPaused) {
+      return 'bg-red-500 animate-pulse';
+    } else if (isPaused) {
+      return 'bg-amber-500';
+    } else {
+      return 'bg-blue-400';
+    }
+  };
+
+  const barColor = getBarColor();
 
   return (
     <div className={`flex items-end justify-center space-x-1 h-12 w-full max-w-xs ${className}`}>
@@ -25,19 +38,18 @@ const AudioWaveform: React.FC<AudioWaveformProps> = ({
         // Calculate height - minimum 10%, maximum 100%
         const height = Math.max(Math.min(level * 100, 100), 10);
         
+        // Add slight randomization to width for more natural look
+        const baseWidth = 2;
+        const width = isRecording ? (baseWidth + (i % 3 === 0 ? 1 : 0)) : baseWidth;
+        
         return (
           <div
             key={i}
-            className={`w-2 rounded-sm ${
-              isRecording && !isPaused 
-                ? 'bg-red-500 animate-pulse' 
-                : isPaused 
-                  ? 'bg-amber-500' 
-                  : 'bg-blue-400'
-            }`}
+            className={`rounded-sm ${barColor}`}
             style={{ 
               height: `${height}%`,
-              transition: 'height 150ms ease'
+              width: `${width}px`,
+              transition: isRecording ? 'height 150ms ease' : 'height 400ms ease'
             }}
           />
         );

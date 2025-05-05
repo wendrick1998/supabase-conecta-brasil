@@ -36,7 +36,11 @@ const RecordingDialog = ({
     resumeRecording,
     stopRecording,
     resetRecording
-  } = useAudioRecorder();
+  } = useAudioRecorder({
+    onComplete: (audio) => {
+      console.log('Recording completed:', audio);
+    }
+  });
 
   // Handle closing dialog
   const handleCloseDialog = () => {
@@ -65,8 +69,13 @@ const RecordingDialog = ({
         return;
       }
       
-      const file = new File([recordedAudio.blob], recordedAudio.fileName, {
-        type: 'audio/webm'
+      // Use audio/mpeg if supported, otherwise fallback to webm
+      const mimeType = 'audio/webm';
+      const extension = 'webm';
+      
+      const fileName = `audio-${Date.now()}.${extension}`;
+      const file = new File([recordedAudio.blob], fileName, {
+        type: mimeType
       });
       
       console.log(`File created successfully: ${file.name}, ${file.size} bytes`);
@@ -96,6 +105,12 @@ const RecordingDialog = ({
     }
   }, [open, state, mediaType, isRecording, isPaused, startRecording, resetRecording]);
 
+  const dialogTitle = () => {
+    if (recordedAudio) return "Revisar Gravação";
+    if (isRecording) return "Gravando Áudio";
+    return mediaType === 'audio' ? "Gravar Áudio" : "Capturar Mídia";
+  };
+
   return (
     <Dialog 
       open={open} 
@@ -117,7 +132,7 @@ const RecordingDialog = ({
       >
         <div className="flex flex-col items-center py-4">
           <h2 className="text-xl font-semibold mb-6">
-            {recordedAudio ? "Revisar Gravação" : isRecording ? "Gravando Áudio" : "Gravar Áudio"}
+            {dialogTitle()}
           </h2>
           
           {/* Audio recording visualization */}
@@ -126,7 +141,7 @@ const RecordingDialog = ({
             isPaused={isPaused}
             recordedAudio={recordedAudio}
             formattedTime={formattedTime}
-            audioLevel={audioLevel}
+            audioLevel={audioLevel || new Array(10).fill(0.1)}
           />
           
           {/* Audio playback */}

@@ -1,7 +1,7 @@
 
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Paperclip } from 'lucide-react';
+import { FileText } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ActionsMenuProps {
   onFileUpload: () => void;
@@ -9,16 +9,24 @@ interface ActionsMenuProps {
 
 const ActionsMenu = ({ onFileUpload }: ActionsMenuProps) => {
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={onFileUpload}
-      title="Anexar arquivo"
-      aria-label="Anexar arquivo"
-      className="hover:bg-blue-50"
-    >
-      <Paperclip className="h-4 w-4" />
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onFileUpload}
+            aria-label="Anexar documento"
+            className="hover:bg-blue-50"
+          >
+            <FileText className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Anexar documento (PDF, DOC, XLS, etc)</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

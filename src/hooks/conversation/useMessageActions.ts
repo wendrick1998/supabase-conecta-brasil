@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { toast } from "@/components/ui/sonner";
 import { Message } from '@/types/conversation';
 import { supabase } from "@/integrations/supabase/client";
+import useMediaUpload from '@/hooks/useMediaUpload';
 
 export const useMessageActions = (conversationId: string | undefined, setMessages: React.Dispatch<React.SetStateAction<Message[]>>) => {
   const [sendingMessage, setSendingMessage] = useState(false);
+  const { uploadMedia } = useMediaUpload(conversationId);
 
   // Helper function to validate UUID
   const isValidUUID = (uuid: string): boolean => {
@@ -73,101 +75,35 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
       return;
     }
     
-    if (!isValidUUID(conversationId)) {
-      toast.error('ID de conversa inválido');
-      return;
-    }
-    
-    if (!file || file.size === 0) {
-      toast.error('Arquivo inválido ou vazio');
-      return;
-    }
-    
-    setSendingMessage(true);
-    
     try {
-      console.log('Sending media message:', { 
-        fileName: file.name, 
-        fileType: file.type, 
-        fileSize: file.size,
-        conversationId
-      });
+      const success = await uploadMedia(file, contentText);
       
-      // Generate a unique file path with proper validation
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `${conversationId}/${fileName}`;
-      
-      // Upload file to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from('media')
-        .upload(filePath, file, {
-          contentType: file.type,
-          cacheControl: '3600'
-        });
-      
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw new Error(`Erro no upload: ${uploadError.message}`);
+      if (success) {
+        // The message is already added to the database in uploadMedia
+        // We need to fetch the latest messages to update the UI
+        const { data: latestMessages } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', conversationId)
+          .order('timestamp', { ascending: false })
+          .limit(1)
+          .single();
+          
+        if (latestMessages) {
+          // Add new message to state
+          const typedMessage: Message = {
+            ...latestMessages as any,
+            sender_type: latestMessages.sender_type as "user" | "lead",
+            status: latestMessages.status as "sent" | "delivered" | "read",
+            attachment: latestMessages.attachment as Message['attachment'] | undefined
+          };
+          
+          setMessages(prevMessages => [...prevMessages, typedMessage]);
+        }
       }
-      
-      // Get public URL for the uploaded file
-      const { data: publicUrlData } = supabase
-        .storage
-        .from('media')
-        .getPublicUrl(filePath);
-      
-      const fileUrl = publicUrlData.publicUrl;
-      console.log('File uploaded successfully, URL:', fileUrl);
-      
-      // Create message attachment object
-      const attachment = {
-        name: file.name,
-        url: fileUrl,
-        type: file.type,
-      };
-      
-      // Add message to database with attachment
-      const { data: messageData, error: messageError } = await supabase
-        .from('messages')
-        .insert({
-          conversation_id: conversationId,
-          content: contentText,
-          sender_type: 'user',
-          status: 'sent',
-          attachment,
-        })
-        .select()
-        .single();
-      
-      if (messageError) throw messageError;
-      
-      // Update conversation with latest message
-      await supabase
-        .from('conversations')
-        .update({
-          ultima_mensagem: contentText,
-          horario: new Date().toISOString(),
-          nao_lida: false,
-        })
-        .eq('id', conversationId);
-      
-      // Add new message to state - ensure proper typing
-      const typedMessage: Message = {
-        ...messageData as any,
-        sender_type: messageData.sender_type as "user" | "lead",
-        status: messageData.status as "sent" | "delivered" | "read",
-        attachment: messageData.attachment as Message['attachment'] | undefined
-      };
-      
-      setMessages(prevMessages => [...prevMessages, typedMessage]);
-      toast.success(`${contentText}`);
     } catch (error) {
-      console.error('Erro ao enviar mídia:', error);
-      toast.error('Não foi possível enviar a mídia');
-    } finally {
-      setSendingMessage(false);
+      console.error('Erro ao processar mídia:', error);
+      toast.error('Ocorreu um erro ao processar a mídia');
     }
   };
 
