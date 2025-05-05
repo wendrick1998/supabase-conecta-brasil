@@ -9,10 +9,16 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-white border-r py-6 flex flex-col items-center md:items-start z-10">
+      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-bg border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
         {/* Logo */}
         <div className="mb-8 px-4">
-          <span className="text-xl font-bold text-blue-700">ResolveClick</span>
+          <div className="h-24">
+            <img 
+              src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
+              alt="Vendah+" 
+              className="h-full animate-subtle-glow"
+            />
+          </div>
         </div>
         
         {/* Navigation */}
@@ -23,7 +29,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/leads" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <Users size={24} />
@@ -40,7 +46,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/pipeline" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <BarChart size={24} />
@@ -57,7 +63,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/conversations" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <Inbox size={24} />
@@ -74,7 +80,7 @@ const DashboardLayout: React.FC = () => {
                 <NavLink 
                   to="/automacoes" 
                   className={({ isActive }) => 
-                    `flex items-center space-x-3 ${isActive ? 'text-blue-700' : 'text-gray-600 hover:text-blue-700'} transition-colors`
+                    `flex items-center space-x-3 ${isActive ? 'text-vendah-neon' : 'text-text-muted hover:text-white'} transition-colors`
                   }
                 >
                   <Zap size={24} />
@@ -92,7 +98,7 @@ const DashboardLayout: React.FC = () => {
       {/* Main content */}
       <main className="flex-1 ml-20 md:ml-64">
         {/* Header with user account */}
-        <header className="h-16 bg-white border-b px-6 flex items-center justify-end">
+        <header className="h-16 bg-surface border-b border-vendah-purple/20 px-6 flex items-center justify-end">
           <UserAccountNav />
         </header>
 

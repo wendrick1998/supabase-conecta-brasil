@@ -5,6 +5,7 @@ import { Users, BarChart, MessageSquare, Zap, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
+import Footer from '@/components/Footer';
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -46,13 +47,13 @@ const HomePage = () => {
                   variant="ghost"
                   asChild
                 >
-                  <Link to="/auth?tab=login">Login</Link>
+                  <Link to="/auth?tab=login">Entrar</Link>
                 </Button>
                 <Button 
                   className="accent-button"
                   asChild
                 >
-                  <Link to="/auth?tab=signup">Cadastro</Link>
+                  <Link to="/auth?tab=signup">Cadastrar</Link>
                 </Button>
               </>
             )}
@@ -69,12 +70,29 @@ const HomePage = () => {
             <p className="text-text-muted text-lg mt-6 max-w-xl mx-auto lg:mx-0">
               Impulsione seu negócio com a plataforma que conecta, gerencia e converte leads em clientes satisfeitos.
             </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center lg:justify-start">
+              <Button 
+                className="accent-button text-lg px-8 py-6"
+                asChild
+              >
+                <Link to="/auth?tab=signup">Começar agora</Link>
+              </Button>
+              
+              <Button 
+                className="border border-text-muted text-white hover:border-white hover:text-white text-lg px-8 py-6"
+                variant="outline"
+                asChild
+              >
+                <Link to="#features">Ver recursos</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
       
       {/* Features Section */}
-      <div className="bg-surface py-24 relative">
+      <div id="features" className="bg-surface py-24 relative">
         <div className="absolute left-1/4 top-0 w-72 h-72 bg-vendah-purple/5 rounded-full filter blur-2xl"></div>
         <div className="absolute right-1/4 bottom-1/2 w-64 h-64 bg-vendah-blue/5 rounded-full filter blur-2xl"></div>
         
@@ -195,24 +213,7 @@ const HomePage = () => {
       </div>
       
       {/* Footer */}
-      <footer className="bg-surface py-10 border-t border-vendah-purple/20">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <div className="logo-container p-2 flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
-                  alt="Vendah+" 
-                  className="h-36 animate-subtle-glow"
-                />
-              </div>
-            </div>
-            <div className="text-text-muted text-sm">
-              © 2025 Vendah+. Todos os direitos reservados.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

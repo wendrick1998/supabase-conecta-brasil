@@ -22,11 +22,11 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-vendah-purple/20 bg-vendah-black/95 backdrop-blur-sm">
-      <div className="container flex h-16 items-center">
+    <header className="sticky top-0 z-40 w-full border-b border-vendah-purple/20 bg-bg/95 backdrop-blur-sm">
+      <div className="container flex h-16 items-center px-5 py-4 justify-between">
         {/* Logo */}
-        <div className="mr-4 flex">
-          <Link to="/dashboard" className="flex items-center space-x-2">
+        <div className="flex">
+          <Link to="/dashboard" className="flex items-center">
             <img 
               src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
               alt="Vendah+" 
@@ -43,7 +43,7 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="bg-vendah-black border-vendah-purple/20">
+          <SheetContent side="left" className="bg-bg border-vendah-purple/20">
             <div className="flex flex-col space-y-4 px-2 py-6">
               <Button
                 variant="ghost"
@@ -89,6 +89,18 @@ const NavBar: React.FC<NavBarProps> = ({ currentPath }) => {
         {user && (
           <div className="ml-auto flex items-center">
             <UserAccountNav />
+          </div>
+        )}
+        
+        {/* Non-authenticated navigation */}
+        {!user && (
+          <div className="flex gap-4 text-sm font-medium">
+            <Link to="/auth?tab=login" className="text-text-muted hover:text-white transition-colors">
+              Entrar
+            </Link>
+            <Link to="/auth?tab=signup" className="bg-vendah-neon text-vendah-black px-4 py-2 rounded hover:brightness-110 transition-all">
+              Cadastrar
+            </Link>
           </div>
         )}
       </div>
