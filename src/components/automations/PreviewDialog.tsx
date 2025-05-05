@@ -50,7 +50,7 @@ export const PreviewDialog: React.FC<PreviewDialogProps> = ({
     }
     return triggerBlocks.map((trigger, index) => <div key={trigger.id} className="mb-6">
         <div className="font-medium">Fluxo {index + 1}:</div>
-        <div className="mt-2 pl-4 border-l-2 border-blue-300">
+        <div className="mt-2 pl-4 border-l-2 border-blue-300 bg-slate-900">
           <div className="mb-2">
             <span className="font-medium text-blue-700">Quando:</span> {getBlockDescription(trigger)}
           </div>
