@@ -5,6 +5,7 @@
 
 @layer base {
   :root {
+    /* Original shadcn variables */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -43,6 +44,15 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Vendah+ custom variables */
+    --color-primary: 266 52% 37%;     /* Roxo Profundo - #5D2E8C */
+    --color-accent: 137 100% 60%;     /* Verde Neon - #39FF14 */
+    --color-bg: 240 6% 14%;           /* Cinza escuro suave - #1C1C22 */
+    --color-surface: 240 4% 18%;      /* Fundo de containers - #26262D */
+    --color-neutral: 210 70% 30%;     /* Azul Petróleo - #144D8C */
+    --color-muted: 0 0% 75%;          /* Cinza Prata - #C0C0C0 */
+    --color-white: 0 0% 100%;         /* Branco - #FFFFFF */
   }
 
   .dark {
@@ -93,6 +103,20 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-base);
+    background-color: hsl(var(--color-bg));
+    color: hsl(var(--color-white));
+    font-smooth: always;
+    background-image: 
+      radial-gradient(at 20% 30%, rgba(93, 46, 140, 0.12) 0%, transparent 70%),
+      radial-gradient(at 80% 70%, rgba(57, 255, 20, 0.05) 0%, transparent 60%);
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+  }
+
+  button {
+    @apply rounded-md transition-all duration-200;
   }
 }
 
@@ -103,8 +127,10 @@
   }
   
   .vendah-card {
-    @apply relative bg-vendah-black/80 backdrop-blur-md border border-vendah-purple/20 
+    @apply relative bg-surface border border-vendah-purple/20 
            rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
   }
   
   .vendah-gradient-text {
@@ -113,5 +139,19 @@
   
   .neon-outline {
     @apply border border-vendah-neon/40 shadow-neon;
+  }
+
+  .glass-panel {
+    @apply bg-surface/80 backdrop-blur-md border border-white/10 rounded-xl;
+  }
+
+  .primary-button {
+    @apply bg-vendah-purple hover:bg-vendah-purple/90 text-white font-medium py-2 px-5 rounded-md
+           transition-all duration-300 hover:shadow-purple;
+  }
+  
+  .accent-button {
+    @apply bg-vendah-neon hover:bg-vendah-neon/90 text-vendah-black font-bold py-2 px-5 rounded-md
+           transition-all duration-300 hover:shadow-neon;
   }
 }

@@ -79,11 +79,17 @@ export default {
 				},
 				'vendah-gradient-start': '#221F26',
 				'vendah-gradient-end': '#2A2730',
+                // New mapped Vendah+ colors from CSS variables
+                'bg': 'hsl(var(--color-bg))', 
+                'surface': 'hsl(var(--color-surface))',
+                'neutral': 'hsl(var(--color-neutral))',
+                'text-muted': 'hsl(var(--color-muted))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+                DEFAULT: '10px',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -121,14 +127,19 @@ export default {
 					'50%': { 
 						filter: 'drop-shadow(0 0 10px rgba(93, 46, 140, 0.4))' 
 					}
-				}
+				},
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' }
+                }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-neon': 'pulse-neon 2s infinite',
 				'float': 'float 6s ease-in-out infinite',
-				'subtle-glow': 'subtle-glow 4s ease-in-out infinite'
+				'subtle-glow': 'subtle-glow 4s ease-in-out infinite',
+                'fade-in': 'fade-in 0.5s ease-out forwards'
 			},
 			boxShadow: {
 				'neon': '0 0 5px #39FF14, 0 0 10px #39FF14',
