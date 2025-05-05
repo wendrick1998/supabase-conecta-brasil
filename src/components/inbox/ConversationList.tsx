@@ -36,7 +36,16 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           throw error;
         }
 
-        setConversations(data || []);
+        // Properly cast the data to the Conversation type
+        const typedConversations = data?.map(conv => ({
+          ...conv,
+          canal: conv.canal as "WhatsApp" | "Instagram" | "Email",
+          status: conv.status as "Aberta" | "Fechada",
+          nao_lida: Boolean(conv.nao_lida),
+          avatar: conv.avatar || undefined
+        })) || [];
+
+        setConversations(typedConversations);
       } catch (error) {
         console.error('Failed to fetch conversations:', error);
       } finally {
@@ -57,11 +66,29 @@ export const ConversationList: React.FC<ConversationListProps> = ({
         }, 
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setConversations(prev => [payload.new as Conversation, ...prev]);
+            const newConv = payload.new;
+            // Ensure the new conversation is properly typed
+            const typedConversation: Conversation = {
+              ...newConv,
+              canal: newConv.canal as "WhatsApp" | "Instagram" | "Email",
+              status: newConv.status as "Aberta" | "Fechada",
+              nao_lida: Boolean(newConv.nao_lida),
+              avatar: newConv.avatar || undefined
+            };
+            setConversations(prev => [typedConversation, ...prev]);
           } else if (payload.eventType === 'UPDATE') {
+            const updatedConv = payload.new;
+            // Ensure the updated conversation is properly typed
+            const typedConversation: Conversation = {
+              ...updatedConv,
+              canal: updatedConv.canal as "WhatsApp" | "Instagram" | "Email",
+              status: updatedConv.status as "Aberta" | "Fechada",
+              nao_lida: Boolean(updatedConv.nao_lida),
+              avatar: updatedConv.avatar || undefined
+            };
             setConversations(prev => 
               prev.map(conv => 
-                conv.id === payload.new.id ? { ...conv, ...payload.new as Conversation } : conv
+                conv.id === typedConversation.id ? typedConversation : conv
               ).sort((a, b) => new Date(b.horario).getTime() - new Date(a.horario).getTime())
             );
           } else if (payload.eventType === 'DELETE') {
@@ -83,8 +110,8 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     conv.ultima_mensagem.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getChannelColor = (canal: string) => {
-    switch (canal.toLowerCase()) {
+  const getChannelColor = (canal: Conversation['canal']) => {
+    switch (canal.toLowerCase() as string) {
       case 'whatsapp': return 'bg-green-500';
       case 'instagram': return 'bg-pink-500';
       case 'email': return 'bg-blue-500';

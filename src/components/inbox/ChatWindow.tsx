@@ -46,7 +46,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
           throw error;
         }
 
-        setMessages(data || []);
+        // Properly cast the data to the Message type
+        const typedMessages = data?.map(msg => ({
+          ...msg,
+          sender_type: msg.sender_type as "user" | "lead",
+          status: msg.status as "sent" | "delivered" | "read",
+          attachment: msg.attachment as Message['attachment'] | undefined
+        })) || [];
+
+        setMessages(typedMessages);
       } catch (error) {
         console.error('Failed to fetch messages:', error);
       } finally {
@@ -69,8 +77,19 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversation }) => {
           filter: `conversation_id=eq.${conversation.id}`
         }, 
         (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
+          // Ensure the new message is properly typed
+          const newMsg = payload.new;
+          const typedMessage: Message = {
+            ...newMsg,
+            id: newMsg.id,
+            conversation_id: newMsg.conversation_id,
+            content: newMsg.content,
+            timestamp: newMsg.timestamp,
+            sender_type: newMsg.sender_type as "user" | "lead",
+            status: newMsg.status as "sent" | "delivered" | "read",
+            attachment: newMsg.attachment as Message['attachment'] | undefined
+          };
+          setMessages(prev => [...prev, typedMessage]);
         }
       )
       .subscribe();
