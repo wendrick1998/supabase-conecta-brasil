@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { getBlockInfo } from '@/utils/automationUtils';
+import { BlockType } from '@/types/automation';
 
 interface BlockHeaderProps {
-  blockType: string;
+  blockType: BlockType;
   blockIcon: React.ReactNode;
 }
 
