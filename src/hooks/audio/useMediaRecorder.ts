@@ -1,13 +1,9 @@
 
 import { useRef, useState, useCallback } from 'react';
+import { RecordedAudio } from '../useAudioRecording';
 import { toast } from '@/components/ui/sonner';
 
-export type AudioRecorderResult = {
-  url: string;
-  blob: Blob;
-  fileName: string;
-  duration: number;
-};
+export type AudioRecorderResult = RecordedAudio;
 
 /**
  * Hook for handling MediaRecorder API interactions
@@ -27,12 +23,14 @@ export function useMediaRecorder() {
       return newAudioContext;
     } catch (error) {
       console.error('Error initializing audio context:', error);
+      toast.error('Erro ao inicializar contexto de áudio');
       return null;
     }
   }, []);
   
   const requestMicrophoneAccess = useCallback(async () => {
     try {
+      console.log('Requesting microphone access');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       return stream;

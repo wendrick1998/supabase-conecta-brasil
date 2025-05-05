@@ -1,190 +1,262 @@
 
-import { useEffect, useCallback } from 'react';
-import { useAudioState } from './audio/useAudioState';
-import { useAudioTime } from './audio/useAudioTime';
-import { useAudioVisualization } from './audio/useAudioVisualization';
-import { useMediaRecorder, AudioRecorderResult } from './audio/useMediaRecorder';
+import { useEffect, useCallback, useState } from 'react';
+import { RecordedAudio } from './useAudioRecording';
 import { toast } from '@/components/ui/sonner';
 
-export interface RecordedAudio {
-  url: string;
-  blob: Blob;
-  fileName: string;
-  duration: number;
-}
+export type RecordingState = 'idle' | 'recording' | 'paused' | 'stopped';
 
-export interface UseAudioRecorderProps {
+interface UseAudioRecorderProps {
   onComplete?: (audio: RecordedAudio) => void;
 }
 
 export function useAudioRecorder({ onComplete }: UseAudioRecorderProps = {}) {
-  // Incorporate all the individual hooks
-  const {
-    state,
-    setIdle,
-    setRecording,
-    setPaused,
-    setStopped,
-    isRecording,
-    isPaused
-  } = useAudioState();
+  const [state, setState] = useState<RecordingState>('idle');
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordedAudio, setRecordedAudio] = useState<RecordedAudio | null>(null);
+  const [audioLevel, setAudioLevel] = useState<number[]>([]);
   
-  const {
-    recordingTime,
-    startTimer,
-    pauseTimer,
-    resumeTimer,
-    stopTimer,
-    resetTimer,
-    formattedTime
-  } = useAudioTime();
+  const isRecording = state === 'recording';
+  const isPaused = state === 'paused';
   
-  const {
-    audioLevel,
-    setupAnalyser,
-    startVisualization,
-    stopVisualization,
-    resetVisualization
-  } = useAudioVisualization();
+  // Media recorder and stream references
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<number>(0);
   
-  const {
-    recordedAudio,
-    audioContext,
-    initializeAudioContext,
-    requestMicrophoneAccess,
-    setupMediaRecorder,
-    startRecording: startMediaRecording,
-    pauseRecording: pauseMediaRecording,
-    resumeRecording: resumeMediaRecording,
-    stopRecording: stopMediaRecording,
-    cleanup: cleanupMediaRecorder,
-    reset: resetMediaRecorder
-  } = useMediaRecorder();
-
-  // Cleanup function for all resources
+  // Format recording time (mm:ss)
+  const formatTime = useCallback((ms: number): string => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }, []);
+  
+  const formattedTime = formatTime(recordingTime);
+  
+  // Cleanup all resources
   const cleanup = useCallback(() => {
-    stopVisualization();
-    stopTimer();
-    cleanupMediaRecorder();
-  }, [cleanupMediaRecorder, stopTimer, stopVisualization]);
-
+    console.log('Cleaning up audio recorder resources');
+    
+    // Stop timer
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+    
+    // Stop audio stream
+    if (audioStream) {
+      audioStream.getTracks().forEach(track => track.stop());
+      setAudioStream(null);
+    }
+    
+    // Reset media recorder
+    setMediaRecorder(null);
+    
+    // Reset audio level
+    setAudioLevel([]);
+  }, [timerInterval, audioStream]);
+  
   // Clean up on unmount
   useEffect(() => {
     return cleanup;
   }, [cleanup]);
-
-  // Start recording function
+  
+  // Start recording
   const startRecording = useCallback(async () => {
+    console.log('Starting recording');
     try {
-      // Reset state and prepare for new recording
-      resetVisualization();
-      resetTimer();
+      // Reset previous recording data
+      setRecordingTime(0);
+      setAudioChunks([]);
+      setRecordedAudio(null);
       
-      // Access microphone
+      // Request microphone access
       console.log('Requesting microphone access');
-      const stream = await requestMicrophoneAccess();
-      if (!stream) return;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setAudioStream(stream);
       
-      // Initialize visualization
-      const audioCtx = await initializeAudioContext(stream);
-      if (!audioCtx) return;
+      // Set up audio visualization
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
       
-      setupAnalyser(audioCtx, stream);
+      // Create visualizer update function
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      const updateVisualizer = () => {
+        if (state === 'recording') {
+          analyser.getByteFrequencyData(dataArray);
+          
+          // Calculate audio levels (normalize values between 0-1)
+          const levels = Array.from({ length: 10 }, (_, i) => {
+            const start = Math.floor(i * bufferLength / 10);
+            const end = Math.floor((i + 1) * bufferLength / 10);
+            let sum = 0;
+            for (let j = start; j < end; j++) {
+              sum += dataArray[j];
+            }
+            return (sum / (end - start)) / 255;
+          });
+          
+          setAudioLevel(levels);
+          requestAnimationFrame(updateVisualizer);
+        }
+      };
+      requestAnimationFrame(updateVisualizer);
       
       // Create media recorder
-      const mediaRecorder = setupMediaRecorder(stream);
+      console.log('Creating media recorder');
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
       
-      // Start everything
-      startMediaRecording();
-      startTimer();
-      startVisualization();
-      setRecording();
+      // Handle data available
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          setAudioChunks(prev => [...prev, e.data]);
+        }
+      };
+      
+      // Handle recording stop
+      recorder.onstop = () => {
+        const chunks = audioChunks;
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        const duration = recordingTime / 1000; // in seconds
+        const fileName = `audio-${new Date().toISOString().replace(/:/g, '-')}.webm`;
+        
+        const audio: RecordedAudio = {
+          url,
+          blob,
+          fileName,
+          duration
+        };
+        
+        setRecordedAudio(audio);
+        setState('stopped');
+        
+        if (onComplete) {
+          onComplete(audio);
+        }
+        
+        // Clean up audio context
+        if (audioContext.state !== 'closed') {
+          audioContext.close().catch(console.error);
+        }
+      };
+      
+      // Start recording
+      recorder.start(1000); // Collect data in 1-second chunks
+      
+      // Start timer
+      const startTimeMs = Date.now();
+      setStartTime(startTimeMs);
+      const interval = window.setInterval(() => {
+        setRecordingTime(Date.now() - startTimeMs);
+      }, 100);
+      setTimerInterval(interval);
+      
+      setState('recording');
       
     } catch (error) {
       console.error('Error starting recording:', error);
+      toast.error('Não foi possível acessar o microfone');
       cleanup();
-      setIdle();
+      setState('idle');
     }
-  }, [
-    cleanup, 
-    initializeAudioContext, 
-    requestMicrophoneAccess, 
-    resetTimer, 
-    resetVisualization, 
-    setIdle, 
-    setRecording, 
-    setupAnalyser, 
-    setupMediaRecorder, 
-    startMediaRecording, 
-    startTimer, 
-    startVisualization
-  ]);
-
-  // Pause recording function
-  const pauseRecording = useCallback(() => {
-    if (!isRecording) return;
-    
-    try {
-      const paused = pauseMediaRecording();
-      if (paused) {
-        pauseTimer();
-        setPaused();
-      }
-    } catch (error) {
-      console.error('Error pausing recording:', error);
-      toast.error('Erro ao pausar gravação');
-    }
-  }, [isRecording, pauseMediaRecording, pauseTimer, setPaused]);
-
-  // Resume recording function
-  const resumeRecording = useCallback(() => {
-    if (!isPaused) return;
-    
-    try {
-      const resumed = resumeMediaRecording();
-      if (resumed) {
-        resumeTimer();
-        setRecording();
-      }
-    } catch (error) {
-      console.error('Error resuming recording:', error);
-      toast.error('Erro ao retomar gravação');
-    }
-  }, [isPaused, resumeMediaRecording, resumeTimer, setRecording]);
-
-  // Stop recording function
-  const stopRecording = useCallback(async () => {
-    if (!isRecording && !isPaused) return;
-    
-    try {
-      stopTimer();
-      const audio = await stopMediaRecording(recordingTime);
-      setStopped();
+  }, [state, cleanup, audioChunks, recordingTime, onComplete]);
+  
+  // Stop recording
+  const stopRecording = useCallback(() => {
+    console.log('Stopping recording');
+    if (mediaRecorder && (mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')) {
+      mediaRecorder.stop();
       
-      if (audio && onComplete) {
-        onComplete(audio);
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        setTimerInterval(null);
       }
-    } catch (error) {
-      console.error('Error stopping recording:', error);
-      toast.error('Erro ao finalizar gravação');
-      setIdle();
     }
-  }, [isRecording, isPaused, onComplete, recordingTime, setIdle, setStopped, stopMediaRecording, stopTimer]);
-
-  // Reset recording function
+  }, [mediaRecorder, timerInterval]);
+  
+  // Pause recording
+  const pauseRecording = useCallback(() => {
+    console.log('Pausing recording');
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.pause();
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        setTimerInterval(null);
+      }
+      
+      setState('paused');
+    }
+  }, [mediaRecorder, timerInterval]);
+  
+  // Resume recording
+  const resumeRecording = useCallback(() => {
+    console.log('Resuming recording');
+    if (mediaRecorder && mediaRecorder.state === 'paused') {
+      mediaRecorder.resume();
+      
+      // Resume timer
+      const pausedTime = recordingTime;
+      const resumeStartTime = Date.now() - pausedTime;
+      setStartTime(resumeStartTime);
+      
+      const interval = window.setInterval(() => {
+        setRecordingTime(Date.now() - resumeStartTime);
+      }, 100);
+      setTimerInterval(interval);
+      
+      setState('recording');
+    }
+  }, [mediaRecorder, recordingTime]);
+  
+  // Reset recording
   const resetRecording = useCallback(() => {
-    resetMediaRecorder();
-    resetTimer();
-    resetVisualization();
-    setIdle();
-  }, [resetMediaRecorder, resetTimer, resetVisualization, setIdle]);
-
-  // Return all necessary state and functions
+    console.log('Resetting recording');
+    cleanup();
+    
+    // Revoke object URL for the audio
+    if (recordedAudio?.url) {
+      URL.revokeObjectURL(recordedAudio.url);
+    }
+    
+    setRecordingTime(0);
+    setAudioChunks([]);
+    setRecordedAudio(null);
+    setState('idle');
+  }, [cleanup, recordedAudio]);
+  
+  // Set idle state
+  const setIdle = useCallback(() => {
+    setState('idle');
+  }, []);
+  
+  // Set recording state
+  const setRecording = useCallback(() => {
+    setState('recording');
+  }, []);
+  
+  // Set paused state
+  const setPaused = useCallback(() => {
+    setState('paused');
+  }, []);
+  
+  // Set stopped state
+  const setStopped = useCallback(() => {
+    setState('stopped');
+  }, []);
+  
   return {
     state,
     isRecording,
     isPaused,
-    isStopped: state === 'stopped',
     recordingTime,
     formattedTime,
     recordedAudio,
@@ -193,7 +265,11 @@ export function useAudioRecorder({ onComplete }: UseAudioRecorderProps = {}) {
     pauseRecording,
     resumeRecording,
     stopRecording,
-    resetRecording
+    resetRecording,
+    setIdle,
+    setRecording,
+    setPaused,
+    setStopped
   };
 }
 

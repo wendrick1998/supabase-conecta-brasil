@@ -37,9 +37,7 @@ const RecordingState: React.FC<RecordingStateProps> = ({
   
   return (
     <div className="relative">
-      <div className="absolute -top-16">
-        <DragIndicators direction={dragDirection} size={size} />
-      </div>
+      <DragIndicators direction={dragDirection} size={size} />
       <div className="flex items-center space-x-2">
         <Button
           ref={buttonRef}

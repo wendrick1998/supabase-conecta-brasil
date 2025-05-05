@@ -1,13 +1,13 @@
 
 import React, { useEffect } from 'react';
-import { useAudioRecording } from '@/hooks/useAudioRecording';
+import { useAudioRecording, RecordedAudio } from '@/hooks/useAudioRecording';
 import IdleButton from './audio/IdleButton';
 import RecordingState from './audio/RecordingState';
 import LockedRecording from './audio/LockedRecording';
 import AudioPreview from './audio/AudioPreview';
 
 interface AudioRecordingButtonProps {
-  onAudioCaptured?: (audio: { url: string; blob: Blob; duration: number }) => void;
+  onAudioCaptured?: (audio: RecordedAudio) => void;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
@@ -46,6 +46,29 @@ export const AudioRecordingButton: React.FC<AudioRecordingButtonProps> = ({
     resetRecording();
   };
 
+  // Prevent accidental touch scrolling when recording
+  useEffect(() => {
+    const preventDefault = (e: TouchEvent) => {
+      if (isRecording) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('touchmove', preventDefault, { passive: false });
+    return () => {
+      document.removeEventListener('touchmove', preventDefault);
+    };
+  }, [isRecording]);
+  
+  // Clean up recording if component unmounts
+  useEffect(() => {
+    return () => {
+      if (isRecording) {
+        cancelRecording();
+      }
+    };
+  }, [isRecording, cancelRecording]);
+  
   // Render the appropriate UI based on recording state
   if (isLocked) {
     return (

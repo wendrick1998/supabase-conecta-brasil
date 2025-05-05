@@ -40,6 +40,11 @@ const MessageInput = ({
     }
   };
 
+  const handleOpenAudioRecording = () => {
+    console.log('Opening audio recording modal');
+    onOpenRecordingModal('audio');
+  };
+
   return (
     <div className="p-4 border-t sticky bottom-0 bg-white">
       <Textarea
@@ -55,7 +60,7 @@ const MessageInput = ({
         <div className="flex space-x-2">
           {/* Audio Recording Button */}
           <AudioRecordButton 
-            onClick={() => onOpenRecordingModal('audio')} 
+            onClick={handleOpenAudioRecording} 
           />
 
           {/* File Attachment Button */}

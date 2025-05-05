@@ -16,21 +16,27 @@ const DragIndicators: React.FC<DragIndicatorsProps> = ({ direction, size }) => {
     'lg': 'p-4'
   };
   
+  if (direction === 'none') return null;
+  
   return (
     <div className={cn(
       "absolute left-1/2 -translate-x-1/2 flex flex-col items-center",
       sizeClasses[size],
-      direction === 'up' ? "text-blue-500" : "text-gray-400"
+      "-top-16"
     )}>
-      <ArrowUp className="animate-bounce" />
-      <span className="text-xs mt-1">Travar</span>
-      <div className={cn(
-        "absolute -left-10 flex items-center",
-        direction === 'left' ? "text-red-500" : "text-gray-400"
-      )}>
-        <X className="animate-pulse" />
-        <span className="text-xs ml-1">Cancelar</span>
-      </div>
+      {direction === 'up' && (
+        <div className="text-blue-500">
+          <ArrowUp className="animate-bounce" />
+          <span className="text-xs mt-1">Travar</span>
+        </div>
+      )}
+      
+      {direction === 'left' && (
+        <div className="absolute -left-10 flex items-center text-red-500">
+          <X className="animate-pulse" />
+          <span className="text-xs ml-1">Cancelar</span>
+        </div>
+      )}
     </div>
   );
 };
