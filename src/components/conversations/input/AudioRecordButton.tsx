@@ -15,7 +15,7 @@ const AudioRecordButton: React.FC<AudioRecordButtonProps> = ({ onClick }) => {
       onClick={onClick}
       title="Gravar áudio"
       aria-label="Gravar áudio"
-      className="hover:bg-blue-50"
+      className="hover:bg-blue-50 relative transition-transform active:scale-95"
     >
       <Mic className="h-4 w-4" />
     </Button>

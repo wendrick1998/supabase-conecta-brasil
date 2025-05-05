@@ -63,6 +63,8 @@ export const useMessageActions = (conversationId: string | undefined, setMessage
     setSendingMessage(true);
     
     try {
+      console.log('Sending media message:', { fileName: file.name, fileType: file.type, fileSize: file.size });
+      
       // Generate a unique file path
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
