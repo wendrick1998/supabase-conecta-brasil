@@ -7,13 +7,13 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
+  MeasuringStrategy
 } from '@dnd-kit/core';
 import type {
   DragStartEvent,
   DragEndEvent,
   DragOverEvent,
-  MeasuringConfiguration,
-  MeasuringStrategy,
+  MeasuringConfiguration
 } from '@dnd-kit/core';
 
 // Create sensors using proper configuration
