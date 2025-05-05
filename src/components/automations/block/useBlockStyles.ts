@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, CSSProperties } from 'react';
 import { Block, BlockCategory } from '@/types/automation';
 
 export const useBlockStyles = (
@@ -10,10 +10,10 @@ export const useBlockStyles = (
 ) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // Style for the block position
-  const style = transform ? {
+  // Style for the block position with correct type annotations
+  const style: CSSProperties = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    position: 'absolute',
+    position: 'absolute' as const,
     left: block.position.x,
     top: block.position.y,
     zIndex: isHovered || isConnectionSource ? 10 : 5,
@@ -22,7 +22,7 @@ export const useBlockStyles = (
     maxWidth: '300px',
     opacity: isConnecting && !isConnectionSource ? 0.7 : 1,
   } : {
-    position: 'absolute',
+    position: 'absolute' as const,
     left: block.position.x,
     top: block.position.y,
     zIndex: isHovered || isConnectionSource ? 10 : 5,
