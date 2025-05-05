@@ -17,6 +17,7 @@ export type Database = {
           nome: string
           status: string
           usuario_id: string
+          versao: number | null
         }
         Insert: {
           atualizado_em?: string
@@ -25,6 +26,7 @@ export type Database = {
           nome: string
           status: string
           usuario_id: string
+          versao?: number | null
         }
         Update: {
           atualizado_em?: string
@@ -33,8 +35,82 @@ export type Database = {
           nome?: string
           status?: string
           usuario_id?: string
+          versao?: number | null
         }
         Relationships: []
+      }
+      automacoes_versoes: {
+        Row: {
+          automacao_id: string
+          created_at: string
+          description: string | null
+          id: string
+          user_name: string | null
+          version: number
+        }
+        Insert: {
+          automacao_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          user_name?: string | null
+          version: number
+        }
+        Update: {
+          automacao_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          user_name?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automacoes_versoes_automacao_id_fkey"
+            columns: ["automacao_id"]
+            isOneToOne: false
+            referencedRelation: "automacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automacoes_versoes_blocos: {
+        Row: {
+          bloco_id: string | null
+          conteudo_config: Json
+          id: string
+          tipo: string
+          versao_id: string
+          x: number
+          y: number
+        }
+        Insert: {
+          bloco_id?: string | null
+          conteudo_config?: Json
+          id?: string
+          tipo: string
+          versao_id: string
+          x: number
+          y: number
+        }
+        Update: {
+          bloco_id?: string | null
+          conteudo_config?: Json
+          id?: string
+          tipo?: string
+          versao_id?: string
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automacoes_versoes_blocos_versao_id_fkey"
+            columns: ["versao_id"]
+            isOneToOne: false
+            referencedRelation: "automacoes_versoes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blocos_automacao: {
         Row: {

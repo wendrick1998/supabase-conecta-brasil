@@ -14,7 +14,7 @@ interface Version {
   id: string;
   version: number;
   created_at: string;
-  user_name: string;
+  user_name: string | null;
   description: string | null;
 }
 
@@ -50,7 +50,7 @@ export const AutomationVersionHistory: React.FC<AutomationVersionHistoryProps> =
     try {
       const { data, error } = await supabase
         .from('automacoes_versoes')
-        .select('*')
+        .select('id, version, created_at, user_name, description')
         .eq('automacao_id', automationId)
         .order('version', { ascending: false });
         
@@ -58,7 +58,7 @@ export const AutomationVersionHistory: React.FC<AutomationVersionHistoryProps> =
         throw error;
       }
       
-      setVersions(data || []);
+      setVersions(data as Version[] || []);
     } catch (error) {
       console.error("Error loading versions:", error);
       toast.error("Não foi possível carregar o histórico de versões");

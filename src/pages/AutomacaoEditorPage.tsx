@@ -78,6 +78,8 @@ const AutomacaoEditorPage = () => {
   }, [id]);
 
   const loadCurrentVersion = async () => {
+    if (!id) return;
+    
     try {
       const { data, error } = await supabase
         .from('automacoes')
@@ -85,9 +87,15 @@ const AutomacaoEditorPage = () => {
         .eq('id', id)
         .single();
         
-      if (error) throw error;
-      if (data) {
-        setCurrentVersion(data.versao || 1);
+      if (error) {
+        console.error("Error loading automation version:", error);
+        return;
+      }
+      
+      if (data && data.versao !== undefined) {
+        setCurrentVersion(data.versao);
+      } else {
+        setCurrentVersion(1);
       }
     } catch (error) {
       console.error("Error loading automation version:", error);
@@ -106,18 +114,40 @@ const AutomacaoEditorPage = () => {
         return;
       }
       
-      // Create a version record
+      // Update description for the latest version
       if (description.trim()) {
-        const { error } = await supabase
-          .from('automacoes_versoes')
-          .insert({
-            automacao_id: automationId,
-            version: currentVersion,
-            user_name: (await supabase.auth.getUser()).data.user?.email || 'Usuário',
-            description: description
-          });
+        // First, get the latest version number
+        const { data: versionData, error: versionError } = await supabase
+          .from('automacoes')
+          .select('versao')
+          .eq('id', automationId)
+          .single();
           
-        if (error) throw error;
+        if (versionError) throw versionError;
+        
+        const currentVers = versionData?.versao || 1;
+        
+        // Then find the version entry with this version number
+        const { data: versionEntries, error: entriesError } = await supabase
+          .from('automacoes_versoes')
+          .select('id')
+          .eq('automacao_id', automationId)
+          .eq('version', currentVers)
+          .single();
+          
+        if (entriesError && entriesError.code !== 'PGRST116') {
+          throw entriesError;
+        }
+        
+        // If version entry exists, update its description
+        if (versionEntries?.id) {
+          const { error: updateError } = await supabase
+            .from('automacoes_versoes')
+            .update({ description })
+            .eq('id', versionEntries.id);
+            
+          if (updateError) throw updateError;
+        }
       }
       
       setShowSaveDialog(false);
@@ -141,7 +171,7 @@ const AutomacaoEditorPage = () => {
       // Get version data
       const { data: versionData, error: versionError } = await supabase
         .from('automacoes_versoes')
-        .select('*')
+        .select('automacao_id, version')
         .eq('id', versionId)
         .single();
         

@@ -234,8 +234,7 @@ export const useAutomationEditor = () => {
           if (insertConnectionsError) throw insertConnectionsError;
         }
         
-        // Create version snapshot (we'll just store the version ID in the automacoes_versoes table,
-        // actual blocks are stored in automacoes_versoes_blocos)
+        // Create version snapshot
         const { data: versionInsertData, error: versionInsertError } = await supabase
           .from('automacoes_versoes')
           .insert({
