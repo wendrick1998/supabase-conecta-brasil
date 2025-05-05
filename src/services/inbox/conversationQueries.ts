@@ -1,130 +1,111 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation } from "@/types/conversation";
-import { toast } from "sonner";
 import { InboxFilters } from "@/types/inboxTypes";
 
-// Get all conversations with filtering
-export const getConversations = async (filters?: InboxFilters): Promise<Conversation[]> => {
-  try {
-    // Create a query builder
-    let query = supabase.from('conversations').select('*');
-    
-    // Apply filters if provided
-    if (filters) {
-      // Channel filter
-      if (filters.canais && filters.canais.length > 0) {
-        query = query.in('canal', filters.canais);
-      }
-      
-      // Status filter
-      if (filters.status && filters.status.length > 0) {
-        query = query.in('status', filters.status);
-      }
-      
-      // Priority filter
-      if (filters.priority) {
-        query = query.eq('prioridade', filters.priority);
-      }
-      
-      // Account filter
-      if (filters.accountId) {
-        query = query.eq('conexao_id', filters.accountId);
-      }
-      
-      // Search filter
-      if (filters.search) {
-        const searchTerm = filters.search;
-        query = query.or(`lead_nome.ilike.%${searchTerm}%,ultima_mensagem.ilike.%${searchTerm}%`);
-      }
-      
-      // Date range filter
-      if (filters.dateRange) {
-        query = query.gte('horario', filters.dateRange.from.toISOString());
-        query = query.lte('horario', filters.dateRange.to.toISOString());
-      }
+// Get conversations with optional filtering
+export const getConversations = async (filters?: InboxFilters) => {
+  let query = supabase
+    .from('conversations')
+    .select('*')
+    .order('updated_at', { ascending: false });
+
+  // Apply filters if provided
+  if (filters) {
+    // Filter by search term
+    if (filters.search && filters.search.trim()) {
+      query = query.ilike('lead_nome', `%${filters.search.trim()}%`);
     }
-    
-    // Add ordering at the end
-    query = query.order('horario', { ascending: false });
-    
-    // Execute the query
-    const { data, error } = await query;
-    
-    if (error) throw error;
-    
-    return (data || []) as Conversation[];
-  } catch (error: any) {
-    toast.error(`Erro ao buscar conversas: ${error.message}`);
-    return [];
+
+    // Filter by channels
+    if (filters.canais && filters.canais.length > 0) {
+      query = query.in('canal', filters.canais);
+    }
+
+    // Filter by status
+    if (filters.status && filters.status.length > 0) {
+      query = query.in('status', filters.status);
+    }
+
+    // Filter by priority
+    if (filters.priority) {
+      query = query.eq('priority', filters.priority);
+    }
+
+    // Filter by account
+    if (filters.accountId) {
+      query = query.eq('account_id', filters.accountId);
+    }
+
+    // Filter by specific channel
+    if (filters.channel) {
+      query = query.eq('canal', filters.channel);
+    }
+
+    // Filter by date range
+    if (filters.dateRange) {
+      const { from, to } = filters.dateRange;
+      query = query
+        .gte('created_at', from.toISOString())
+        .lte('created_at', to.toISOString());
+    }
   }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching conversations:', error);
+    throw error;
+  }
+
+  return data as Conversation[];
 };
 
 // Get conversation statistics
-export const getConversationStats = async (): Promise<{
-  total: number;
-  unread: number;
-  byChannel: Record<string, number>;
-}> => {
-  try {
-    // Get total conversations
-    const { count: total, error: totalError } = await supabase
-      .from('conversations')
-      .select('*', { count: 'exact', head: true });
-    
-    if (totalError) throw totalError;
-    
-    // Get unread conversations
-    const { count: unread, error: unreadError } = await supabase
-      .from('conversations')
-      .select('*', { count: 'exact', head: true })
-      .eq('nao_lida', true);
-    
-    if (unreadError) throw unreadError;
-    
-    // Get conversations by channel
-    const { data: channelData, error: channelError } = await supabase
-      .from('conversations')
-      .select('canal')
-      .is('nao_lida', true);
-    
-    if (channelError) throw channelError;
-    
-    // Count conversations by channel
-    const byChannel: Record<string, number> = {};
-    channelData?.forEach(conversation => {
-      const channel = conversation.canal;
-      byChannel[channel] = (byChannel[channel] || 0) + 1;
-    });
-    
-    return {
-      total: total || 0,
-      unread: unread || 0,
-      byChannel
-    };
-  } catch (error: any) {
-    console.error('Error fetching conversation stats:', error);
-    return {
-      total: 0,
-      unread: 0,
-      byChannel: {}
-    };
+export const getConversationStats = async () => {
+  const { data: total, error: totalError } = await supabase
+    .from('conversations')
+    .select('id', { count: 'exact', head: true });
+
+  const { data: unread, error: unreadError } = await supabase
+    .from('conversations')
+    .select('id', { count: 'exact', head: true })
+    .eq('unread', true);
+
+  const { data: byChannel, error: channelError } = await supabase
+    .from('conversations')
+    .select('canal, id');
+
+  if (totalError || unreadError || channelError) {
+    console.error('Error fetching conversation stats:', totalError || unreadError || channelError);
+    throw totalError || unreadError || channelError;
   }
+
+  // Count by channel
+  const channelCount: Record<string, number> = {};
+  byChannel?.forEach(item => {
+    if (item.canal) {
+      channelCount[item.canal] = (channelCount[item.canal] || 0) + 1;
+    }
+  });
+
+  return {
+    total: total?.length || 0,
+    unread: unread?.length || 0,
+    byChannel: channelCount
+  };
 };
 
-// Get connected accounts for filter
-export const getConnectedAccounts = async (): Promise<Array<{id: string, nome: string, canal: string}>> => {
-  try {
-    const { data, error } = await supabase
-      .from('canais_conectados')
-      .select('id, nome, canal')
-      .eq('status', true);
-      
-    if (error) throw error;
-    
-    return data || [];
-  } catch (error: any) {
+// Get connected accounts
+export const getConnectedAccounts = async () => {
+  const { data, error } = await supabase
+    .from('connected_accounts')
+    .select('id, nome, canal');
+
+  if (error) {
     console.error('Error fetching connected accounts:', error);
-    return [];
+    throw error;
   }
+
+  return data || [];
 };

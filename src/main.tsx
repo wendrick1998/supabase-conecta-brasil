@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { registerServiceWorker } from './registerServiceWorker'
-import { enablePWAFeatures } from './pwaFeatures' 
+import { enablePWAFeatures } from './pwa' 
 
 // Initialize the app
 const initApp = async () => {

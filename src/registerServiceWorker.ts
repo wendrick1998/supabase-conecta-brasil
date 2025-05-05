@@ -18,7 +18,9 @@ export function registerServiceWorker() {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 // New service worker available
-                showUpdateNotification();
+                import('./pwa/updates').then(({ showUpdateNotification }) => {
+                  showUpdateNotification();
+                });
               }
             });
           }
@@ -55,15 +57,6 @@ async function setupBackgroundSync(registration: ServiceWorkerRegistration) {
     }
   } catch (err) {
     console.error('Background sync registration failed:', err);
-  }
-}
-
-// Function to show update notification
-function showUpdateNotification() {
-  // This would be implemented to show a notification when a new version is available
-  // You could use your existing toast system
-  if (window.confirm('Nova versão disponível! Atualizar agora?')) {
-    window.location.reload();
   }
 }
 
