@@ -57,7 +57,7 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
   // Define measuring configuration with correct types
   const measuring: MeasuringConfiguration = {
     droppable: {
-      strategy: 'rects',
+      strategy: "always", // Change from 'rects' to 'always' which is a valid MeasuringStrategy
     },
   };
 
