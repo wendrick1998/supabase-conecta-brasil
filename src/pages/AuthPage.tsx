@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -47,6 +48,8 @@ const AuthPage = () => {
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<string>(tabParam === 'signup' ? 'signup' : 'login');
   const { user, isLoading, signIn, signUp } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   useEffect(() => {
     if (tabParam === 'signup') {
@@ -111,18 +114,18 @@ const AuthPage = () => {
       </Helmet>
       
       <div className="min-h-screen bg-dark-gradient flex flex-col justify-center items-center px-4 py-10">
-        <div className="mb-8 flex flex-col items-center">
+        <div className="mb-10 flex flex-col items-center">
           <img 
             src="/lovable-uploads/02517599-ec7d-4486-a1f3-a3c80647cbda.png" 
             alt="Vendah+"
-            className="h-28 mb-2" 
+            className="h-32 mb-2" 
           />
         </div>
         
-        <Card className="w-full max-w-md mx-auto shadow-lg rounded-xl border-vendah-purple/30 overflow-hidden bg-vendah-blue/90 backdrop-blur-md">
+        <Card className="w-full max-w-md mx-auto shadow-xl rounded-xl border-vendah-purple/20 overflow-hidden backdrop-filter backdrop-blur-md bg-black/70">
           <CardContent className="p-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-2 mb-8 bg-vendah-black/40 p-1 rounded-lg border border-vendah-purple/20">
+              <TabsList className="grid grid-cols-2 mb-8 bg-vendah-black/80 p-1 rounded-lg border border-vendah-purple/30">
                 <TabsTrigger 
                   value="login"
                   className="data-[state=active]:bg-vendah-purple data-[state=active]:text-white data-[state=active]:font-semibold data-[state=inactive]:bg-transparent data-[state=inactive]:text-gray-400 py-3 text-base transition-all duration-200"
@@ -145,12 +148,12 @@ const AuthPage = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">E-mail</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">E-mail</FormLabel>
                           <FormControl>
                             <Input 
                               type="email" 
                               placeholder="Digite seu e-mail" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
+                              className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
                               autoFocus
                               {...field} 
                             />
@@ -165,14 +168,23 @@ const AuthPage = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">Senha</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">Senha</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="password" 
-                              placeholder="Digite sua senha" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]"
-                              {...field} 
-                            />
+                            <div className="relative">
+                              <Input 
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Digite sua senha" 
+                                className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 pr-10 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]"
+                                {...field} 
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                                onClick={() => setShowPassword(prev => !prev)}
+                              >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                              </button>
+                            </div>
                           </FormControl>
                           <FormMessage className="text-red-400" />
                         </FormItem>
@@ -180,7 +192,7 @@ const AuthPage = () => {
                     />
                     
                     <div className="text-right">
-                      <a href="#" className="text-vendah-neon hover:underline text-sm">Esqueceu a senha?</a>
+                      <a href="#" className="text-vendah-neon hover:text-vendah-neon/80 hover:underline text-sm font-medium transition-colors">Esqueceu a senha?</a>
                     </div>
                     
                     <Button 
@@ -195,7 +207,7 @@ const AuthPage = () => {
                       <button 
                         type="button"
                         onClick={() => setActiveTab('signup')} 
-                        className="text-vendah-neon hover:underline text-base"
+                        className="text-vendah-neon hover:text-vendah-neon/80 hover:underline text-base font-medium transition-colors"
                       >
                         Criar conta
                       </button>
@@ -205,7 +217,7 @@ const AuthPage = () => {
               </TabsContent>
               
               <TabsContent value="signup">
-                <h2 className="text-xl font-bold mb-6 text-center text-vendah-purple">Cadastrar sua conta</h2>
+                <h2 className="text-xl font-bold mb-6 text-center text-white">Cadastrar sua conta</h2>
                 <Form {...signupForm}>
                   <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-5">
                     <FormField
@@ -213,11 +225,11 @@ const AuthPage = () => {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">Nome completo</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">Nome completo</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="Digite seu nome" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
+                              className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
                               {...field}
                             />
                           </FormControl>
@@ -231,12 +243,12 @@ const AuthPage = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">E-mail</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">E-mail</FormLabel>
                           <FormControl>
                             <Input 
                               type="email" 
                               placeholder="Digite seu e-mail" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
+                              className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
                               {...field}
                             />
                           </FormControl>
@@ -250,12 +262,12 @@ const AuthPage = () => {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">Telefone</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">Telefone</FormLabel>
                           <FormControl>
                             <Input 
                               type="tel" 
                               placeholder="Digite seu telefone" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
+                              className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
                               {...field}
                             />
                           </FormControl>
@@ -269,11 +281,11 @@ const AuthPage = () => {
                       name="role"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">Função na empresa</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">Função na empresa</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="Digite sua função" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
+                              className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
                               {...field}
                             />
                           </FormControl>
@@ -287,14 +299,23 @@ const AuthPage = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">Senha</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">Senha</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="password" 
-                              placeholder="Digite sua senha" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
-                              {...field}
-                            />
+                            <div className="relative">
+                              <Input 
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Digite sua senha" 
+                                className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 pr-10 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
+                                {...field}
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                                onClick={() => setShowPassword(prev => !prev)}
+                              >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                              </button>
+                            </div>
                           </FormControl>
                           <FormMessage className="text-red-400" />
                         </FormItem>
@@ -306,14 +327,23 @@ const AuthPage = () => {
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-300 text-sm mb-1 font-medium">Confirmar senha</FormLabel>
+                          <FormLabel className="text-gray-200 text-sm mb-1 font-medium">Confirmar senha</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="password" 
-                              placeholder="Confirme sua senha" 
-                              className="bg-vendah-black/60 border-2 border-vendah-purple/50 text-white placeholder:text-gray-400 rounded-lg py-6 px-4 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.4)]" 
-                              {...field}
-                            />
+                            <div className="relative">
+                              <Input 
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="Confirme sua senha" 
+                                className="bg-vendah-black/80 border-2 border-vendah-purple/40 text-white placeholder:text-gray-500 rounded-lg py-6 px-4 pr-10 focus:border-vendah-purple focus:ring-vendah-purple focus:ring-1 focus:shadow-[0_0_8px_rgba(93,46,140,0.5)]" 
+                                {...field}
+                              />
+                              <button 
+                                type="button"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                                onClick={() => setShowConfirmPassword(prev => !prev)}
+                              >
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                              </button>
+                            </div>
                           </FormControl>
                           <FormMessage className="text-red-400" />
                         </FormItem>
@@ -332,7 +362,7 @@ const AuthPage = () => {
                       <button 
                         type="button"
                         onClick={() => setActiveTab('login')} 
-                        className="text-vendah-neon hover:underline text-base"
+                        className="text-vendah-neon hover:text-vendah-neon/80 hover:underline text-base font-medium transition-colors"
                       >
                         Já tem conta? Fazer login
                       </button>
@@ -344,7 +374,7 @@ const AuthPage = () => {
           </CardContent>
         </Card>
         
-        <div className="mt-8 text-gray-500 text-sm">
+        <div className="mt-8 text-gray-400 text-sm font-medium">
           © 2025 Vendah+. Todos os direitos reservados.
         </div>
       </div>
