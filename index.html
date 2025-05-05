@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#0B0B0B" />
     <title>Vendah+</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,16 +13,134 @@
     
     <!-- PWA Icons -->
     <link rel="apple-touch-icon" href="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png">
+    
+    <!-- iOS PWA Specific Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Vendah+">
     
+    <!-- iOS Smart App Banner -->
+    <meta name="apple-itunes-app" content="app-id=123456789, app-argument=https://vendah.app">
+    
+    <!-- iOS Splash Screens -->
+    <!-- iPhone X (1125px x 2436px) -->
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png">
+    <!-- iPhone 8, 7, 6s, 6 (750px x 1334px) -->
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png">
+    <!-- iPhone 8 Plus, 7 Plus, 6s Plus, 6 Plus (1242px x 2208px) -->
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png">
+    <!-- iPad Pro 10.5" (1668px x 2224px) -->
+    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" href="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png">
+    
+    <!-- iOS Touch Feel -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    
     <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json">
+    
+    <style>
+      /* Prevent iOS text inflation */
+      html {
+        -webkit-text-size-adjust: 100%;
+        overflow-x: hidden;
+      }
+      
+      /* Hide scrollbars while maintaining functionality */
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+      
+      /* Adjust for iOS safe areas (notch, home indicator) */
+      body {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+      
+      /* Disable user selection to feel more app-like */
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+      }
+      
+      /* Allow selection in input fields */
+      input, textarea {
+        user-select: text;
+      }
+      
+      /* Add bouncy overscroll like native iOS apps */
+      .ios-scroll {
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Prevent elastic scrolling at the body level */
+      html, body {
+        overscroll-behavior-y: none;
+        height: 100%;
+        margin: 0;
+      }
+      
+      /* Splash screen styling */
+      .splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #0B0B0B;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+      
+      .splash-logo {
+        width: 120px;
+        height: 120px;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.8; }
+      }
+    </style>
   </head>
   <body class="dark">
+    <!-- Splash screen that will be removed via JS -->
+    <div id="splash-screen" class="splash-screen">
+      <img src="/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png" alt="Vendah+" class="splash-logo">
+      <p style="color: white; margin-top: 20px; font-family: 'Poppins', sans-serif;">Carregando...</p>
+    </div>
+    
     <div id="root"></div>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Splash screen removal -->
+    <script>
+      // Remove splash screen after content loads
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const splash = document.getElementById('splash-screen');
+          if (splash) {
+            splash.style.opacity = '0';
+            setTimeout(function() {
+              splash.style.display = 'none';
+            }, 500);
+          }
+        }, 1000); // Show splash for at least 1 second
+      });
+      
+      // Add iOS class to body if on iOS device
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+        document.body.classList.add('ios-device');
+      }
+    </script>
   </body>
 </html>

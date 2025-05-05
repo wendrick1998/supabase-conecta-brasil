@@ -27,14 +27,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     if (filters) {
       // Channel filter
       if (filters.canais && filters.canais.length > 0) {
-        // Use type assertion to avoid deep inference
-        query = query.in('canal', filters.canais as string[]);
+        // Use explicit type parameter to avoid deep inference
+        query = query.in('canal', filters.canais as unknown as string[]);
       }
       
       // Status filter
       if (filters.status && filters.status.length > 0) {
-        // Use type assertion to avoid deep inference
-        query = query.in('status', filters.status as string[]);
+        // Use explicit type parameter to avoid deep inference
+        query = query.in('status', filters.status as unknown as string[]);
       }
       
       // Priority filter
@@ -69,9 +69,30 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     
     if (error) throw error;
     
+    // Store the data in localStorage for offline usage
+    if (data && data.length > 0) {
+      try {
+        localStorage.setItem('conversations-cache', JSON.stringify(data));
+        localStorage.setItem('conversations-cache-timestamp', Date.now().toString());
+      } catch (e) {
+        console.warn('Failed to cache conversations in localStorage:', e);
+      }
+    }
+    
     return (data || []) as Conversation[];
   } catch (error: any) {
     toast.error(`Erro ao buscar conversas: ${error.message}`);
+    
+    // Try to load from cache when offline
+    try {
+      const cachedData = localStorage.getItem('conversations-cache');
+      if (cachedData) {
+        return JSON.parse(cachedData) as Conversation[];
+      }
+    } catch (e) {
+      console.warn('Failed to load cached conversations:', e);
+    }
+    
     return [];
   }
 };
@@ -113,6 +134,18 @@ export const getConversationStats = async (): Promise<{
       byChannel[channel] = (byChannel[channel] || 0) + 1;
     });
     
+    // Cache stats for offline usage
+    try {
+      localStorage.setItem('conversation-stats-cache', JSON.stringify({
+        total: total || 0,
+        unread: unread || 0,
+        byChannel
+      }));
+      localStorage.setItem('conversation-stats-timestamp', Date.now().toString());
+    } catch (e) {
+      console.warn('Failed to cache conversation stats:', e);
+    }
+    
     return {
       total: total || 0,
       unread: unread || 0,
@@ -120,6 +153,17 @@ export const getConversationStats = async (): Promise<{
     };
   } catch (error: any) {
     console.error('Error fetching conversation stats:', error);
+    
+    // Try to load from cache when offline
+    try {
+      const cachedStats = localStorage.getItem('conversation-stats-cache');
+      if (cachedStats) {
+        return JSON.parse(cachedStats);
+      }
+    } catch (e) {
+      console.warn('Failed to load cached conversation stats:', e);
+    }
+    
     return {
       total: 0,
       unread: 0,
@@ -138,9 +182,30 @@ export const getConnectedAccounts = async (): Promise<Array<{id: string, nome: s
       
     if (error) throw error;
     
+    // Cache accounts for offline usage
+    if (data) {
+      try {
+        localStorage.setItem('connected-accounts-cache', JSON.stringify(data));
+        localStorage.setItem('connected-accounts-timestamp', Date.now().toString());
+      } catch (e) {
+        console.warn('Failed to cache connected accounts:', e);
+      }
+    }
+    
     return data || [];
   } catch (error: any) {
     console.error('Error fetching connected accounts:', error);
+    
+    // Try to load from cache when offline
+    try {
+      const cachedAccounts = localStorage.getItem('connected-accounts-cache');
+      if (cachedAccounts) {
+        return JSON.parse(cachedAccounts);
+      }
+    } catch (e) {
+      console.warn('Failed to load cached connected accounts:', e);
+    }
+    
     return [];
   }
 };
@@ -160,6 +225,28 @@ export const subscribeToConversations = (
         if (onInsert) {
           const conversation = payload.new as Conversation;
           onInsert(conversation);
+          
+          // Show notification when app is in background
+          if (document.visibilityState === 'hidden' && Notification.permission === 'granted') {
+            const notificationTitle = 'Nova conversa';
+            const notificationOptions = {
+              body: `Nova mensagem de ${conversation.lead_nome}`,
+              icon: '/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png',
+              badge: '/lovable-uploads/5cd87705-c40b-4d5a-9a43-57cff2564fbf.png',
+              vibrate: [100, 50, 100],
+              data: {
+                url: `/inbox`
+              }
+            };
+            
+            try {
+              navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification(notificationTitle, notificationOptions);
+              });
+            } catch (error) {
+              console.error('Failed to show notification:', error);
+            }
+          }
         }
       }
     )
