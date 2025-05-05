@@ -27,7 +27,11 @@ export const getChannelConnections = async (): Promise<ChannelConnection[]> => {
     
     if (error) throw error;
     
-    return data || [];
+    // Cast the results to ensure proper type conversion
+    return (data || []).map(channel => ({
+      ...channel,
+      canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+    }));
   } catch (error: any) {
     toast.error(`Erro ao buscar canais conectados: ${error.message}`);
     return [];
@@ -45,7 +49,11 @@ export const getChannelConnectionsByType = async (channelType: string): Promise<
     
     if (error) throw error;
     
-    return data || [];
+    // Cast the results to ensure proper type conversion
+    return (data || []).map(channel => ({
+      ...channel,
+      canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+    }));
   } catch (error: any) {
     toast.error(`Erro ao buscar canais do tipo ${channelType}: ${error.message}`);
     return [];
@@ -63,7 +71,11 @@ export const getChannelConnection = async (channelId: string): Promise<ChannelCo
     
     if (error) throw error;
     
-    return data;
+    // Cast the result to ensure proper type conversion
+    return data ? {
+      ...data,
+      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+    } : null;
   } catch (error: any) {
     toast.error(`Erro ao buscar canal: ${error.message}`);
     return null;
@@ -71,7 +83,7 @@ export const getChannelConnection = async (channelId: string): Promise<ChannelCo
 };
 
 // Create a new channel connection
-export const createChannelConnection = async (channelData: Partial<ChannelConnection>): Promise<ChannelConnection | null> => {
+export const createChannelConnection = async (channelData: Partial<ChannelConnection> & { nome: string; canal: 'whatsapp' | 'instagram' | 'facebook' | 'email' }): Promise<ChannelConnection | null> => {
   try {
     const { data, error } = await supabase
       .from('canais_conectados')
@@ -82,7 +94,12 @@ export const createChannelConnection = async (channelData: Partial<ChannelConnec
     if (error) throw error;
     
     toast.success(`Canal de ${channelData.canal} conectado com sucesso!`);
-    return data;
+    
+    // Cast the result to ensure proper type conversion
+    return data ? {
+      ...data,
+      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+    } : null;
   } catch (error: any) {
     toast.error(`Erro ao conectar canal: ${error.message}`);
     return null;
@@ -102,7 +119,12 @@ export const updateChannelConnection = async (channelId: string, channelData: Pa
     if (error) throw error;
     
     toast.success("Canal atualizado com sucesso!");
-    return data;
+    
+    // Cast the result to ensure proper type conversion
+    return data ? {
+      ...data,
+      canal: data.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email'
+    } : null;
   } catch (error: any) {
     toast.error(`Erro ao atualizar canal: ${error.message}`);
     return null;

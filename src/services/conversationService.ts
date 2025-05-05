@@ -52,7 +52,18 @@ export const getMessagesFromConversation = async (conversationId: string): Promi
       return [];
     }
     
-    return data as Message[];
+    // Convert and map the data to match the Message type
+    return (data || []).map(message => ({
+      ...message,
+      sender_type: message.sender_type as 'user' | 'lead',
+      status: message.status as 'sent' | 'delivered' | 'read',
+      // Properly handle the attachment property
+      attachment: message.attachment ? {
+        name: (message.attachment as any)?.name || '',
+        url: (message.attachment as any)?.url || '',
+        type: (message.attachment as any)?.type || ''
+      } : undefined
+    }));
   } catch (error) {
     console.error('Error in getMessagesFromConversation:', error);
     return [];
@@ -139,7 +150,19 @@ export const sendMessage = async (
       console.error('Error updating conversation:', conversationError);
     }
     
-    return messageData as Message;
+    // Properly type the message data
+    const typedMessage: Message = {
+      ...messageData,
+      sender_type: messageData.sender_type as 'user' | 'lead',
+      status: messageData.status as 'sent' | 'delivered' | 'read',
+      attachment: messageData.attachment ? {
+        name: (messageData.attachment as any)?.name || '',
+        url: (messageData.attachment as any)?.url || '',
+        type: (messageData.attachment as any)?.type || ''
+      } : undefined
+    };
+    
+    return typedMessage;
   } catch (error) {
     console.error('Error in sendMessage:', error);
     return null;

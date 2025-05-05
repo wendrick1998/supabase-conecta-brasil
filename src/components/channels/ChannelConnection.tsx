@@ -50,7 +50,17 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({
       
       if (error) throw error;
       
-      setChannels(data || []);
+      // Transform the data to match ConnectedChannel type
+      const typedData: ConnectedChannel[] = (data || []).map(channel => ({
+        id: channel.id,
+        nome: channel.nome,
+        canal: channel.canal as 'whatsapp' | 'instagram' | 'facebook' | 'email',
+        status: channel.status,
+        criado_em: channel.criado_em,
+        atualizado_em: channel.atualizado_em
+      }));
+      
+      setChannels(typedData);
     } catch (error: any) {
       toast.error(`Erro ao buscar canais conectados: ${error.message}`);
     } finally {
