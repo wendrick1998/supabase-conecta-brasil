@@ -7,9 +7,9 @@ import { UserAccountNav } from "./UserAccountNav";
 
 const DashboardLayout: React.FC = () => {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-gradient-radial">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-bg border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
+      <aside className="fixed inset-y-0 left-0 w-20 md:w-64 bg-surface border-r border-vendah-purple/20 py-6 flex flex-col items-center md:items-start z-10">
         {/* Logo */}
         <div className="mb-8 px-4">
           <div className="h-24">

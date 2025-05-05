@@ -20,7 +20,7 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>ResolveClick - Dashboard</title>
+        <title>Vendah+ - Dashboard</title>
       </Helmet>
       
       <div className="space-y-6">
@@ -31,48 +31,54 @@ const Index = () => {
         
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="bg-blue-100 border-none">
+          <Card className="vendah-card group">
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-blue-700/70">Leads Ativos</p>
-                  <h2 className="text-2xl font-bold text-blue-700 mt-2">124</h2>
+                  <p className="text-sm font-medium text-text-muted">Leads Ativos</p>
+                  <h2 className="text-2xl font-bold text-white mt-2">124</h2>
                 </div>
-                <Users className="text-blue-700/70" />
+                <div className="h-10 w-10 rounded-full bg-vendah-purple/20 flex items-center justify-center">
+                  <Users className="text-vendah-neon h-5 w-5" />
+                </div>
               </div>
-              <div className="flex items-center mt-4 text-sm text-blue-700/70">
+              <div className="flex items-center mt-4 text-sm text-vendah-neon">
                 <TrendingUp className="h-4 w-4 mr-1" />
                 <span>12% aumento</span>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-pink-100 border-none">
+          <Card className="vendah-card group">
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-pink-700/70">Conversões</p>
-                  <h2 className="text-2xl font-bold text-pink-700 mt-2">35</h2>
+                  <p className="text-sm font-medium text-text-muted">Conversões</p>
+                  <h2 className="text-2xl font-bold text-white mt-2">35</h2>
                 </div>
-                <BarChart className="text-pink-700/70" />
+                <div className="h-10 w-10 rounded-full bg-vendah-purple/20 flex items-center justify-center">
+                  <BarChart className="text-vendah-neon h-5 w-5" />
+                </div>
               </div>
-              <div className="flex items-center mt-4 text-sm text-pink-700/70">
+              <div className="flex items-center mt-4 text-sm text-vendah-neon">
                 <TrendingUp className="h-4 w-4 mr-1" />
                 <span>8% aumento</span>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-blue-100 border-none">
+          <Card className="vendah-card group">
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-blue-700/70">Taxa de Conversão</p>
-                  <h2 className="text-2xl font-bold text-blue-700 mt-2">28.2%</h2>
+                  <p className="text-sm font-medium text-text-muted">Taxa de Conversão</p>
+                  <h2 className="text-2xl font-bold text-white mt-2">28.2%</h2>
                 </div>
-                <LineChart className="text-blue-700/70" />
+                <div className="h-10 w-10 rounded-full bg-vendah-purple/20 flex items-center justify-center">
+                  <LineChart className="text-vendah-neon h-5 w-5" />
+                </div>
               </div>
-              <div className="flex items-center mt-4 text-sm text-blue-700/70">
+              <div className="flex items-center mt-4 text-sm text-vendah-purple">
                 <TrendingDown className="h-4 w-4 mr-1" />
                 <span>3% queda</span>
               </div>
@@ -81,20 +87,20 @@ const Index = () => {
         </div>
         
         {/* Chart */}
-        <Card>
+        <Card className="vendah-card">
           <CardContent className="pt-6">
-            <h3 className="font-medium mb-4">Leads por Canal</h3>
+            <h3 className="font-medium mb-4 text-white">Leads por Canal</h3>
             <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsBarChart
                   data={data}
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="leads" fill="#1E3A8A" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="name" stroke="#888" />
+                  <YAxis stroke="#888" />
+                  <Tooltip contentStyle={{ backgroundColor: '#1C1C22', borderColor: '#5D2E8C', color: '#fff' }} />
+                  <Bar dataKey="leads" fill="#5D2E8C" />
                 </RechartsBarChart>
               </ResponsiveContainer>
             </div>
