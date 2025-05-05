@@ -7,6 +7,7 @@ import { useConnectionManagement } from './automation/useConnectionManagement';
 import { useDragHandlers } from './automation/useDragHandlers';
 import { useAutomationValidation } from './automation/useAutomationValidation';
 import { useTemplateManagement } from './automation/useTemplateManagement';
+import { toast } from 'sonner';
 
 export const useAutomationEditor = () => {
   const { id } = useParams();
@@ -134,3 +135,4 @@ export const useAutomationEditor = () => {
     handleApplyTemplate
   };
 };
+
