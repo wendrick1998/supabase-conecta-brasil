@@ -27,8 +27,9 @@ export const useDragHandlers = (
       if (activeNode) {
         const rect = activeNode.getBoundingClientRect();
         const canvasRect = canvasRef.current.getBoundingClientRect();
-        const offsetX = event.initial.x - (rect.left - canvasRect.left);
-        const offsetY = event.initial.y - (rect.top - canvasRect.top);
+        // Use clientX/clientY instead of event.initial which doesn't exist
+        const offsetX = active.rect.current.translated?.x ?? 0 - (rect.left - canvasRect.left);
+        const offsetY = active.rect.current.translated?.y ?? 0 - (rect.top - canvasRect.top);
         setDragOffset({ x: offsetX, y: offsetY });
       }
     }
