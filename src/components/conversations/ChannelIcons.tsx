@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MessageSquare, Instagram, Mail } from 'lucide-react';
+import { WhatsApp, Instagram, Facebook, Mail } from 'lucide-react';
 import { ChannelType } from '@/utils/conversationUtils';
 
 interface ChannelIconProps {
@@ -12,24 +12,28 @@ export const getChannelIcon = (channel: ChannelType, props: ChannelIconProps = {
 
   switch (channel) {
     case 'WhatsApp':
-      return <MessageSquare size={size} className="text-green-500" />;
+      return <WhatsApp size={size} className="text-[#25D366]" />;
     case 'Instagram':
-      return <Instagram size={size} className="text-purple-500" />;
+      return <Instagram size={size} className="text-[#C13584]" />;
+    case 'Facebook':
+      return <Facebook size={size} className="text-[#1877F2]" />;
     case 'Email':
-      return <Mail size={size} className="text-blue-500" />;
+      return <Mail size={size} className="text-[#4285F4]" />;
     default:
-      return <MessageSquare size={size} className="text-gray-500" />;
+      return <Mail size={size} className="text-gray-500" />;
   }
 };
 
 export const getChannelColor = (channel: ChannelType): string => {
   switch (channel) {
     case 'WhatsApp':
-      return 'bg-green-500';
+      return 'bg-[#25D366]';
     case 'Instagram':
-      return 'bg-purple-500';
+      return 'bg-[#C13584]';
+    case 'Facebook':
+      return 'bg-[#1877F2]';
     case 'Email':
-      return 'bg-blue-500';
+      return 'bg-[#4285F4]';
     default:
       return 'bg-gray-500';
   }
@@ -37,7 +41,7 @@ export const getChannelColor = (channel: ChannelType): string => {
 
 export const ChannelBadge: React.FC<{ channel: ChannelType }> = ({ channel }) => {
   const bgColor = getChannelColor(channel);
-  const initial = channel === 'WhatsApp' ? 'W' : channel === 'Instagram' ? 'I' : 'E';
+  const initial = channel === 'WhatsApp' ? 'W' : channel === 'Instagram' ? 'I' : channel === 'Facebook' ? 'F' : 'E';
   
   return (
     <div className={`${bgColor} w-4 h-4 rounded-full flex items-center justify-center text-white text-[8px] font-bold`}>

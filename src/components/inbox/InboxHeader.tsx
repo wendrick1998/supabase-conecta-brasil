@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from 'lucide-react';
 import { InboxFilters } from '@/services/inboxService';
 import AdvancedFilters from './AdvancedFilters';
+import AccountSelector from '../channels/AccountSelector';
 
 interface InboxHeaderProps {
   title: string;
@@ -46,7 +47,7 @@ const InboxHeader: React.FC<InboxHeaderProps> = ({
         </Button>
       </div>
       
-      <div className="flex items-center">
+      <div className="flex flex-col sm:flex-row gap-2 items-center">
         <AdvancedFilters 
           activeFilters={activeFilters}
           onChannelFilterChange={onChannelFilterChange}
@@ -55,6 +56,22 @@ const InboxHeader: React.FC<InboxHeaderProps> = ({
           onPriorityChange={onPriorityChange}
           onClearFilters={onClearFilters}
         />
+        
+        {connectedAccounts && onAccountFilterChange && (
+          <div className="w-full sm:w-52">
+            <AccountSelector 
+              accounts={connectedAccounts.map(account => ({
+                id: account.id,
+                name: account.nome,
+                channelType: account.canal,
+                status: true
+              }))}
+              selectedAccountId={activeFilters.accountId || null}
+              onAccountSelect={onAccountFilterChange}
+              channelType={activeFilters.channel || "Todos"}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
