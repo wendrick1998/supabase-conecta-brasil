@@ -125,10 +125,6 @@ export const PipelineDndContext: React.FC<PipelineDndContextProps> = ({
         threshold: {
           x: 0.2,
           y: 0.2
-        },
-        speed: {
-          x: 10,
-          y: 10
         }
       }}
     >

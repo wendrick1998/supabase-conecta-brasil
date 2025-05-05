@@ -13,6 +13,7 @@ import type {
   DragEndEvent,
   DragOverEvent,
   MeasuringConfiguration,
+  MeasuringStrategy,
 } from '@dnd-kit/core';
 
 // Create sensors using proper configuration
@@ -57,7 +58,7 @@ export const AutomationDndContext: React.FC<AutomationDndContextProps> = ({
   // Define measuring configuration with correct types
   const measuring: MeasuringConfiguration = {
     droppable: {
-      strategy: "always" as const, // Use a const assertion to fix the type error
+      strategy: MeasuringStrategy.Always,
     },
   };
 
