@@ -51,15 +51,15 @@ export const useConversationData = (id: string | undefined) => {
               setNotes(mockNotes);
             } else {
               // Create a new placeholder conversation for this lead
-              const placeholderConversation = {
+              const placeholderConversation: Conversation = {
                 id: `new-${id}`,
                 lead_id: id,
                 lead_nome: `Lead ${id}`,
-                canal: 'WhatsApp' as const,
+                canal: 'WhatsApp', // Ensure we use a valid enum value
                 ultima_mensagem: 'Este lead ainda não possui histórico de conversa.',
                 horario: new Date().toISOString(),
                 nao_lida: false,
-                status: 'Aberta' as const
+                status: 'Aberta'
               };
               
               setConversation(placeholderConversation);
@@ -67,8 +67,11 @@ export const useConversationData = (id: string | undefined) => {
               setNotes([]);
             }
           } else {
-            // Found a conversation for this lead
-            setConversation(leadConversation);
+            // Found a conversation for this lead - cast to correct type
+            setConversation({
+              ...leadConversation,
+              canal: leadConversation.canal as Conversation["canal"]
+            });
             
             // Fetch messages for this conversation
             const { data: messagesData } = await supabase
@@ -77,7 +80,14 @@ export const useConversationData = (id: string | undefined) => {
               .eq('conversation_id', leadConversation.id)
               .order('timestamp', { ascending: true });
               
-            setMessages(messagesData || []);
+            // Cast message sender_type to correct type
+            const typedMessages: Message[] = messagesData?.map(msg => ({
+              ...msg,
+              sender_type: msg.sender_type as "user" | "lead",
+              status: msg.status as "sent" | "delivered" | "read"
+            })) || [];
+              
+            setMessages(typedMessages);
             
             // Fetch internal notes
             const { data: notesData } = await supabase
@@ -97,8 +107,11 @@ export const useConversationData = (id: string | undefined) => {
             }
           }
         } else {
-          // Found the conversation directly
-          setConversation(conversationData);
+          // Found the conversation directly - cast to correct type
+          setConversation({
+            ...conversationData,
+            canal: conversationData.canal as Conversation["canal"]
+          });
           
           // Fetch messages
           const { data: messagesData } = await supabase
@@ -106,8 +119,15 @@ export const useConversationData = (id: string | undefined) => {
             .select('*')
             .eq('conversation_id', id)
             .order('timestamp', { ascending: true });
+          
+          // Cast message sender_type to correct type
+          const typedMessages: Message[] = messagesData?.map(msg => ({
+            ...msg,
+            sender_type: msg.sender_type as "user" | "lead",
+            status: msg.status as "sent" | "delivered" | "read"
+          })) || [];
             
-          setMessages(messagesData || []);
+          setMessages(typedMessages);
           
           // Fetch internal notes
           const { data: notesData } = await supabase
@@ -168,8 +188,14 @@ export const useConversationData = (id: string | undefined) => {
         })
         .eq('id', conversation.id);
       
-      // Add new message to state
-      setMessages(prevMessages => [...prevMessages, messageData as Message]);
+      // Add new message to state - ensure proper typing
+      const typedMessage = {
+        ...messageData,
+        sender_type: messageData.sender_type as "user" | "lead",
+        status: messageData.status as "sent" | "delivered" | "read"
+      };
+      
+      setMessages(prevMessages => [...prevMessages, typedMessage as Message]);
       toast.success('Mensagem enviada');
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
@@ -245,7 +271,14 @@ export const useConversationData = (id: string | undefined) => {
         })
         .eq('id', conversation.id);
       
-      setMessages(prevMessages => [...prevMessages, messageData as Message]);
+      // Add new message to state - ensure proper typing
+      const typedMessage = {
+        ...messageData,
+        sender_type: messageData.sender_type as "user" | "lead",
+        status: messageData.status as "sent" | "delivered" | "read"
+      };
+      
+      setMessages(prevMessages => [...prevMessages, typedMessage as Message]);
       toast.success(`${contentText}`);
     } catch (error) {
       console.error('Erro ao enviar mídia:', error);
