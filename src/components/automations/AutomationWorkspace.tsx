@@ -5,6 +5,7 @@ import { AutomationCanvas } from '@/components/automations/AutomationCanvas';
 import { AutomationCanvasControls } from '@/components/automations/AutomationCanvasControls';
 import { AutomationDndContext } from '@/components/automations/AutomationDndContext';
 import { Block } from '@/types/automation';
+import { DragOverEvent } from '@dnd-kit/core';
 
 interface AutomationWorkspaceProps {
   blocks: Block[];
@@ -14,9 +15,11 @@ interface AutomationWorkspaceProps {
   setShowPreview: (show: boolean) => void;
   handleDragStart: any;
   handleDragEnd: any;
+  handleDragOver?: (event: DragOverEvent) => void;
   handleConfigureBlock: (blockId: string) => void;
   handleDeleteBlock: (blockId: string) => void;
   handleCreateConnection: (fromBlockId: string, toBlockId: string) => void;
+  onAddBlockByClick: (blockType: string) => void;
 }
 
 export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
@@ -27,9 +30,11 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
   setShowPreview,
   handleDragStart,
   handleDragEnd,
+  handleDragOver,
   handleConfigureBlock,
   handleDeleteBlock,
-  handleCreateConnection
+  handleCreateConnection,
+  onAddBlockByClick
 }) => {
   return (
     <div className="flex flex-col md:flex-row flex-1 h-full">
@@ -37,12 +42,14 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
       <AutomationSidebar 
         onShowTemplates={() => setShowTemplates(true)}
         isMobile={isMobile}
+        onBlockClick={onAddBlockByClick}
       />
       
       {/* Main canvas area */}
       <AutomationDndContext
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
       >
         <main className="flex-1 overflow-hidden bg-gray-50 relative">
           <AutomationCanvas 

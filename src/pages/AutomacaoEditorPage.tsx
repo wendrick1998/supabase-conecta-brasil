@@ -20,7 +20,9 @@ const AutomacaoEditorPage = () => {
     isMobile,
     setIsMobile,
     handleDragStart,
+    handleDragOver,
     handleDragEnd,
+    handleAddBlockByClick,
     handleSaveAutomation,
     handleTestAutomation,
     handleCancelAutomation,
@@ -83,9 +85,11 @@ const AutomacaoEditorPage = () => {
             setShowPreview={setShowPreview}
             handleDragStart={handleDragStart}
             handleDragEnd={handleDragEnd}
+            handleDragOver={handleDragOver}
             handleConfigureBlock={handleConfigureBlock}
             handleDeleteBlock={handleDeleteBlock}
             handleCreateConnection={handleCreateConnection}
+            onAddBlockByClick={handleAddBlockByClick}
           />
         </div>
       </div>

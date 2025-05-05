@@ -1,7 +1,7 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core';
 import { Block, BlockType, BlockCategory } from '@/types/automation';
 import { toast } from 'sonner';
 
@@ -18,6 +18,30 @@ export const useAutomationEditor = () => {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // Helper to generate a unique block ID
+  const generateBlockId = () => `block-${Date.now()}-${Math.round(Math.random() * 1000)}`;
+
+  // Helper to determine block category based on type
+  const getBlockCategory = (blockType: BlockType): BlockCategory => {
+    if (['new_lead', 'lead_moved', 'message_received'].includes(blockType)) {
+      return 'trigger';
+    } else if (['lead_status', 'lead_source', 'value_greater'].includes(blockType)) {
+      return 'condition';
+    } else {
+      return 'action';
+    }
+  };
+
+  // Helper to snap position to grid
+  const snapToGrid = (x: number, y: number) => {
+    const gridSize = 20;
+    return {
+      x: Math.round(x / gridSize) * gridSize,
+      y: Math.round(y / gridSize) * gridSize
+    };
+  };
+
+  // Handle drag start - either from sidebar or existing block
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const { active } = event;
@@ -25,18 +49,10 @@ export const useAutomationEditor = () => {
     // If dragging from sidebar, create a new block
     if (typeof active.id === 'string' && active.id.startsWith('template-')) {
       const blockType = active.id.replace('template-', '') as BlockType;
-      let category: BlockCategory;
-      
-      if (['new_lead', 'lead_moved', 'message_received'].includes(blockType)) {
-        category = 'trigger';
-      } else if (['lead_status', 'lead_source', 'value_greater'].includes(blockType)) {
-        category = 'condition';
-      } else {
-        category = 'action';
-      }
+      const category = getBlockCategory(blockType);
       
       const newBlock: Block = {
-        id: `block-${Date.now()}`,
+        id: generateBlockId(),
         type: blockType,
         category,
         position: { x: 100, y: 100 },
@@ -56,6 +72,12 @@ export const useAutomationEditor = () => {
     }
   };
 
+  // Handle drag over - may be used for snap lines or grid guidance
+  const handleDragOver = (event: DragOverEvent) => {
+    // Implementation for drag over effects if needed
+  };
+
+  // Handle drag end - position block appropriately
   const handleDragEnd = (event: DragEndEvent) => {
     setIsDragging(false);
     const { active, over } = event;
@@ -66,22 +88,41 @@ export const useAutomationEditor = () => {
         const canvas = canvasRef.current;
         if (canvas) {
           const rect = canvas.getBoundingClientRect();
-          // Calculate position relative to canvas
-          const x = event.delta.x + 100;
-          const y = event.delta.y + 100;
           
-          setBlocks([...blocks, {...activeBlock, position: { x, y }}]);
+          // Calculate position relative to canvas with grid snapping
+          const x = Math.max(0, event.delta.x + 100);
+          const y = Math.max(0, event.delta.y + 100);
+          
+          // Apply grid snapping
+          const snappedPosition = snapToGrid(x, y);
+          
+          // Add new block to canvas
+          const newBlock = {
+            ...activeBlock,
+            position: snappedPosition
+          };
+          
+          setBlocks([...blocks, newBlock]);
+          
+          // Automatically open configuration for new blocks
+          setTimeout(() => {
+            handleConfigureBlock(newBlock.id);
+          }, 100);
         }
       } else {
         // If dragging existing block, update its position
         setBlocks(blocks.map(block => {
           if (block.id === activeBlock.id) {
+            // Get current position and add delta
+            const newX = Math.max(0, block.position.x + event.delta.x);
+            const newY = Math.max(0, block.position.y + event.delta.y);
+            
+            // Apply grid snapping
+            const snappedPosition = snapToGrid(newX, newY);
+            
             return {
               ...block,
-              position: {
-                x: block.position.x + event.delta.x,
-                y: block.position.y + event.delta.y
-              }
+              position: snappedPosition
             };
           }
           return block;
@@ -90,6 +131,53 @@ export const useAutomationEditor = () => {
     }
     
     setActiveBlock(null);
+  };
+
+  // Add block by clicking on sidebar template (for mobile or as fallback)
+  const handleAddBlockByClick = (blockType: string) => {
+    // Create a new block of the selected type
+    const type = blockType as BlockType;
+    const category = getBlockCategory(type);
+    
+    // Get canvas center or a suitable position
+    let position = { x: 100, y: 100 };
+    if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      const rect = canvas.getBoundingClientRect();
+      
+      // Calculate a position in the visible area of the canvas
+      const scrollX = canvas.scrollLeft;
+      const scrollY = canvas.scrollTop;
+      
+      position = {
+        x: Math.max(0, scrollX + 100),
+        y: Math.max(0, scrollY + 100)
+      };
+    }
+    
+    // Apply grid snapping
+    const snappedPosition = snapToGrid(position.x, position.y);
+    
+    // Create the new block
+    const newBlock: Block = {
+      id: generateBlockId(),
+      type,
+      category,
+      position: snappedPosition,
+      configured: false,
+      config: {},
+      connections: []
+    };
+    
+    // Add block to the canvas
+    setBlocks([...blocks, newBlock]);
+    
+    // Automatically open configuration for the new block
+    setTimeout(() => {
+      handleConfigureBlock(newBlock.id);
+    }, 100);
+    
+    toast.info(`Bloco de ${newBlock.type} adicionado`);
   };
 
   // Valida se o fluxo de automação está correto
@@ -213,6 +301,22 @@ export const useAutomationEditor = () => {
       return;
     }
     
+    // Verifica se a conexão é válida (não permitir ciclos, etc)
+    const fromBlock = blocks.find(b => b.id === fromBlockId);
+    const toBlock = blocks.find(b => b.id === toBlockId);
+    
+    if (!fromBlock || !toBlock) {
+      toast.error('Blocos não encontrados.');
+      return;
+    }
+    
+    // Verifica se a conexão é lógica baseada nas categorias dos blocos
+    if (!isConnectionValid(fromBlock.category, toBlock.category)) {
+      toast.error('Esta conexão não é válida entre estes tipos de blocos.');
+      return;
+    }
+    
+    // Adiciona a conexão
     setBlocks(blocks.map(block => {
       if (block.id === fromBlockId) {
         return {
@@ -224,6 +328,23 @@ export const useAutomationEditor = () => {
     }));
     
     toast.success('Blocos conectados com sucesso!');
+  };
+
+  // Helper to validate connection based on block categories
+  const isConnectionValid = (sourceCat: BlockCategory, targetCat: BlockCategory): boolean => {
+    // Trigger -> Condition or Action
+    if (sourceCat === 'trigger') {
+      return targetCat === 'condition' || targetCat === 'action';
+    }
+    // Condition -> Condition or Action
+    else if (sourceCat === 'condition') {
+      return targetCat === 'condition' || targetCat === 'action';
+    }
+    // Action -> Action
+    else if (sourceCat === 'action') {
+      return targetCat === 'action';
+    }
+    return false;
   };
 
   const handleApplyTemplate = (templateBlocks: Block[]) => {
@@ -247,7 +368,9 @@ export const useAutomationEditor = () => {
     setIsMobile,
     canvasRef,
     handleDragStart,
+    handleDragOver,
     handleDragEnd,
+    handleAddBlockByClick,
     handleSaveAutomation,
     handleTestAutomation,
     handleCancelAutomation,

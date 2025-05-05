@@ -14,20 +14,27 @@ interface AutomationBlockProps {
   block: Block;
   onConfigure: () => void;
   onDelete: () => void;
-  onConnect: (fromBlockId: string, toBlockId: string) => void;
+  onStartConnection?: (blockId: string) => void;
+  onEndConnection?: (blockId: string) => void;
+  isConnecting?: boolean;
+  isConnectionSource?: boolean;
 }
 
 export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   block,
   onConfigure,
   onDelete,
-  onConnect
+  onStartConnection,
+  onEndConnection,
+  isConnecting = false,
+  isConnectionSource = false
 }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: block.id,
   });
   
   const [showConfig, setShowConfig] = useState(false);
+  const [blockConfig, setBlockConfig] = useState<Record<string, any>>(block.config);
   const blockInfo = getBlockInfo(block.type);
   const blockColor = getBlockColor(block.category);
 
@@ -38,12 +45,13 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
     top: block.position.y,
     left: block.position.x,
     width: '300px',
-    zIndex: 10,
+    zIndex: isConnecting ? (isConnectionSource ? 30 : 20) : 10,
   } : {
     position: 'absolute',
     top: block.position.y,
     left: block.position.x,
     width: '300px',
+    zIndex: isConnecting ? (isConnectionSource ? 30 : 20) : 10,
   };
   
   const handleSaveConfig = () => {
@@ -53,18 +61,31 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
   
   const handleConnectFrom = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Connection logic would go here
+    if (onStartConnection) {
+      onStartConnection(block.id);
+    }
   };
   
   const handleConnectTo = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Connection target logic would go here
+    if (onEndConnection) {
+      onEndConnection(block.id);
+    }
+  };
+
+  const handleUpdateBlockConfig = (newConfig: Record<string, any>) => {
+    setBlockConfig(newConfig);
   };
 
   // Determine status class for visual feedback
   const blockStatusClass = !block.configured 
     ? 'border-2 border-dashed border-red-500' 
     : 'border';
+
+  // Add visual feedback for connecting state
+  const connectionClass = isConnecting
+    ? (isConnectionSource ? 'ring-2 ring-pink-500 shadow-lg' : 'ring-1 ring-blue-300')
+    : '';
 
   return (
     <>
@@ -73,8 +94,9 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         style={style}
         {...attributes}
         {...listeners}
-        className={`rounded-md shadow-md ${blockColor} ${blockStatusClass} transition-all`}
+        className={`rounded-md shadow-md ${blockColor} ${blockStatusClass} ${connectionClass} transition-all hover:shadow-lg`}
         aria-labelledby={`block-title-${block.id}`}
+        onClick={() => !isConnecting && setShowConfig(true)}
       >
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
@@ -95,7 +117,7 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
           
           <div className="text-sm">
             {block.configured ? 
-              <p>Bloco configurado</p> : 
+              <p>{getSummaryText(block)}</p> : 
               <p className="text-red-500 font-medium">Necessita configuração</p>
             }
           </div>
@@ -105,6 +127,8 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
             category={block.category}
             onConnectFrom={handleConnectFrom}
             onConnectTo={handleConnectTo}
+            isConnecting={isConnecting}
+            isConnectionSource={isConnectionSource}
           />
         </div>
       </div>
@@ -116,7 +140,12 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
             <DialogTitle>Configurar {blockInfo.name}</DialogTitle>
           </DialogHeader>
           
-          <AutomationBlockConfig blockType={block.type} />
+          <AutomationBlockConfig 
+            blockType={block.type} 
+            blockCategory={block.category}
+            initialConfig={blockConfig}
+            onUpdateConfig={handleUpdateBlockConfig}
+          />
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfig(false)}>
@@ -176,4 +205,30 @@ const BlockActions: React.FC<{
       </Tooltip>
     </TooltipProvider>
   );
+};
+
+// Helper function to generate a summary text based on block configuration
+const getSummaryText = (block: Block): string => {
+  if (!block.config || Object.keys(block.config).length === 0) {
+    return "Configurado";
+  }
+
+  switch (block.type) {
+    case 'new_lead':
+      return block.config.source ? `Novo lead de ${block.config.source}` : "Quando um novo lead for criado";
+    case 'lead_moved':
+      return block.config.toStage ? `Lead movido para ${block.config.toStage}` : "Quando um lead for movido";
+    case 'message_received':
+      return block.config.channel ? `Mensagem recebida via ${block.config.channel}` : "Quando uma mensagem for recebida";
+    case 'lead_status':
+      return `Status ${block.config.operator || '='} ${block.config.value || ''}`;
+    case 'send_message':
+      return block.config.channel ? `Enviar via ${block.config.channel}` : "Enviar mensagem";
+    case 'create_task':
+      return block.config.description ? `Tarefa: ${block.config.description.substring(0, 20)}...` : "Criar tarefa";
+    case 'move_pipeline':
+      return block.config.stage ? `Mover para ${block.config.stage}` : "Mover no pipeline";
+    default:
+      return "Configurado";
+  }
 };
