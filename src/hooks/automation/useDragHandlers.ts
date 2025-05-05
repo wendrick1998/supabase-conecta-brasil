@@ -1,8 +1,10 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core';
 import { Block } from '@/types/automation';
 import { toast } from 'sonner';
+import { useDragState } from './dragHandlers/useDragState';
+import { usePositionCalculation } from './dragHandlers/usePositionCalculation';
 
 export const useDragHandlers = (
   blocks: Block[],
@@ -12,9 +14,9 @@ export const useDragHandlers = (
   snapToGrid: (x: number, y: number) => { x: number; y: number },
   handleConfigureBlock: (blockId: string) => void
 ) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  // Use smaller, focused hooks
+  const { isDragging, setIsDragging, dragOffset, setDragOffset, canvasRef } = useDragState();
+  const { calculateCanvasPosition } = usePositionCalculation(canvasRef);
 
   // Handle drag start - either from sidebar or existing block
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -27,25 +29,26 @@ export const useDragHandlers = (
       if (activeNode) {
         const rect = activeNode.getBoundingClientRect();
         const canvasRect = canvasRef.current.getBoundingClientRect();
-        // Use clientX/clientY instead of event.initial which doesn't exist
-        const offsetX = active.rect.current.translated?.x ?? 0 - (rect.left - canvasRect.left);
-        const offsetY = active.rect.current.translated?.y ?? 0 - (rect.top - canvasRect.top);
+        
+        // TypeScript fix: access left/top properties from the rect object safely
+        const offsetX = active.rect.current.translated 
+            ? active.rect.current.translated.left - (rect.left - canvasRect.left) 
+            : 0;
+        const offsetY = active.rect.current.translated 
+            ? active.rect.current.translated.top - (rect.top - canvasRect.top) 
+            : 0;
+            
         setDragOffset({ x: offsetX, y: offsetY });
       }
     }
     
-    // If dragging from sidebar, create a new block
-    if (typeof active.id === 'string' && active.id.startsWith('template-')) {
-      // This is handled in the useAutomationEditor which combines all these hooks
-    } else {
-      // If dragging an existing block, set it as active
-      const blockId = active.id.toString();
-      const block = blocks.find(b => b.id === blockId);
-      if (block) {
-        setActiveBlock(block);
-      }
+    // If dragging an existing block, set it as active
+    const blockId = active.id.toString();
+    const block = blocks.find(b => b.id === blockId);
+    if (block) {
+      setActiveBlock(block);
     }
-  }, [blocks, setActiveBlock, canvasRef]);
+  }, [blocks, setActiveBlock, canvasRef, setDragOffset, setIsDragging]);
 
   // Handle drag over - provide visual feedback
   const handleDragOver = useCallback((event: DragOverEvent) => {
@@ -64,29 +67,27 @@ export const useDragHandlers = (
         return;
       }
       
-      const canvasRect = canvas.getBoundingClientRect();
-      const canvasScrollLeft = canvas.scrollLeft;
-      const canvasScrollTop = canvas.scrollTop;
-      
       // If dragging from sidebar, add new block to canvas
       if (!blocks.some(b => b.id === activeBlock.id)) {
-        // Calculate position relative to canvas with grid snapping
-        // For new blocks, position where dropped, accounting for canvas scroll and position
-        const x = Math.max(0, event.over ? 
-          event.over.rect.left - canvasRect.left + canvasScrollLeft + 20 : 
-          event.delta.x + 100);
-          
-        const y = Math.max(0, event.over ? 
-          event.over.rect.top - canvasRect.top + canvasScrollTop + 20 : 
-          event.delta.y + 100);
+        // For new blocks, position where dropped
+        let position;
         
-        // Apply grid snapping
-        const snappedPosition = snapToGrid(x, y);
+        if (event.over) {
+          // When dropped over a valid target
+          position = calculateCanvasPosition(
+            event.over.rect.left,
+            event.over.rect.top,
+            snapToGrid
+          );
+        } else {
+          // When dropped elsewhere, use delta position
+          position = snapToGrid(100 + event.delta.x, 100 + event.delta.y);
+        }
         
-        // Add new block to canvas
+        // Add new block to canvas with calculated position
         const newBlock = {
           ...activeBlock,
-          position: snappedPosition
+          position
         };
         
         setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -123,7 +124,7 @@ export const useDragHandlers = (
     
     setActiveBlock(null);
     setDragOffset({ x: 0, y: 0 });
-  }, [activeBlock, blocks, setActiveBlock, setBlocks, snapToGrid, handleConfigureBlock]);
+  }, [activeBlock, blocks, setActiveBlock, setBlocks, snapToGrid, handleConfigureBlock, canvasRef, calculateCanvasPosition, setIsDragging, setDragOffset]);
 
   return {
     isDragging,
