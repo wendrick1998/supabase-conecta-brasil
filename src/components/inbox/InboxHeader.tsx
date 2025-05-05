@@ -1,14 +1,9 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Filter, RefreshCw } from 'lucide-react';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { RefreshCw } from 'lucide-react';
 import { InboxFilters } from '@/services/inboxService';
+import AdvancedFilters from './AdvancedFilters';
 
 interface InboxHeaderProps {
   title: string;
@@ -17,6 +12,11 @@ interface InboxHeaderProps {
   activeFilters: InboxFilters;
   onChannelFilterChange: (channel: 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email') => void;
   onStatusFilterChange: (status: 'Aberta' | 'Fechada') => void;
+  onDateRangeChange: (range: { from: Date; to: Date } | null) => void;
+  onPriorityChange: (priority: string) => void;
+  onClearFilters: () => void;
+  connectedAccounts?: Array<{id: string, nome: string, canal: string}>;
+  onAccountFilterChange?: (accountId: string) => void;
 }
 
 const InboxHeader: React.FC<InboxHeaderProps> = ({
@@ -25,12 +25,17 @@ const InboxHeader: React.FC<InboxHeaderProps> = ({
   onRefresh,
   activeFilters,
   onChannelFilterChange,
-  onStatusFilterChange
+  onStatusFilterChange,
+  onDateRangeChange,
+  onPriorityChange,
+  onClearFilters,
+  connectedAccounts,
+  onAccountFilterChange
 }) => {
   return (
-    <div className="flex items-center justify-between">
-      <h1 className="text-xl font-semibold">{title}</h1>
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">{title}</h1>
         <Button 
           variant="outline" 
           size="icon"
@@ -39,61 +44,17 @@ const InboxHeader: React.FC<InboxHeaderProps> = ({
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         </Button>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <div className="p-2">
-              <h4 className="font-medium mb-2">Canais</h4>
-              <div className="space-y-2">
-                <DropdownMenuCheckboxItem
-                  checked={activeFilters.canais?.includes('WhatsApp')}
-                  onCheckedChange={() => onChannelFilterChange('WhatsApp')}
-                >
-                  WhatsApp
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={activeFilters.canais?.includes('Instagram')}
-                  onCheckedChange={() => onChannelFilterChange('Instagram')}
-                >
-                  Instagram
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={activeFilters.canais?.includes('Facebook')}
-                  onCheckedChange={() => onChannelFilterChange('Facebook')}
-                >
-                  Facebook
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={activeFilters.canais?.includes('Email')}
-                  onCheckedChange={() => onChannelFilterChange('Email')}
-                >
-                  Email
-                </DropdownMenuCheckboxItem>
-              </div>
-              
-              <h4 className="font-medium mt-4 mb-2">Status</h4>
-              <div className="space-y-2">
-                <DropdownMenuCheckboxItem
-                  checked={activeFilters.status?.includes('Aberta')}
-                  onCheckedChange={() => onStatusFilterChange('Aberta')}
-                >
-                  Aberta
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={activeFilters.status?.includes('Fechada')}
-                  onCheckedChange={() => onStatusFilterChange('Fechada')}
-                >
-                  Fechada
-                </DropdownMenuCheckboxItem>
-              </div>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      </div>
+      
+      <div className="flex items-center">
+        <AdvancedFilters 
+          activeFilters={activeFilters}
+          onChannelFilterChange={onChannelFilterChange}
+          onStatusFilterChange={onStatusFilterChange}
+          onDateRangeChange={onDateRangeChange}
+          onPriorityChange={onPriorityChange}
+          onClearFilters={onClearFilters}
+        />
       </div>
     </div>
   );

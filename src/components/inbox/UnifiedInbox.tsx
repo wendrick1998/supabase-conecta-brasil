@@ -7,6 +7,7 @@ import InboxHeader from './InboxHeader';
 import InboxSearchBar from './InboxSearchBar';
 import InboxTabs from './InboxTabs';
 import { useInboxFilters } from '@/hooks/useInboxFilters';
+import AccountSelector, { ConnectedAccount } from '../channels/AccountSelector';
 
 export const UnifiedInbox: React.FC = () => {
   const [conversations, setConversations] = useState([]);
@@ -17,10 +18,15 @@ export const UnifiedInbox: React.FC = () => {
     activeFilters,
     searchTerm,
     selectedTab,
+    connectedAccounts,
     setSelectedTab,
     handleSearchChange,
     handleChannelFilterChange,
-    handleStatusFilterChange
+    handleStatusFilterChange,
+    handleDateRangeChange,
+    handlePriorityChange,
+    handleAccountFilterChange,
+    handleClearFilters
   } = useInboxFilters(conversations);
   
   // Load conversations
@@ -54,7 +60,7 @@ export const UnifiedInbox: React.FC = () => {
   const loadConversations = async () => {
     setIsLoading(true);
     try {
-      const data = await getConversations();
+      const data = await getConversations(activeFilters);
       setConversations(data);
     } catch (error) {
       console.error('Error loading conversations:', error);
@@ -68,7 +74,7 @@ export const UnifiedInbox: React.FC = () => {
   const handleRefresh = async () => {
     setIsLoading(true);
     try {
-      const data = await getConversations();
+      const data = await getConversations(activeFilters);
       setConversations(data);
       toast.success('Conversas atualizadas');
     } catch (error) {
@@ -77,6 +83,11 @@ export const UnifiedInbox: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  // Handle account selection
+  const handleAccountSelect = (accountId: string) => {
+    handleAccountFilterChange(accountId);
   };
   
   return (
@@ -89,7 +100,31 @@ export const UnifiedInbox: React.FC = () => {
           activeFilters={activeFilters}
           onChannelFilterChange={handleChannelFilterChange}
           onStatusFilterChange={handleStatusFilterChange}
+          onDateRangeChange={handleDateRangeChange}
+          onPriorityChange={handlePriorityChange}
+          onClearFilters={handleClearFilters}
+          connectedAccounts={connectedAccounts}
+          onAccountFilterChange={handleAccountFilterChange}
         />
+        
+        {connectedAccounts.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-text-muted mr-1">Conta:</span>
+            <div className="w-[240px]">
+              <AccountSelector 
+                accounts={connectedAccounts.map(acc => ({
+                  id: acc.id,
+                  name: acc.nome,
+                  channelType: acc.canal,
+                  status: true
+                }))}
+                selectedAccountId={activeFilters.accountId || null}
+                onAccountSelect={handleAccountSelect}
+                channelType="ativa"
+              />
+            </div>
+          </div>
+        )}
         
         <InboxSearchBar 
           searchTerm={searchTerm}
@@ -108,8 +143,9 @@ export const UnifiedInbox: React.FC = () => {
         isLoading={isLoading}
         emptyMessage={
           searchTerm || 
-          (activeFilters.canais && activeFilters.canais.length > 0) || 
-          (activeFilters.status && activeFilters.status.length > 0)
+          Object.values(activeFilters).some(f => 
+            Array.isArray(f) ? f.length > 0 : f !== undefined
+          )
             ? 'Nenhuma conversa corresponde aos filtros aplicados'
             : 'Nenhuma conversa disponível'
         }

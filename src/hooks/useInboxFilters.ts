@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Conversation } from '@/types/conversation';
-import { InboxFilters } from '@/services/inboxService';
+import { InboxFilters, getConnectedAccounts } from '@/services/inboxService';
 
 export const useInboxFilters = (conversations: Conversation[]) => {
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
@@ -11,6 +11,17 @@ export const useInboxFilters = (conversations: Conversation[]) => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
+  const [connectedAccounts, setConnectedAccounts] = useState<Array<{id: string, nome: string, canal: string}>>([]);
+  
+  // Fetch connected accounts on component mount
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      const accounts = await getConnectedAccounts();
+      setConnectedAccounts(accounts);
+    };
+    
+    fetchAccounts();
+  }, []);
 
   // Apply filters whenever they change
   useEffect(() => {
@@ -40,6 +51,27 @@ export const useInboxFilters = (conversations: Conversation[]) => {
       filtered = filtered.filter(conv => 
         activeFilters.status?.includes(conv.status as 'Aberta' | 'Fechada')
       );
+    }
+    
+    // Filter by date range
+    if (activeFilters.dateRange) {
+      const fromTime = activeFilters.dateRange.from.getTime();
+      const toTime = activeFilters.dateRange.to.getTime();
+      
+      filtered = filtered.filter(conv => {
+        const convTime = new Date(conv.horario).getTime();
+        return convTime >= fromTime && convTime <= toTime;
+      });
+    }
+    
+    // Filter by priority
+    if (activeFilters.priority) {
+      filtered = filtered.filter(conv => conv.prioridade === activeFilters.priority);
+    }
+    
+    // Filter by account
+    if (activeFilters.accountId) {
+      filtered = filtered.filter(conv => conv.conexao_id === activeFilters.accountId);
     }
     
     // Apply search filter
@@ -88,15 +120,53 @@ export const useInboxFilters = (conversations: Conversation[]) => {
       };
     });
   };
+  
+  // Handle date range filter change
+  const handleDateRangeChange = (range: { from: Date; to: Date } | null) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      dateRange: range
+    }));
+  };
+  
+  // Handle priority filter change
+  const handlePriorityChange = (priority: string) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      priority: priority || undefined
+    }));
+  };
+  
+  // Handle account filter change
+  const handleAccountFilterChange = (accountId: string) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      accountId: accountId || undefined
+    }));
+  };
+  
+  // Clear all filters
+  const handleClearFilters = () => {
+    setActiveFilters({
+      canais: [],
+      status: ['Aberta'],
+    });
+    setSearchTerm('');
+  };
 
   return {
     filteredConversations,
     activeFilters,
     searchTerm,
     selectedTab,
+    connectedAccounts,
     setSelectedTab,
     handleSearchChange,
     handleChannelFilterChange,
-    handleStatusFilterChange
+    handleStatusFilterChange,
+    handleDateRangeChange,
+    handlePriorityChange,
+    handleAccountFilterChange,
+    handleClearFilters
   };
 };

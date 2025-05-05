@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Facebook, Instagram, Mail, Check, AlertTriangle, Loader2 } from 'lucide-react';
+import { Facebook, Instagram, Mail, Check, AlertTriangle, Loader2, Settings } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
@@ -10,6 +10,8 @@ import { getChannelConnectionsByType } from '@/services/channelService';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getChannelBgColor } from '@/utils/conversationUtils';
 import { supabase } from '@/integrations/supabase/client';
+import AccountSelector, { ConnectedAccount } from './AccountSelector';
+import ChannelSettings from './ChannelSettings';
 
 interface ChannelItem {
   id: string;
@@ -21,6 +23,7 @@ interface ChannelItem {
   bgColor: string;
   connections: any[];
   loading: boolean;
+  selectedAccountId: string | null;
 }
 
 interface ChannelConnectionProps {
@@ -38,7 +41,8 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
       color: 'text-[#25D366]',
       bgColor: 'bg-[#25D366]/20',
       connections: [],
-      loading: true
+      loading: true,
+      selectedAccountId: null
     },
     {
       id: 'instagram',
@@ -49,7 +53,8 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
       color: 'text-[#C13584]',
       bgColor: 'bg-[#C13584]/20',
       connections: [],
-      loading: true
+      loading: true,
+      selectedAccountId: null
     },
     {
       id: 'facebook',
@@ -60,7 +65,8 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
       color: 'text-[#1877F2]',
       bgColor: 'bg-[#1877F2]/20',
       connections: [],
-      loading: true
+      loading: true,
+      selectedAccountId: null
     },
     {
       id: 'email',
@@ -71,9 +77,16 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
       color: 'text-[#4285F4]',
       bgColor: 'bg-[#4285F4]/20',
       connections: [],
-      loading: true
+      loading: true,
+      selectedAccountId: null
     },
   ]);
+  
+  const [showSettingsFor, setShowSettingsFor] = useState<{
+    channelId: string;
+    channelName: string;
+    channelType: string;
+  } | null>(null);
   
   useEffect(() => {
     const fetchChannelConnections = async () => {
@@ -84,7 +97,8 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
           return {
             ...channel,
             connections,
-            loading: false
+            loading: false,
+            selectedAccountId: connections.length > 0 ? connections[0].id : null
           };
         });
         
@@ -99,6 +113,14 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
     
     fetchChannelConnections();
   }, []);
+  
+  const handleAccountSelect = (channelType: string, accountId: string) => {
+    setChannels(channels.map(channel => 
+      channel.type === channelType 
+        ? { ...channel, selectedAccountId: accountId } 
+        : channel
+    ));
+  };
   
   const handleConnect = async (channelType: string) => {
     if (channelType === 'instagram' || channelType === 'facebook') {
@@ -135,10 +157,12 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
             const channelIndex = updatedChannels.findIndex(c => c.type === channelType);
             
             if (channelIndex !== -1) {
+              const newConnection = event.data.connection;
               updatedChannels[channelIndex].connections = [
                 ...updatedChannels[channelIndex].connections,
-                event.data.connection
+                newConnection
               ];
+              updatedChannels[channelIndex].selectedAccountId = newConnection.id;
               setChannels(updatedChannels);
             }
           }
@@ -174,12 +198,33 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
         updatedChannels[channelIndex].connections = updatedChannels[channelIndex].connections.filter(
           conn => conn.id !== channelId
         );
+        
+        // Update selected account if the disconnected one was selected
+        if (updatedChannels[channelIndex].selectedAccountId === channelId) {
+          updatedChannels[channelIndex].selectedAccountId = 
+            updatedChannels[channelIndex].connections.length > 0 
+              ? updatedChannels[channelIndex].connections[0].id 
+              : null;
+        }
+        
         setChannels(updatedChannels);
       }
     } catch (error) {
       console.error('Error disconnecting channel:', error);
       toast.error('Erro ao desconectar canal');
     }
+  };
+  
+  const handleOpenSettings = (channelId: string, channelName: string, channelType: string) => {
+    setShowSettingsFor({
+      channelId,
+      channelName,
+      channelType
+    });
+  };
+  
+  const handleCloseSettings = () => {
+    setShowSettingsFor(null);
   };
   
   const setupWebhook = async (channelId: string, channelType: string, pageId?: string, pageToken?: string) => {
@@ -214,135 +259,177 @@ export const ChannelConnection: React.FC<ChannelConnectionProps> = ({ onConnectC
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
-      {channels.map((channel) => (
-        <Card key={channel.id} className={`border-l-4 ${channel.color} shadow-sm`}>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div className="flex gap-3 items-center">
-                <div className={`p-2 rounded-lg ${channel.bgColor} ${channel.color}`}>
-                  {channel.icon}
-                </div>
-                <div>
-                  <CardTitle className="text-xl">{channel.title}</CardTitle>
-                  <CardDescription className="mt-1">{channel.description}</CardDescription>
-                </div>
-              </div>
-              <Badge variant={channel.connections.length > 0 ? "success" : "outline"} className="h-6">
-                {channel.connections.length > 0 ? 'Conectado' : 'Não Conectado'}
-              </Badge>
-            </div>
-          </CardHeader>
-          
-          <CardContent>
-            {channel.loading ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-sm text-muted-foreground">Carregando conexões...</span>
-              </div>
-            ) : channel.connections.length > 0 ? (
-              <div className="space-y-4">
-                {channel.connections.map((connection) => (
-                  <div key={connection.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className={getChannelBgColor(channel.title as any)}>
-                            {connection.nome?.substring(0, 2) || 'CN'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h4 className="font-medium">{connection.nome}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Conectado em {new Date(connection.criado_em).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant={connection.status ? "success" : "destructive"} className="h-6">
-                        {connection.status ? 'Ativo' : 'Inativo'}
-                      </Badge>
-                    </div>
-                    
-                    {(channel.type === 'facebook' || channel.type === 'instagram') && 
-                     connection.configuracao && (
-                      <div className="mt-4">
-                        {channel.type === 'facebook' && connection.configuracao.pages && (
-                          <div className="space-y-3">
-                            <h5 className="text-sm font-medium">Páginas conectadas:</h5>
-                            {connection.configuracao.pages.map((page: any) => (
-                              <div key={page.id} className="flex justify-between items-center p-2 border rounded bg-muted/30">
-                                <span>{page.name}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => setupWebhook(connection.id, channel.type, page.id, page.access_token)}
-                                >
-                                  Configurar Webhook
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        
-                        {channel.type === 'instagram' && connection.configuracao.instagram_accounts && (
-                          <div className="space-y-3">
-                            <h5 className="text-sm font-medium">Contas do Instagram conectadas:</h5>
-                            {connection.configuracao.instagram_accounts.map((account: any) => (
-                              <div key={account.id} className="flex justify-between items-center p-2 border rounded bg-muted/30">
-                                <div className="flex items-center gap-2">
-                                  {account.profile_picture_url && (
-                                    <img 
-                                      src={account.profile_picture_url} 
-                                      alt={account.username} 
-                                      className="h-6 w-6 rounded-full"
-                                    />
-                                  )}
-                                  <span>@{account.username}</span>
-                                </div>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => setupWebhook(connection.id, channel.type, account.page_id, account.page_token)}
-                                >
-                                  Configurar Webhook
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 flex justify-end">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleDisconnect(connection.id, channel.type)}
-                      >
-                        Desconectar
-                      </Button>
-                    </div>
+      {channels.map((channel) => {
+        const selectedConnection = channel.connections.find(conn => conn.id === channel.selectedAccountId);
+        
+        return (
+          <Card key={channel.id} className={`border-l-4 ${channel.color} shadow-sm`}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="flex gap-3 items-center">
+                  <div className={`p-2 rounded-lg ${channel.bgColor} ${channel.color}`}>
+                    {channel.icon}
                   </div>
-                ))}
+                  <div>
+                    <CardTitle className="text-xl">{channel.title}</CardTitle>
+                    <CardDescription className="mt-1">{channel.description}</CardDescription>
+                  </div>
+                </div>
+                <Badge variant={channel.connections.length > 0 ? "success" : "outline"} className="h-6">
+                  {channel.connections.length > 0 ? 'Conectado' : 'Não Conectado'}
+                </Badge>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center py-6 text-muted-foreground">
-                <AlertTriangle className="h-10 w-10 mb-2" />
-                <p>Nenhuma conta {channel.title} conectada</p>
-                <p className="text-sm mt-1">Conecte para começar a receber mensagens</p>
-              </div>
-            )}
-          </CardContent>
-          
-          <CardFooter className="flex justify-end border-t pt-4">
-            <Button 
-              variant={channel.connections.length > 0 ? "outline" : "default"}
-              onClick={() => handleConnect(channel.type)}
-            >
-              {channel.connections.length > 0 ? 'Conectar outra conta' : `Conectar ${channel.title}`}
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+            </CardHeader>
+            
+            <CardContent>
+              {channel.loading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-sm text-muted-foreground">Carregando conexões...</span>
+                </div>
+              ) : channel.connections.length > 0 ? (
+                <div className="space-y-4">
+                  {channel.connections.length > 1 && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium mb-2">Selecionar conta ativa:</h4>
+                      <AccountSelector 
+                        accounts={channel.connections.map(conn => ({
+                          id: conn.id,
+                          name: conn.nome,
+                          channelType: channel.type,
+                          status: conn.status
+                        }))}
+                        selectedAccountId={channel.selectedAccountId}
+                        onAccountSelect={(accountId) => handleAccountSelect(channel.type, accountId)}
+                        channelType={channel.title}
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedConnection && (
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback className={getChannelBgColor(channel.title as any)}>
+                              {selectedConnection.nome?.substring(0, 2) || 'CN'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h4 className="font-medium">{selectedConnection.nome}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Conectado em {new Date(selectedConnection.criado_em).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant={selectedConnection.status ? "success" : "destructive"} className="h-6">
+                          {selectedConnection.status ? 'Ativo' : 'Inativo'}
+                        </Badge>
+                      </div>
+                      
+                      {(channel.type === 'facebook' || channel.type === 'instagram') && 
+                       selectedConnection.configuracao && (
+                        <div className="mt-4">
+                          {channel.type === 'facebook' && selectedConnection.configuracao.pages && (
+                            <div className="space-y-3">
+                              <h5 className="text-sm font-medium">Páginas conectadas:</h5>
+                              {selectedConnection.configuracao.pages.map((page: any) => (
+                                <div key={page.id} className="flex justify-between items-center p-2 border rounded bg-muted/30">
+                                  <span>{page.name}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => setupWebhook(selectedConnection.id, channel.type, page.id, page.access_token)}
+                                  >
+                                    Configurar Webhook
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {channel.type === 'instagram' && selectedConnection.configuracao.instagram_accounts && (
+                            <div className="space-y-3">
+                              <h5 className="text-sm font-medium">Contas do Instagram conectadas:</h5>
+                              {selectedConnection.configuracao.instagram_accounts.map((account: any) => (
+                                <div key={account.id} className="flex justify-between items-center p-2 border rounded bg-muted/30">
+                                  <div className="flex items-center gap-2">
+                                    {account.profile_picture_url && (
+                                      <img 
+                                        src={account.profile_picture_url} 
+                                        alt={account.username} 
+                                        className="h-6 w-6 rounded-full"
+                                      />
+                                    )}
+                                    <span>@{account.username}</span>
+                                  </div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => setupWebhook(selectedConnection.id, channel.type, account.page_id, account.page_token)}
+                                  >
+                                    Configurar Webhook
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="mt-4 flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleOpenSettings(
+                            selectedConnection.id, 
+                            selectedConnection.nome, 
+                            channel.type
+                          )}
+                        >
+                          <Settings className="h-4 w-4 mr-1" /> Configurações
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDisconnect(selectedConnection.id, channel.type)}
+                        >
+                          Desconectar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center py-6 text-muted-foreground">
+                  <AlertTriangle className="h-10 w-10 mb-2" />
+                  <p>Nenhuma conta {channel.title} conectada</p>
+                  <p className="text-sm mt-1">Conecte para começar a receber mensagens</p>
+                </div>
+              )}
+            </CardContent>
+            
+            <CardFooter className="flex justify-end border-t pt-4">
+              <Button 
+                variant={channel.connections.length > 0 ? "outline" : "default"}
+                onClick={() => handleConnect(channel.type)}
+              >
+                {channel.connections.length > 0 ? 'Conectar outra conta' : `Conectar ${channel.title}`}
+              </Button>
+            </CardFooter>
+          </Card>
+        );
+      })}
+      
+      {showSettingsFor && (
+        <ChannelSettings 
+          isOpen={!!showSettingsFor}
+          onClose={handleCloseSettings}
+          channelId={showSettingsFor.channelId}
+          channelName={showSettingsFor.channelName}
+          channelType={showSettingsFor.channelType}
+        />
+      )}
     </div>
   );
 };

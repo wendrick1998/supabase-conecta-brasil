@@ -12,6 +12,8 @@ export interface InboxFilters {
     from: Date;
     to: Date;
   };
+  priority?: string;
+  accountId?: string;
 }
 
 // Get all conversations
@@ -44,6 +46,16 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
         const fromDate = filters.dateRange.from.toISOString();
         const toDate = filters.dateRange.to.toISOString();
         query = query.gte('horario', fromDate).lte('horario', toDate);
+      }
+      
+      // Filter by priority
+      if (filters.priority) {
+        query = query.eq('prioridade', filters.priority);
+      }
+      
+      // Filter by connected account
+      if (filters.accountId) {
+        query = query.eq('conexao_id', filters.accountId);
       }
     }
     
@@ -113,6 +125,23 @@ export const getConversationStats = async (): Promise<{
       unread: 0,
       byChannel: {}
     };
+  }
+};
+
+// Get connected accounts for filter
+export const getConnectedAccounts = async (): Promise<Array<{id: string, nome: string, canal: string}>> => {
+  try {
+    const { data, error } = await supabase
+      .from('canais_conectados')
+      .select('id, nome, canal')
+      .eq('status', true);
+      
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error: any) {
+    console.error('Error fetching connected accounts:', error);
+    return [];
   }
 };
 
