@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -20,11 +19,13 @@ import { BlockType } from '@/types/automation';
 interface AutomationSidebarProps {
   onShowTemplates: () => void;
   isMobile: boolean;
+  onBlockClick: (blockType: string) => void;
 }
 
 export const AutomationSidebar: React.FC<AutomationSidebarProps> = ({ 
   onShowTemplates,
-  isMobile 
+  isMobile,
+  onBlockClick
 }) => {
   const [collapsed, setCollapsed] = useState(isMobile);
   
@@ -54,6 +55,7 @@ export const AutomationSidebar: React.FC<AutomationSidebarProps> = ({
         id={`template-${block.id}`}
         className={`flex items-center p-3 mb-2 rounded-md shadow-sm border cursor-move ${block.color} hover:shadow-md transition-shadow`}
         draggable
+        onClick={() => onBlockClick(block.id)}
       >
         <span className="mr-2">{block.icon}</span>
         {!collapsed && <span className="text-sm font-medium">{block.label}</span>}
