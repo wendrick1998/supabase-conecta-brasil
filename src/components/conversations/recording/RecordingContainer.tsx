@@ -2,9 +2,10 @@
 import React from 'react';
 import MediaPreview from './MediaPreview';
 import RecordingControls from './RecordingControls';
+import { MediaType } from './types';
 
 interface RecordingContainerProps {
-  mediaType: string;
+  mediaType: MediaType;
   isRecording: boolean;
   isPaused: boolean;
   recordedMedia: {

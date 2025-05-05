@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
-import { useRecording, MediaType } from './useRecording';
+import { useRecording } from './hooks/useRecording';
+import { MediaType } from './types';
 
 interface UseRecordingDialogProps {
   open: boolean;

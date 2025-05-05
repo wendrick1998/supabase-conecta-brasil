@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Loader2, Mic, Pause } from "lucide-react";
-import { MediaType } from './useRecording';
+import { MediaType } from './types';
 import RecordingTimer from './RecordingTimer';
 
 interface MediaPreviewProps {

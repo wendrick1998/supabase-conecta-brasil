@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { toast } from "@/components/ui/sonner";
 import MessageInput from './MessageInput';
 import NoteForm from './NoteForm';
 import RecordingDialog from './RecordingDialog';
-import { MediaType } from './recording/useRecording';
+import { MediaType } from './recording/types';
 
 interface ConversationInteractionProps {
   conversationId: string;

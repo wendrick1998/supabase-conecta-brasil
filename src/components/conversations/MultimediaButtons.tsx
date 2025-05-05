@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Mic, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { MediaType } from './recording/useRecording';
+import { MediaType } from './recording/types';
 
 interface MultimediaButtonsProps {
   onOpenRecordingModal: (mediaType: MediaType) => void;

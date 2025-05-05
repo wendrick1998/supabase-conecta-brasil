@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MediaType } from './useRecording';
+import { MediaType } from './types';
 
 interface RecordingHeaderProps {
   mediaType: MediaType;

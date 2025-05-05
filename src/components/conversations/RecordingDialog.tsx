@@ -4,7 +4,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { MediaType } from './recording/useRecording';
+import { MediaType } from './recording/types';
 import { useRecordingDialog } from './recording/useRecordingDialog';
 import RecordingHeader from './recording/RecordingHeader';
 import RecordingFooter from './recording/RecordingFooter';
