@@ -12,7 +12,9 @@ interface MessageInputProps {
   onFileUpload: () => void;
   onAddNote: () => void;
   onOpenRecordingModal: (type: 'audio' | 'video' | 'photo') => void;
-  onGalleryUpload: () => void;
+  onPhotoLibraryUpload: () => void;
+  onCameraCaptureUpload: () => void;
+  onDocumentFileUpload: () => void;
   isLoading: boolean;
 }
 
@@ -21,7 +23,9 @@ const MessageInput = ({
   onFileUpload, 
   onAddNote, 
   onOpenRecordingModal,
-  onGalleryUpload,
+  onPhotoLibraryUpload,
+  onCameraCaptureUpload,
+  onDocumentFileUpload,
   isLoading 
 }: MessageInputProps) => {
   const [message, setMessage] = useState('');
@@ -70,7 +74,9 @@ const MessageInput = ({
 
           {/* Camera Button with dropdown */}
           <CameraButton 
-            onAttachFromGallery={onGalleryUpload}
+            onPhotoLibrary={onPhotoLibraryUpload}
+            onCameraCapture={onCameraCaptureUpload}
+            onFileSelect={onDocumentFileUpload}
           />
 
           {/* Note Button */}

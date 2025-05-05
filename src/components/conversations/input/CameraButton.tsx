@@ -11,15 +11,27 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface CameraButtonProps {
-  onAttachFromGallery: () => void;
+  onPhotoLibrary: () => void;
+  onCameraCapture: () => void;
+  onFileSelect: () => void;
 }
 
-const CameraButton: React.FC<CameraButtonProps> = ({ onAttachFromGallery }) => {
+const CameraButton: React.FC<CameraButtonProps> = ({ onPhotoLibrary, onCameraCapture, onFileSelect }) => {
   const [open, setOpen] = useState(false);
 
-  const handleGalleryClick = () => {
+  const handlePhotoLibrary = () => {
     setOpen(false);
-    onAttachFromGallery();
+    onPhotoLibrary();
+  };
+
+  const handleCameraCapture = () => {
+    setOpen(false);
+    onCameraCapture();
+  };
+
+  const handleFileSelect = () => {
+    setOpen(false);
+    onFileSelect();
   };
 
   return (
@@ -43,15 +55,15 @@ const CameraButton: React.FC<CameraButtonProps> = ({ onAttachFromGallery }) => {
           </TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuItem onClick={handleGalleryClick} className="cursor-pointer flex items-center justify-between py-3">
+          <DropdownMenuItem onClick={handlePhotoLibrary} className="cursor-pointer flex items-center justify-between py-3">
             <span>Fototeca</span>
             <Image className="h-5 w-5" />
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleGalleryClick} className="cursor-pointer flex items-center justify-between py-3">
+          <DropdownMenuItem onClick={handleCameraCapture} className="cursor-pointer flex items-center justify-between py-3">
             <span>Tirar Foto ou Gravar Vídeo</span>
             <Camera className="h-5 w-5" />
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleGalleryClick} className="cursor-pointer flex items-center justify-between py-3">
+          <DropdownMenuItem onClick={handleFileSelect} className="cursor-pointer flex items-center justify-between py-3">
             <span>Escolher Arquivo</span>
             <File className="h-5 w-5" />
           </DropdownMenuItem>

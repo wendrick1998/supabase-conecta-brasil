@@ -28,7 +28,8 @@ const ConversationInteraction = ({
   const [mediaType, setMediaType] = useState<MediaType>('audio');
   const { isUploading, uploadMedia } = useMediaUpload(conversationId);
 
-  const handleFileUpload = () => {
+  // Document file upload handler
+  const handleDocumentFileUpload = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = false;
@@ -53,7 +54,35 @@ const ConversationInteraction = ({
     input.click();
   };
 
-  const handleGalleryUpload = () => {
+  // Photo library (gallery) upload handler
+  const handlePhotoLibraryUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = false;
+    input.accept = 'image/*,video/*';
+    // No capture attribute for gallery selection
+    
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files[0]) {
+        const file = target.files[0];
+        
+        // Verify file is image or video
+        const fileType = getMediaType(file);
+        if (fileType !== 'image' && fileType !== 'video') {
+          toast.error('Por favor, selecione apenas imagens ou vídeos.');
+          return;
+        }
+        
+        handleSendFile(file);
+      }
+    };
+    
+    input.click();
+  };
+
+  // Camera capture handler
+  const handleCameraCaptureUpload = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.multiple = false;
@@ -139,10 +168,12 @@ const ConversationInteraction = ({
       ) : (
         <MessageInput 
           onSend={onSendMessage}
-          onFileUpload={handleFileUpload}
+          onFileUpload={handleDocumentFileUpload}
           onAddNote={() => setShowNoteForm(true)}
           onOpenRecordingModal={handleOpenRecordingModal}
-          onGalleryUpload={handleGalleryUpload}
+          onPhotoLibraryUpload={handlePhotoLibraryUpload}
+          onCameraCaptureUpload={handleCameraCaptureUpload}
+          onDocumentFileUpload={handleDocumentFileUpload}
           isLoading={sendingMessage || isUploading}
         />
       )}
