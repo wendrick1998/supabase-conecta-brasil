@@ -110,7 +110,7 @@ export const useAutomationEditor = () => {
                 // FIX: Ensure config is properly parsed as a Record<string, any>
                 (typeof block.conteudo_config === 'string' 
                   ? JSON.parse(block.conteudo_config)
-                  : block.conteudo_config as Record<string, any>),
+                  : block.conteudo_config) as Record<string, any>,
               connections: connectionsData
                 .filter(conn => conn.id_origem === block.id)
                 .map(conn => conn.id_destino)
