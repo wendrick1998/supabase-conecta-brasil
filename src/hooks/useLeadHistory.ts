@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Nota, Interacao } from '@/types/lead';
 import { Message } from '@/types/conversation';
@@ -11,7 +10,7 @@ export type HistoryItem = {
   tipo: 'nota' | 'interacao' | 'mensagem';
   conteudo: string;
   criado_em: string;
-  item: Nota | Interacao | Message;
+  item: Nota | Interacao | Message; // Allow Message type
 };
 
 export const useLeadHistory = (leadId: string) => {

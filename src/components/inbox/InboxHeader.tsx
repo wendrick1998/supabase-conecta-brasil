@@ -33,6 +33,14 @@ const InboxHeader: React.FC<InboxHeaderProps> = ({
   connectedAccounts,
   onAccountFilterChange
 }) => {
+  // Determine selected channel from canais array for the AccountSelector
+  const getSelectedChannel = () => {
+    if (activeFilters.canais && activeFilters.canais.length === 1) {
+      return activeFilters.canais[0];
+    }
+    return "Todos";
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -68,7 +76,7 @@ const InboxHeader: React.FC<InboxHeaderProps> = ({
               }))}
               selectedAccountId={activeFilters.accountId || null}
               onAccountSelect={onAccountFilterChange}
-              channelType={activeFilters.channel || "Todos"}
+              channelType={getSelectedChannel()}
             />
           </div>
         )}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Popover, 
@@ -59,6 +58,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     return count;
   };
   
+  // Fix the DateRange handling
   const handleDateSelect = (date: Date | undefined) => {
     setDateRange(prev => {
       if (!prev.from) {
@@ -208,77 +208,3 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                   </Button>
                 )}
               </div>
-              <div className="mt-2 border rounded-md p-3">
-                <Calendar
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
-                  locale={ptBR}
-                  className="rounded-md border"
-                />
-                {dateRange.from && (
-                  <div className="mt-2 text-sm">
-                    <span>
-                      {dateRange.from && format(dateRange.from, 'PPP', { locale: ptBR })}
-                      {dateRange.to ? ` - ${format(dateRange.to, 'PPP', { locale: ptBR })}` : ''}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex justify-end mt-4">
-            <Button size="sm" onClick={handleApplyFilters}>Aplicar Filtros</Button>
-          </div>
-        </PopoverContent>
-      </Popover>
-      
-      {getActiveFiltersCount() > 0 && (
-        <div className="ml-2 flex flex-wrap gap-1">
-          {activeFilters.canais?.map(channel => (
-            <Badge key={channel} variant="outline" className="text-xs h-6 flex gap-1 items-center">
-              {channel}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onChannelFilterChange(channel)}
-              />
-            </Badge>
-          ))}
-          
-          {activeFilters.status?.map(status => (
-            <Badge key={status} variant="outline" className="text-xs h-6 flex gap-1 items-center">
-              {status}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onStatusFilterChange(status)}
-              />
-            </Badge>
-          ))}
-          
-          {activeFilters.dateRange && (
-            <Badge variant="outline" className="text-xs h-6 flex gap-1 items-center">
-              {format(activeFilters.dateRange.from, 'dd/MM')} - {format(activeFilters.dateRange.to, 'dd/MM')}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onDateRangeChange(null)}
-              />
-            </Badge>
-          )}
-          
-          {activeFilters.priority && (
-            <Badge variant="outline" className="text-xs h-6 flex gap-1 items-center">
-              Prioridade: {activeFilters.priority}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onPriorityChange("")}
-              />
-            </Badge>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default AdvancedFilters;

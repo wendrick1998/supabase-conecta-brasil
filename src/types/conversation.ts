@@ -1,4 +1,3 @@
-
 export interface Conversation {
   id: string;
   lead_id: string;
@@ -11,6 +10,8 @@ export interface Conversation {
   avatar?: string | null;
   connection_id?: string | null;
   sender_id?: string | null;
+  prioridade?: string;
+  conexao_id?: string;
 }
 
 export interface Message {
@@ -23,6 +24,7 @@ export interface Message {
   attachment?: {
     type: 'image' | 'video' | 'audio' | 'document';
     url: string;
+    name?: string; // Added name property
     filename?: string;
     size?: number;
     thumbnail_url?: string;

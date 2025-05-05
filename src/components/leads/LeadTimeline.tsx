@@ -25,6 +25,20 @@ const LeadTimeline: React.FC<LeadTimelineProps> = ({ leadId }) => {
     refreshHistory
   } = useLeadHistory(leadId);
 
+  // Helper function to adapt Message to interface expected by TimelineItem
+  const adaptMessageToTimelineItem = (item: any) => {
+    // Create an adapter object that matches the expected interface
+    if (item.tipo === 'mensagem') {
+      return {
+        id: item.id,
+        tipo: 'interacao', // Treat messages as interactions
+        conteudo: item.conteudo,
+        criado_em: item.criado_em,
+      };
+    }
+    return item.item;
+  };
+
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
@@ -69,7 +83,7 @@ const LeadTimeline: React.FC<LeadTimelineProps> = ({ leadId }) => {
               {history.map((item, index) => (
                 <TimelineItem 
                   key={`${item.tipo}-${item.id}-${index}`} 
-                  item={item.item} 
+                  item={adaptMessageToTimelineItem(item)} 
                   type={item.tipo === 'mensagem' ? 'interacao' : item.tipo} 
                 />
               ))}
@@ -89,7 +103,7 @@ const LeadTimeline: React.FC<LeadTimelineProps> = ({ leadId }) => {
                 .map((item, index) => (
                   <TimelineItem 
                     key={`note-${item.id}-${index}`} 
-                    item={item.item} 
+                    item={adaptMessageToTimelineItem(item)} 
                     type="nota" 
                   />
                 ))
@@ -110,7 +124,7 @@ const LeadTimeline: React.FC<LeadTimelineProps> = ({ leadId }) => {
                 .map((item, index) => (
                   <TimelineItem 
                     key={`interaction-${item.id}-${index}`} 
-                    item={item.item} 
+                    item={adaptMessageToTimelineItem(item)} 
                     type="interacao" 
                   />
                 ))
@@ -131,7 +145,7 @@ const LeadTimeline: React.FC<LeadTimelineProps> = ({ leadId }) => {
                 .map((item, index) => (
                   <TimelineItem 
                     key={`message-${item.id}-${index}`} 
-                    item={item.item} 
+                    item={adaptMessageToTimelineItem(item)} 
                     type="interacao" 
                   />
                 ))

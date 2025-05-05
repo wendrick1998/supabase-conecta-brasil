@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Conversation } from "@/types/conversation";
@@ -14,6 +13,7 @@ export interface InboxFilters {
   };
   priority?: string;
   accountId?: string;
+  channel?: string; // Add the missing channel property
 }
 
 // Get all conversations
@@ -24,7 +24,7 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       .select('*')
       .order('horario', { ascending: false });
     
-    // Apply filters
+    // Apply filters - simplified to avoid excessive type instantiation
     if (filters) {
       // Filter by search term
       if (filters.search) {
@@ -64,12 +64,7 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
     
     if (error) throw error;
     
-    // Cast the results to ensure proper type conversion
-    return (data || []).map(conversation => ({
-      ...conversation,
-      canal: conversation.canal as 'WhatsApp' | 'Instagram' | 'Facebook' | 'Email',
-      status: conversation.status as 'Aberta' | 'Fechada'
-    }));
+    return (data || []) as Conversation[];
   } catch (error: any) {
     toast.error(`Erro ao buscar conversas: ${error.message}`);
     return [];

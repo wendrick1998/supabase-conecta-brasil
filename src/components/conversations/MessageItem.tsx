@@ -1,4 +1,3 @@
-
 import { Message } from '@/types/conversation';
 import { formatMessageTime } from '@/utils/conversationUtils';
 import { FileText, Play, Mic, Pause, FileIcon } from 'lucide-react';
@@ -288,23 +287,26 @@ const MessageItem = ({ message }: MessageItemProps) => {
   const renderAttachment = () => {
     if (!message.attachment) return null;
     
+    // Use filename as fallback if name is not available
+    const attachmentName = message.attachment.name || message.attachment.filename || 'file';
+    
     // Audio attachment
     if (message.attachment.type.startsWith('audio/')) {
-      return <AudioPlayer url={message.attachment.url} name={message.attachment.name} />;
+      return <AudioPlayer url={message.attachment.url} name={attachmentName} />;
     }
     
     // Video attachment
     if (message.attachment.type.startsWith('video/')) {
-      return <VideoAttachment url={message.attachment.url} name={message.attachment.name} />;
+      return <VideoAttachment url={message.attachment.url} name={attachmentName} />;
     }
     
     // Image attachment
     if (message.attachment.type.startsWith('image/')) {
-      return <ImageAttachment url={message.attachment.url} name={message.attachment.name} />;
+      return <ImageAttachment url={message.attachment.url} name={attachmentName} />;
     }
     
     // Document attachment
-    return <DocumentAttachment url={message.attachment.url} name={message.attachment.name} type={message.attachment.type} />;
+    return <DocumentAttachment url={message.attachment.url} name={attachmentName} type={message.attachment.type} />;
   };
 
   return (

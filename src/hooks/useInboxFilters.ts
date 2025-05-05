@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Conversation } from '@/types/conversation';
 import { InboxFilters, getConnectedAccounts } from '@/services/inboxService';
@@ -66,12 +65,18 @@ export const useInboxFilters = (conversations: Conversation[]) => {
     
     // Filter by priority
     if (activeFilters.priority) {
-      filtered = filtered.filter(conv => conv.prioridade === activeFilters.priority);
+      filtered = filtered.filter(conv => {
+        // Check if prioridade property exists before filtering
+        return 'prioridade' in conv && conv.prioridade === activeFilters.priority;
+      });
     }
     
     // Filter by account
     if (activeFilters.accountId) {
-      filtered = filtered.filter(conv => conv.conexao_id === activeFilters.accountId);
+      filtered = filtered.filter(conv => {
+        // Check if conexao_id property exists before filtering
+        return 'conexao_id' in conv && conv.conexao_id === activeFilters.accountId;
+      });
     }
     
     // Apply search filter
