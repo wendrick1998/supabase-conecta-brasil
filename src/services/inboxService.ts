@@ -30,14 +30,14 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       // Apply channel filter
       if (filters.canais && filters.canais.length > 0) {
         // Convert channels to simple string array to avoid TypeScript complexity
-        const channelValues = [...filters.canais].map(c => c.toString());
+        const channelValues: any[] = filters.canais.map(c => c);
         query = query.in('canal', channelValues);
       }
       
       // Apply status filter
       if (filters.status && filters.status.length > 0) {
         // Convert status to simple string array to avoid TypeScript complexity
-        const statusValues = [...filters.status].map(s => s.toString());
+        const statusValues: any[] = filters.status.map(s => s);
         query = query.in('status', statusValues);
       }
       
@@ -54,6 +54,7 @@ export const getConversations = async (filters?: InboxFilters): Promise<Conversa
       // Apply search filter - keep it simple with single pattern
       if (filters.search) {
         const searchPattern = `%${filters.search}%`;
+        // Use a direct string for the or condition to avoid deep type nesting
         query = query.or(`lead_nome.ilike.${searchPattern},ultima_mensagem.ilike.${searchPattern}`);
       }
       
