@@ -1,7 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Conversation } from '@/types/conversation';
-import { InboxFilters, getConnectedAccounts } from '@/services/inboxService';
+import { 
+  getConnectedAccounts,
+  InboxFilters
+} from '@/services/inboxService';
 import { FilterChannels, FilterStatus } from '@/types/inboxTypes';
 
 export const useInboxFilters = (conversations: Conversation[]) => {

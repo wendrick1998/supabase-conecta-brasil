@@ -1,13 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { InboxLayout } from '@/components/inbox/InboxLayout';
-import { getConversations, subscribeToConversations } from '@/services/inboxService';
+import { 
+  getConversations, 
+  subscribeToConversations,
+  storeConversationsCache,
+  loadConversationsCache
+} from '@/services/inboxService';
 import { toast } from 'sonner';
 import InboxHeader from './InboxHeader';
 import InboxSearchBar from './InboxSearchBar';
 import InboxTabs from './InboxTabs';
 import { useInboxFilters } from '@/hooks/useInboxFilters';
-import AccountSelector, { ConnectedAccount } from '../channels/AccountSelector';
+import AccountSelector from '../channels/AccountSelector';
 
 export const UnifiedInbox: React.FC = () => {
   const [conversations, setConversations] = useState([]);
@@ -60,11 +65,24 @@ export const UnifiedInbox: React.FC = () => {
   const loadConversations = async () => {
     setIsLoading(true);
     try {
+      // Try to fetch from server
       const data = await getConversations(activeFilters);
       setConversations(data);
+      
+      // Store in cache for offline usage
+      if (data && data.length > 0) {
+        storeConversationsCache(data);
+      }
     } catch (error) {
       console.error('Error loading conversations:', error);
       toast.error('Erro ao carregar conversas');
+      
+      // Try to load from cache
+      const cachedData = loadConversationsCache();
+      if (cachedData && cachedData.length > 0) {
+        setConversations(cachedData);
+        toast.info('Carregando dados do cache offline');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +94,12 @@ export const UnifiedInbox: React.FC = () => {
     try {
       const data = await getConversations(activeFilters);
       setConversations(data);
+      
+      // Store in cache for offline usage
+      if (data && data.length > 0) {
+        storeConversationsCache(data);
+      }
+      
       toast.success('Conversas atualizadas');
     } catch (error) {
       console.error('Error refreshing conversations:', error);

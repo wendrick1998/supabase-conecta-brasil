@@ -48,8 +48,7 @@ export function registerServiceWorker() {
 // Function to setup background sync
 async function setupBackgroundSync(registration: ServiceWorkerRegistration) {
   try {
-    // TypeScript fix: Check if 'sync' exists in registration
-    if ('sync' in registration && registration.sync) {
+    if ('sync' in registration) {
       // Register for background sync - this would sync messages when online
       await registration.sync.register('sync-messages');
       console.log('Background sync registered');

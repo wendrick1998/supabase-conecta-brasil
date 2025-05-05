@@ -27,3 +27,6 @@ export interface InboxFiltersBase {
   accountId?: string;
   channel?: string;
 }
+
+// Re-export the interface with the base type to prevent circular references
+export interface InboxFilters extends InboxFiltersBase {}
