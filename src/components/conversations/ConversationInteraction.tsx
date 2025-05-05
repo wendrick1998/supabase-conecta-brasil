@@ -1,13 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from "@/components/ui/sonner";
 import MessageInput from './MessageInput';
 import NoteForm from './NoteForm';
 import RecordingDialog from './RecordingDialog';
 import { MediaType } from './recording/types';
 import useMediaUpload from '@/hooks/useMediaUpload';
-import { getMediaType } from '@/utils/mediaCompression';
+import { getMediaType, clearMediaCache } from '@/utils/mediaCompression';
 import { useAuth } from '@/contexts/AuthContext';
+import { Progress } from '@/components/ui/progress';
 
 interface ConversationInteractionProps {
   conversationId: string;
@@ -27,8 +28,17 @@ const ConversationInteraction = ({
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [recordingDialogOpen, setRecordingDialogOpen] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>('audio');
-  const { isUploading, uploadMedia } = useMediaUpload(conversationId);
+  const { isUploading, uploadMedia, uploadProgress } = useMediaUpload(conversationId);
   const { user } = useAuth();
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Limpar cache quando componente desmontar
+  useEffect(() => {
+    return () => {
+      clearMediaCache();
+    };
+  }, []);
 
   // Photo library (gallery) upload handler
   const handlePhotoLibraryUpload = () => {
@@ -55,6 +65,7 @@ const ConversationInteraction = ({
           return;
         }
         
+        setSelectedFile(file);
         handleSendFile(file);
       }
     };
@@ -87,6 +98,7 @@ const ConversationInteraction = ({
           return;
         }
         
+        setSelectedFile(file);
         handleSendFile(file);
       }
     };
@@ -118,6 +130,7 @@ const ConversationInteraction = ({
           return;
         }
         
+        setSelectedFile(file);
         handleSendFile(file);
       }
     };
@@ -137,6 +150,7 @@ const ConversationInteraction = ({
     switch (fileType) {
       case 'image':
         messageText = 'Imagem enviada';
+        setIsCompressing(true);
         break;
       case 'video':
         messageText = 'Vídeo enviado';
@@ -152,14 +166,36 @@ const ConversationInteraction = ({
     }
     
     try {
+      if (fileType === 'image') {
+        // Adiciona atraso para mostrar o indicador de compressão brevemente
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
       const success = await uploadMedia(file, messageText);
+      
       if (success) {
         onSendMediaMessage(file, messageText);
         toast.success(`${messageText} com sucesso!`);
+      } else {
+        // Mostrar botão de retry
+        toast.error('Falha no upload. Tente novamente.', {
+          action: {
+            label: 'Tentar novamente',
+            onClick: () => handleSendFile(file),
+          },
+        });
       }
     } catch (error) {
       console.error('Erro ao enviar arquivo:', error);
-      toast.error('Não foi possível enviar o arquivo. Tente novamente.');
+      toast.error('Não foi possível enviar o arquivo.', {
+        action: {
+          label: 'Tentar novamente',
+          onClick: () => handleSendFile(file),
+        },
+      });
+    } finally {
+      setIsCompressing(false);
+      setSelectedFile(null);
     }
   };
 
@@ -196,20 +232,50 @@ const ConversationInteraction = ({
     if (type === 'video') messageText = 'Vídeo enviado';
     if (type === 'photo') messageText = 'Foto enviada';
     
+    setSelectedFile(file);
+    
     try {
       const success = await uploadMedia(file, messageText);
       if (success) {
         onSendMediaMessage(file, messageText);
         toast.success(`${messageText} com sucesso!`);
+      } else {
+        toast.error('Falha no upload. Tente novamente.', {
+          action: {
+            label: 'Tentar novamente',
+            onClick: () => handleSaveRecording(file, type),
+          },
+        });
       }
     } catch (error) {
       console.error('Erro ao enviar gravação:', error);
-      toast.error('Não foi possível enviar a gravação. Tente novamente.');
+      toast.error('Não foi possível enviar a gravação.', {
+        action: {
+          label: 'Tentar novamente',
+          onClick: () => handleSaveRecording(file, type),
+        },
+      });
+    } finally {
+      setSelectedFile(null);
     }
   };
 
   return (
     <>
+      {/* Upload Progress */}
+      {(isUploading || isCompressing) && (
+        <div className="bg-white border-t px-4 py-2">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium">
+              {isCompressing ? 'Comprimindo' : 'Enviando'} 
+              {selectedFile ? ` ${selectedFile.name.substring(0, 20)}${selectedFile.name.length > 20 ? '...' : ''}` : ''}
+            </span>
+            <span className="text-xs text-gray-500">{Math.round(uploadProgress)}%</span>
+          </div>
+          <Progress value={isCompressing ? 70 : uploadProgress} className="h-1" />
+        </div>
+      )}
+
       {showNoteForm ? (
         <NoteForm 
           onSave={handleSaveNote} 
@@ -230,7 +296,7 @@ const ConversationInteraction = ({
           onPhotoLibraryUpload={handlePhotoLibraryUpload}
           onCameraCaptureUpload={handleCameraCaptureUpload}
           onDocumentFileUpload={handleDocumentFileUpload}
-          isLoading={sendingMessage || isUploading}
+          isLoading={sendingMessage || isUploading || isCompressing}
         />
       )}
 

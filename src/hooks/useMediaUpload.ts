@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage, getMediaType, validateFileSize, getBucketForFile, getFileDisplayName } from '@/utils/mediaCompression';
@@ -7,7 +7,12 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export const useMediaUpload = (conversationId: string | undefined) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const uploadController = useRef<AbortController | null>(null);
   const { user } = useAuth();
+  
+  // Cache de uploads recentes
+  const recentUploadsCache = useRef<Map<string, {url: string, type: string}>>(new Map());
   
   // Helper function to validate UUID
   const isValidUUID = (uuid: string): boolean => {
@@ -15,7 +20,32 @@ export const useMediaUpload = (conversationId: string | undefined) => {
     return uuidRegex.test(uuid);
   };
   
-  const uploadMedia = async (file: File, messageText: string): Promise<boolean> => {
+  // Função para cancelar upload em andamento
+  const cancelUpload = () => {
+    if (uploadController.current) {
+      uploadController.current.abort();
+      uploadController.current = null;
+      return true;
+    }
+    return false;
+  };
+
+  // Função para simular upload com progresso
+  const simulateProgress = (onProgress: (progress: number) => void) => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress > 95) {
+        progress = 95; // Never reach 100% until actual completion
+        clearInterval(interval);
+      }
+      onProgress(progress);
+    }, 300);
+    
+    return () => clearInterval(interval);
+  };
+  
+  const uploadMedia = async (file: File, messageText: string, retryCount = 0): Promise<boolean> => {
     if (!conversationId) {
       toast.error('ID de conversa não encontrado');
       return false;
@@ -37,7 +67,73 @@ export const useMediaUpload = (conversationId: string | undefined) => {
       return false;
     }
     
+    // Verificar se já estamos fazendo upload
+    if (isUploading && retryCount === 0) {
+      toast.warning('Upload em andamento. Aguarde a conclusão.');
+      return false;
+    }
+    
+    // Criar novo controller para este upload
+    uploadController.current = new AbortController();
     setIsUploading(true);
+    setUploadProgress(0);
+    
+    // Verificar cache para envios duplicados recentes
+    const cacheKey = `${file.name}-${file.size}-${file.lastModified}`;
+    const cachedUpload = recentUploadsCache.current.get(cacheKey);
+    
+    if (cachedUpload && retryCount === 0) {
+      console.log('Arquivo similar foi enviado recentemente. Reusando dados:', cachedUpload);
+      
+      try {
+        // Simular progresso para melhor UX
+        const stopProgress = simulateProgress((progress) => {
+          setUploadProgress(progress);
+        });
+        
+        // Adicionar mensagem ao banco de dados com attachment do cache
+        const { data: messageData, error: messageError } = await supabase
+          .from('messages')
+          .insert({
+            conversation_id: conversationId,
+            content: messageText,
+            sender_type: 'user',
+            status: 'sent',
+            attachment: {
+              name: file.name,
+              url: cachedUpload.url,
+              type: cachedUpload.type,
+              size: file.size,
+              bucket: getBucketForFile(file)
+            },
+          })
+          .select()
+          .single();
+        
+        stopProgress();
+        setUploadProgress(100);
+        
+        if (messageError) {
+          console.error('Message error from cache:', messageError);
+          throw new Error(`Erro ao salvar mensagem: ${messageError.message}`);
+        }
+        
+        // Update conversation with latest message
+        await supabase
+          .from('conversations')
+          .update({
+            ultima_mensagem: messageText,
+            horario: new Date().toISOString(),
+            nao_lida: false,
+          })
+          .eq('id', conversationId);
+        
+        return true;
+      } catch (error) {
+        console.error('Erro ao usar cache de upload:', error);
+        // Continuar com upload normal se falhar
+      }
+    }
     
     try {
       // Determine media type and validate
@@ -64,6 +160,11 @@ export const useMediaUpload = (conversationId: string | undefined) => {
         fileType: file.type,
         fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
         bucket: getBucketForFile(file)
+      });
+      
+      // Simular início do progresso
+      const stopProgress = simulateProgress((progress) => {
+        setUploadProgress(progress);
       });
       
       // Compress file if it's an image
@@ -97,6 +198,10 @@ export const useMediaUpload = (conversationId: string | undefined) => {
           upsert: false
         });
       
+      // Limpar simulação de progresso
+      stopProgress();
+      setUploadProgress(100);
+      
       if (uploadError) {
         console.error('Upload error:', uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
@@ -110,6 +215,18 @@ export const useMediaUpload = (conversationId: string | undefined) => {
       
       const fileUrl = publicUrlData.publicUrl;
       console.log('File uploaded successfully to', bucketId, 'URL:', fileUrl);
+      
+      // Adicionar ao cache
+      recentUploadsCache.current.set(cacheKey, {
+        url: fileUrl,
+        type: file.type
+      });
+      
+      // Limitar tamanho do cache
+      if (recentUploadsCache.current.size > 20) {
+        const oldestKey = recentUploadsCache.current.keys().next().value;
+        recentUploadsCache.current.delete(oldestKey);
+      }
       
       // Create message attachment object
       const attachment = {
@@ -156,16 +273,29 @@ export const useMediaUpload = (conversationId: string | undefined) => {
       return true;
     } catch (error) {
       console.error('Erro ao enviar mídia:', error);
-      toast.error('Não foi possível enviar a mídia. Tente novamente.');
+      
+      // Tratamento de retry automatizado
+      if (retryCount < 2 && !uploadController.current?.signal.aborted) {
+        console.log(`Tentando novamente (${retryCount + 1}/3)...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return uploadMedia(file, messageText, retryCount + 1);
+      }
+      
+      toast.error('Não foi possível enviar a mídia.');
       return false;
     } finally {
-      setIsUploading(false);
+      if (retryCount === 0 || retryCount >= 2) {
+        setIsUploading(false);
+        uploadController.current = null;
+      }
     }
   };
   
   return {
     isUploading,
-    uploadMedia
+    uploadProgress,
+    uploadMedia,
+    cancelUpload
   };
 };
 
