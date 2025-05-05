@@ -21,15 +21,15 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
       return (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="source">Canal de Origem</Label>
+            <Label htmlFor="source" className="text-white">Canal de Origem</Label>
             <Select 
               value={config.source || 'none'} 
               onValueChange={(value) => updateConfig('source', value)}
             >
-              <SelectTrigger id="source">
+              <SelectTrigger id="source" className="bg-[#202027] border-vendah-purple/40 text-white">
                 <SelectValue placeholder="Selecione a origem" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-vendah-purple/30">
                 <SelectItem value="website">Website</SelectItem>
                 <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 <SelectItem value="facebook">Facebook</SelectItem>
@@ -41,14 +41,15 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="tags">Tags (opcional)</Label>
+            <Label htmlFor="tags" className="text-white">Tags (opcional)</Label>
             <Input 
               id="tags" 
               placeholder="Ex: novo, website, interessado" 
               value={config.tags || ''} 
               onChange={(e) => updateConfig('tags', e.target.value)}
+              className="bg-[#202027] border-vendah-purple/40 text-white"
             />
-            <p className="text-xs text-gray-500">Separe múltiplas tags com vírgula</p>
+            <p className="text-xs text-gray-400">Separe múltiplas tags com vírgula</p>
           </div>
         </div>
       );
@@ -57,15 +58,15 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
       return (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fromStage">Estágio de Origem</Label>
+            <Label htmlFor="fromStage" className="text-white">Estágio de Origem</Label>
             <Select 
               value={config.fromStage || 'any'} 
               onValueChange={(value) => updateConfig('fromStage', value)}
             >
-              <SelectTrigger id="fromStage">
+              <SelectTrigger id="fromStage" className="bg-[#202027] border-vendah-purple/40 text-white">
                 <SelectValue placeholder="Selecione o estágio de origem" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-vendah-purple/30">
                 <SelectItem value="any">Qualquer estágio</SelectItem>
                 <SelectItem value="novo">Novo</SelectItem>
                 <SelectItem value="qualificado">Qualificado</SelectItem>
@@ -76,15 +77,15 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="toStage">Estágio de Destino</Label>
+            <Label htmlFor="toStage" className="text-white">Estágio de Destino</Label>
             <Select 
               value={config.toStage || 'none'} 
               onValueChange={(value) => updateConfig('toStage', value)}
             >
-              <SelectTrigger id="toStage">
+              <SelectTrigger id="toStage" className="bg-[#202027] border-vendah-purple/40 text-white">
                 <SelectValue placeholder="Selecione o estágio de destino" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-vendah-purple/30">
                 <SelectItem value="qualificado">Qualificado</SelectItem>
                 <SelectItem value="proposta">Proposta</SelectItem>
                 <SelectItem value="fechado">Fechado</SelectItem>
@@ -100,15 +101,15 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
       return (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="channel">Canal</Label>
+            <Label htmlFor="channel" className="text-white">Canal</Label>
             <Select 
               value={config.channel || 'any'} 
               onValueChange={(value) => updateConfig('channel', value)}
             >
-              <SelectTrigger id="channel">
+              <SelectTrigger id="channel" className="bg-[#202027] border-vendah-purple/40 text-white">
                 <SelectValue placeholder="Selecione o canal" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-surface border-vendah-purple/30">
                 <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 <SelectItem value="email">E-mail</SelectItem>
                 <SelectItem value="sms">SMS</SelectItem>
@@ -118,14 +119,15 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="contains">Contém texto (opcional)</Label>
+            <Label htmlFor="contains" className="text-white">Contém texto (opcional)</Label>
             <Input 
               id="contains" 
               placeholder="Ex: orçamento, preço" 
               value={config.contains || ''} 
               onChange={(e) => updateConfig('contains', e.target.value)}
+              className="bg-[#202027] border-vendah-purple/40 text-white"
             />
-            <p className="text-xs text-gray-500">Palavras-chave separadas por vírgula</p>
+            <p className="text-xs text-gray-400">Palavras-chave separadas por vírgula</p>
           </div>
         </div>
       );
@@ -133,7 +135,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
     default:
       return (
         <div className="space-y-2">
-          <Label>Quando um gatilho for acionado</Label>
+          <Label className="text-white">Quando um gatilho for acionado</Label>
           <p className="text-sm text-muted-foreground">
             Este bloco será executado quando o evento ocorrer.
           </p>

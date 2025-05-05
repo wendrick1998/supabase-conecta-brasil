@@ -60,10 +60,10 @@ const AutomacaoEditorPage = () => {
   return (
     <>
       <Helmet>
-        <title>{automationName} | ResolveClick</title>
+        <title>{automationName} | Vendah+</title>
       </Helmet>
       
-      <div className="flex flex-col h-full min-h-[calc(100vh-4rem)]">
+      <div className="flex flex-col h-full min-h-[calc(100vh-4rem)] bg-[#121212]">
         {/* Header */}
         <AutomationHeader
           automationName={automationName}

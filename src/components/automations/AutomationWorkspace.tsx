@@ -51,7 +51,7 @@ export const AutomationWorkspace: React.FC<AutomationWorkspaceProps> = ({
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <main className="flex-1 overflow-hidden bg-gray-50 relative">
+        <main className="flex-1 overflow-hidden bg-[#121212] relative border-l border-vendah-purple/20">
           <AutomationCanvas 
             blocks={blocks}
             canvasRef={canvasRef}

@@ -48,7 +48,7 @@ export const AutomationCanvas: React.FC<AutomationCanvasProps> = ({
   return (
     <div
       ref={setCanvasRef}
-      className="w-full h-full relative overflow-auto bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4xKSIvPjwvc3ZnPg==')]"
+      className="w-full h-full relative overflow-auto bg-[#0c0722] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoOTMsIDQ2LCAxNDAsIDAuMikiLz48L3N2Zz4=')]"
       tabIndex={0}
       aria-label="Área de construção da automação"
       onClick={handleCanvasClick}

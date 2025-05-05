@@ -70,6 +70,20 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
     setBlockConfig(newConfig);
   };
 
+  // Customizado para acompanhar o esquema de cores do aplicativo
+  const getCategoryColor = () => {
+    switch (block.category) {
+      case 'trigger':
+        return 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 border-blue-500/30';
+      case 'condition':
+        return 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 border-amber-500/30';
+      case 'action':
+        return 'bg-gradient-to-r from-green-500/20 to-green-600/10 border-green-500/30';
+      default:
+        return 'bg-gradient-to-r from-vendah-purple/20 to-vendah-blue/10 border-vendah-purple/30';
+    }
+  };
+
   return (
     <>
       <div
@@ -79,9 +93,10 @@ export const AutomationBlock: React.FC<AutomationBlockProps> = ({
         {...attributes}
         {...listeners}
         className={cn(
-          `automation-block rounded-md shadow-md ${blockColor} ${blockStatusClass} ${connectionClass} transition-all px-5 py-4`,
+          `automation-block rounded-md shadow-md ${getCategoryColor()} ${blockStatusClass} ${connectionClass} transition-all px-5 py-4`,
           isHovered && !isConnecting ? 'shadow-lg scale-[1.02]' : '',
-          isConnectionSource ? 'rotate-1' : ''
+          isConnectionSource ? 'rotate-1' : '',
+          !block.configured ? 'border-dashed' : 'border-solid'
         )}
         aria-labelledby={`block-title-${block.id}`}
         onClick={() => !isConnecting && setShowConfig(true)}
