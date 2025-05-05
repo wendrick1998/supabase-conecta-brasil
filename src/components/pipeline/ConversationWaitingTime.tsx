@@ -1,25 +1,20 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getMinutesElapsed, formatElapsedTime } from '@/utils/formatters';
-
 interface ConversationWaitingTimeProps {
   timestamp: string;
   isViewed: boolean;
 }
-
 const ConversationWaitingTime: React.FC<ConversationWaitingTimeProps> = ({
   timestamp,
-  isViewed,
+  isViewed
 }) => {
   // If message is viewed, show "Visualizado" badge
   if (isViewed) {
-    return (
-      <Badge className="bg-gray-200 text-gray-700 px-2 py-0.5 text-xs font-medium">
+    return <Badge className="text-gray-700 px-2 py-0.5 text-xs font-medium bg-lime-200">
         Visualizado
-      </Badge>
-    );
+      </Badge>;
   }
 
   // Calculate waiting time based on timestamp
@@ -28,24 +23,17 @@ const ConversationWaitingTime: React.FC<ConversationWaitingTimeProps> = ({
 
   // Determine styling based on waiting time
   if (minutesWaiting < 10) {
-    return (
-      <Badge className="bg-green-100 text-green-700 px-2 py-0.5 text-xs font-medium">
+    return <Badge className="bg-green-100 text-green-700 px-2 py-0.5 text-xs font-medium">
         Esperando há {formattedTime}
-      </Badge>
-    );
+      </Badge>;
   } else if (minutesWaiting < 60) {
-    return (
-      <Badge className="bg-yellow-100 text-yellow-800 px-2 py-0.5 text-xs font-medium">
+    return <Badge className="bg-yellow-100 text-yellow-800 px-2 py-0.5 text-xs font-medium">
         Esperando há {formattedTime}
-      </Badge>
-    );
+      </Badge>;
   } else {
-    return (
-      <Badge className="bg-red-100 text-red-800 px-2 py-0.5 text-xs font-medium">
+    return <Badge className="bg-red-100 text-red-800 px-2 py-0.5 text-xs font-medium">
         Esperando há {formattedTime}
-      </Badge>
-    );
+      </Badge>;
   }
 };
-
 export default ConversationWaitingTime;
