@@ -49,12 +49,12 @@ const AutomacoesFilters: React.FC<AutomacoesFiltersProps> = ({
           <div className="p-2">
             <div className="mb-2">
               <label className="text-sm font-medium mb-1 block text-white">Gatilho</label>
-              <Select value={gatilhoFiltro || ''} onValueChange={(value) => setGatilhoFiltro(value || null)}>
+              <Select value={gatilhoFiltro || "all"} onValueChange={(value) => setGatilhoFiltro(value === "all" ? null : value)}>
                 <SelectTrigger className="w-full bg-surface/60 border-vendah-purple/20">
                   <SelectValue placeholder="Todos os gatilhos" />
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-vendah-purple/20">
-                  <SelectItem value="">Todos os gatilhos</SelectItem>
+                  <SelectItem value="all">Todos os gatilhos</SelectItem>
                   {gatilhos.map(gatilho => (
                     <SelectItem key={gatilho} value={gatilho}>{gatilho}</SelectItem>
                   ))}
@@ -63,12 +63,12 @@ const AutomacoesFilters: React.FC<AutomacoesFiltersProps> = ({
             </div>
             <div className="mb-2">
               <label className="text-sm font-medium mb-1 block text-white">Ação</label>
-              <Select value={acaoFiltro || ''} onValueChange={(value) => setAcaoFiltro(value || null)}>
+              <Select value={acaoFiltro || "all"} onValueChange={(value) => setAcaoFiltro(value === "all" ? null : value)}>
                 <SelectTrigger className="w-full bg-surface/60 border-vendah-purple/20">
                   <SelectValue placeholder="Todas as ações" />
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-vendah-purple/20">
-                  <SelectItem value="">Todas as ações</SelectItem>
+                  <SelectItem value="all">Todas as ações</SelectItem>
                   {acoes.map(acao => (
                     <SelectItem key={acao} value={acao}>{acao}</SelectItem>
                   ))}

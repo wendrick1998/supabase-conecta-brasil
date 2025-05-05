@@ -24,7 +24,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="message-channel">Canal</Label>
             <Select 
-              value={config.channel || ''} 
+              value={config.channel || 'none'} 
               onValueChange={(value) => updateConfig('channel', value)}
             >
               <SelectTrigger id="message-channel">
@@ -34,6 +34,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
                 <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 <SelectItem value="email">E-mail</SelectItem>
                 <SelectItem value="sms">SMS</SelectItem>
+                <SelectItem value="none">Selecione um canal</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -41,8 +42,8 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="template">Template (opcional)</Label>
             <Select 
-              value={config.template || ''} 
-              onValueChange={(value) => updateConfig('template', value)}
+              value={config.template || 'none'} 
+              onValueChange={(value) => updateConfig('template', value === 'none' ? '' : value)}
             >
               <SelectTrigger id="template">
                 <SelectValue placeholder="Selecione um template" />
@@ -52,6 +53,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
                 <SelectItem value="agradecimento">Agradecimento</SelectItem>
                 <SelectItem value="lembrete">Lembrete</SelectItem>
                 <SelectItem value="proposta">Proposta</SelectItem>
+                <SelectItem value="none">Sem template</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -88,7 +90,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="assignee">Responsável</Label>
             <Select 
-              value={config.assignee || ''} 
+              value={config.assignee || 'none'} 
               onValueChange={(value) => updateConfig('assignee', value)}
             >
               <SelectTrigger id="assignee">
@@ -99,6 +101,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
                 <SelectItem value="lead_owner">Proprietário do lead</SelectItem>
                 <SelectItem value="user1">João Silva</SelectItem>
                 <SelectItem value="user2">Maria Santos</SelectItem>
+                <SelectItem value="none">Selecione um responsável</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -157,7 +160,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="stage">Estágio</Label>
             <Select 
-              value={config.stage || ''} 
+              value={config.stage || 'none'} 
               onValueChange={(value) => updateConfig('stage', value)}
             >
               <SelectTrigger id="stage">
@@ -168,6 +171,7 @@ export const ActionBlockConfig: React.FC<ActionBlockConfigProps> = ({
                 <SelectItem value="qualificado">Qualificado</SelectItem>
                 <SelectItem value="proposta">Proposta</SelectItem>
                 <SelectItem value="fechado">Fechado</SelectItem>
+                <SelectItem value="none">Selecione um estágio</SelectItem>
               </SelectContent>
             </Select>
           </div>

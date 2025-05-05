@@ -40,15 +40,15 @@ export const ConditionBlockConfig: React.FC<ConditionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="status-operator">Operador</Label>
             <Select 
-              value={config.operator || '='} 
+              value={config.operator || 'equals'} 
               onValueChange={(value) => updateConfig('operator', value)}
             >
               <SelectTrigger id="status-operator">
                 <SelectValue placeholder="Selecione o operador" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="=">É igual a</SelectItem>
-                <SelectItem value="!=">É diferente de</SelectItem>
+                <SelectItem value="equals">É igual a</SelectItem>
+                <SelectItem value="notEqual">É diferente de</SelectItem>
                 <SelectItem value="contains">Contém</SelectItem>
               </SelectContent>
             </Select>
@@ -72,15 +72,15 @@ export const ConditionBlockConfig: React.FC<ConditionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="source-operator">Operador</Label>
             <Select 
-              value={config.operator || '='} 
+              value={config.operator || 'equals'} 
               onValueChange={(value) => updateConfig('operator', value)}
             >
               <SelectTrigger id="source-operator">
                 <SelectValue placeholder="Selecione o operador" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="=">É igual a</SelectItem>
-                <SelectItem value="!=">É diferente de</SelectItem>
+                <SelectItem value="equals">É igual a</SelectItem>
+                <SelectItem value="notEqual">É diferente de</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -88,7 +88,7 @@ export const ConditionBlockConfig: React.FC<ConditionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="source">Origem</Label>
             <Select 
-              value={config.value || ''} 
+              value={config.value || 'none'} 
               onValueChange={(value) => updateConfig('value', value)}
             >
               <SelectTrigger id="source">
@@ -100,6 +100,7 @@ export const ConditionBlockConfig: React.FC<ConditionBlockConfigProps> = ({
                 <SelectItem value="facebook">Facebook</SelectItem>
                 <SelectItem value="instagram">Instagram</SelectItem>
                 <SelectItem value="manual">Manual</SelectItem>
+                <SelectItem value="none">Selecione uma origem</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -129,18 +130,18 @@ export const ConditionBlockConfig: React.FC<ConditionBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="value-operator">Operador</Label>
             <Select 
-              value={config.operator || '>'} 
+              value={config.operator || 'greater'} 
               onValueChange={(value) => updateConfig('operator', value)}
             >
               <SelectTrigger id="value-operator">
                 <SelectValue placeholder="Selecione o operador" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=">">Maior que</SelectItem>
-                <SelectItem value="<">Menor que</SelectItem>
-                <SelectItem value=">=">Maior ou igual a</SelectItem>
-                <SelectItem value="<=">Menor ou igual a</SelectItem>
-                <SelectItem value="=">Igual a</SelectItem>
+                <SelectItem value="greater">Maior que</SelectItem>
+                <SelectItem value="less">Menor que</SelectItem>
+                <SelectItem value="greaterEqual">Maior ou igual a</SelectItem>
+                <SelectItem value="lessEqual">Menor ou igual a</SelectItem>
+                <SelectItem value="equal">Igual a</SelectItem>
               </SelectContent>
             </Select>
           </div>

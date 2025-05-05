@@ -50,7 +50,7 @@ const MoveLeadsDialog: React.FC<MoveLeadsDialogProps> = ({
         </AlertDialogHeader>
         
         <Select
-          value={targetEstagio}
+          value={targetEstagio || "none"}
           onValueChange={onEstagioChange}
         >
           <SelectTrigger className="bg-[#202027] border-vendah-purple/40">
@@ -62,6 +62,7 @@ const MoveLeadsDialog: React.FC<MoveLeadsDialogProps> = ({
                 {estagio.nome}
               </SelectItem>
             ))}
+            <SelectItem value="none">Selecionar...</SelectItem>
           </SelectContent>
         </Select>
         
@@ -69,7 +70,7 @@ const MoveLeadsDialog: React.FC<MoveLeadsDialogProps> = ({
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirm}
-            disabled={!targetEstagio}
+            disabled={!targetEstagio || targetEstagio === "none"}
             className="bg-vendah-purple hover:bg-vendah-purple/90"
           >
             Mover

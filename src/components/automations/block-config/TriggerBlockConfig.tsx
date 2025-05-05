@@ -23,7 +23,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="source">Canal de Origem</Label>
             <Select 
-              value={config.source || ''} 
+              value={config.source || 'none'} 
               onValueChange={(value) => updateConfig('source', value)}
             >
               <SelectTrigger id="source">
@@ -35,6 +35,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
                 <SelectItem value="facebook">Facebook</SelectItem>
                 <SelectItem value="instagram">Instagram</SelectItem>
                 <SelectItem value="manual">Manual</SelectItem>
+                <SelectItem value="none">Sem origem específica</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -58,7 +59,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="fromStage">Estágio de Origem</Label>
             <Select 
-              value={config.fromStage || ''} 
+              value={config.fromStage || 'any'} 
               onValueChange={(value) => updateConfig('fromStage', value)}
             >
               <SelectTrigger id="fromStage">
@@ -77,7 +78,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="toStage">Estágio de Destino</Label>
             <Select 
-              value={config.toStage || ''} 
+              value={config.toStage || 'none'} 
               onValueChange={(value) => updateConfig('toStage', value)}
             >
               <SelectTrigger id="toStage">
@@ -88,6 +89,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
                 <SelectItem value="proposta">Proposta</SelectItem>
                 <SelectItem value="fechado">Fechado</SelectItem>
                 <SelectItem value="perdido">Perdido</SelectItem>
+                <SelectItem value="none">Selecione um estágio</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -100,7 +102,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
           <div className="space-y-2">
             <Label htmlFor="channel">Canal</Label>
             <Select 
-              value={config.channel || ''} 
+              value={config.channel || 'any'} 
               onValueChange={(value) => updateConfig('channel', value)}
             >
               <SelectTrigger id="channel">
@@ -110,6 +112,7 @@ export const TriggerBlockConfig: React.FC<TriggerBlockConfigProps> = ({
                 <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 <SelectItem value="email">E-mail</SelectItem>
                 <SelectItem value="sms">SMS</SelectItem>
+                <SelectItem value="any">Qualquer canal</SelectItem>
               </SelectContent>
             </Select>
           </div>
