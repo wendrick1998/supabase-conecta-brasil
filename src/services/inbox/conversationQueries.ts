@@ -1,132 +1,129 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { Conversation } from "@/types/conversation";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Conversation, Message } from '@/types/conversation';
+import { getConversationById, getConversations, markConversationAsRead, markConversationAsClosed } from '../conversationService';
 
-// Define the interface for inbox filters
-export interface InboxFilters {
-  search?: string;
-  canais?: string[];
-  status?: string[];
-  priority?: string;
-  accountId?: string;
-  channel?: string;
-  dateRange?: {
-    from: Date;
-    to: Date;
-  };
-}
-
-// Type for connected accounts
-export interface ConnectedAccount {
-  id: string;
-  nome: string;
-  canal: string;
-}
-
-// Get conversations with optional filtering
-export const getConversations = async (filters?: InboxFilters) => {
-  let query = supabase
-    .from('conversations')
-    .select('*')
-    .order('updated_at', { ascending: false });
-
-  // Apply filters if provided
-  if (filters) {
-    // Filter by search term
-    if (filters.search && filters.search.trim()) {
-      query = query.ilike('lead_nome', `%${filters.search.trim()}%`);
-    }
-
-    // Filter by channels
-    if (filters.canais && filters.canais.length > 0) {
-      query = query.in('canal', filters.canais);
-    }
-
-    // Filter by status
-    if (filters.status && filters.status.length > 0) {
-      query = query.in('status', filters.status);
-    }
-
-    // Filter by priority
-    if (filters.priority) {
-      query = query.eq('priority', filters.priority);
-    }
-
-    // Filter by account
-    if (filters.accountId) {
-      query = query.eq('account_id', filters.accountId);
-    }
-
-    // Filter by specific channel
-    if (filters.channel) {
-      query = query.eq('canal', filters.channel);
-    }
-
-    // Filter by date range
-    if (filters.dateRange) {
-      const { from, to } = filters.dateRange;
-      query = query
-        .gte('created_at', from.toISOString())
-        .lte('created_at', to.toISOString());
-    }
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Error fetching conversations:', error);
-    throw error;
-  }
-
-  return data as Conversation[];
+// Query keys
+export const QUERY_KEYS = {
+  conversations: 'conversations',
+  conversation: (id: string) => ['conversation', id],
+  messages: (conversationId: string) => ['messages', conversationId],
 };
 
-// Get conversation statistics
-export const getConversationStats = async () => {
-  const { data: total, error: totalError } = await supabase
-    .from('conversations')
-    .select('id', { count: 'exact', head: true });
+// Types for custom queries
+interface ConversationListQueryOptions {
+  enabled?: boolean;
+  onSuccess?: (data: Conversation[]) => void;
+  onError?: (error: Error) => void;
+}
 
-  const { data: unread, error: unreadError } = await supabase
-    .from('conversations')
-    .select('id', { count: 'exact', head: true })
-    .eq('unread', true);
+interface SingleConversationQueryOptions {
+  enabled?: boolean;
+  onSuccess?: (data: Conversation) => void;
+  onError?: (error: Error) => void;
+}
 
-  const { data: byChannel, error: channelError } = await supabase
-    .from('conversations')
-    .select('canal, id');
+// Function to fetch all conversations with optional query params
+export function useConversationsQuery(options: ConversationListQueryOptions = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.conversations],
+    queryFn: () => getConversations(),
+    ...options
+  });
+}
 
-  if (totalError || unreadError || channelError) {
-    console.error('Error fetching conversation stats:', totalError || unreadError || channelError);
-    throw totalError || unreadError || channelError;
-  }
+// Function to fetch a single conversation by ID
+export function useConversationByIdQuery(
+  conversationId: string,
+  options: SingleConversationQueryOptions = {}
+) {
+  return useQuery({
+    queryKey: QUERY_KEYS.conversation(conversationId),
+    queryFn: () => getConversationById(conversationId),
+    enabled: !!conversationId && (options.enabled !== false),
+    ...options
+  });
+}
 
-  // Count by channel
-  const channelCount: Record<string, number> = {};
-  byChannel?.forEach(item => {
-    if (item.canal) {
-      channelCount[item.canal] = (channelCount[item.canal] || 0) + 1;
+// Mutation to mark a conversation as read
+export function useMarkAsReadMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (conversationId: string) => markConversationAsRead(conversationId),
+    onSuccess: (_, conversationId) => {
+      // Update the conversation in the cache
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.conversation(conversationId) });
+      
+      // Update the conversation list
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.conversations] });
     }
   });
+}
 
-  return {
-    total: total?.length || 0,
-    unread: unread?.length || 0,
-    byChannel: channelCount
-  };
-};
+// Mutation to mark a conversation as closed/resolved
+export function useMarkAsClosedMutation() {
+  const queryClient = useQueryClient();
 
-// Get connected accounts
-export const getConnectedAccounts = async () => {
-  // Use the direct table name to avoid type issues
-  const { data, error } = await supabase
-    .from('canais_conectados')
-    .select('id, nome, canal');
+  return useMutation({
+    mutationFn: (conversationId: string) => markConversationAsClosed(conversationId),
+    onSuccess: (_, conversationId) => {
+      // Update the conversation in the cache
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.conversation(conversationId) });
+      
+      // Update the conversation list to reflect status change
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.conversations] });
+    }
+  });
+}
 
-  if (error) {
-    console.error('Error fetching connected accounts:', error);
-    throw error;
-  }
+// Optimistic update for adding a message to a conversation
+export function updateMessagesCache(
+  queryClient: any,
+  conversationId: string,
+  newMessage: Message
+) {
+  // Update the messages cache
+  queryClient.setQueryData(
+    QUERY_KEYS.messages(conversationId),
+    (oldData: Message[] | undefined) => {
+      if (!oldData) return [newMessage];
+      return [...oldData, newMessage];
+    }
+  );
 
-  return data as ConnectedAccount[] || [];
-};
+  // Update the unread status in the conversations list and the single conversation
+  queryClient.setQueryData(
+    [QUERY_KEYS.conversations],
+    (oldData: Conversation[] | undefined) => {
+      if (!oldData) return undefined;
+      
+      return oldData.map(conversation => {
+        if (conversation.id === conversationId) {
+          return {
+            ...conversation,
+            last_message: newMessage.content,
+            last_message_time: newMessage.timestamp,
+            unread_count: conversation.unread_count + (newMessage.is_from_me ? 0 : 1)
+          };
+        }
+        return conversation;
+      });
+    }
+  );
+
+  // Update the single conversation
+  queryClient.setQueryData(
+    QUERY_KEYS.conversation(conversationId),
+    (oldData: Conversation | undefined) => {
+      if (!oldData) return undefined;
+      
+      return {
+        ...oldData,
+        last_message: newMessage.content,
+        last_message_time: newMessage.timestamp,
+        unread_count: oldData.unread_count + (newMessage.is_from_me ? 0 : 1)
+      };
+    }
+  );
+}

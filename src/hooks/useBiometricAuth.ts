@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { isIOS } from '@/pwa/deviceDetection';
@@ -7,17 +8,22 @@ interface BiometricAuthResult {
   isSupported: boolean;
   isEnrolled: boolean;
   authenticate: () => Promise<boolean>;
+  biometricAvailable: boolean;
+  authenticating: boolean;
 }
 
 const useBiometricAuth = (): BiometricAuthResult => {
   const [isSupported, setIsSupported] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [authenticating, setAuthenticating] = useState(false);
 
   useEffect(() => {
     const checkBiometricSupport = async () => {
       if (isIOS()) {
         setIsSupported(false);
         setIsEnrolled(false);
+        setBiometricAvailable(false);
         return;
       }
 
@@ -26,12 +32,15 @@ const useBiometricAuth = (): BiometricAuthResult => {
         try {
           const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
           setIsSupported(available);
+          setBiometricAvailable(available);
         } catch (error) {
           console.error('Error checking biometric support:', error);
           setIsSupported(false);
+          setBiometricAvailable(false);
         }
       } else {
         setIsSupported(false);
+        setBiometricAvailable(false);
       }
     };
 
@@ -45,6 +54,7 @@ const useBiometricAuth = (): BiometricAuthResult => {
     }
 
     try {
+      setAuthenticating(true);
       hapticFeedback();
       const credential = await navigator.credentials.get({
         mediation: 'conditional',
@@ -68,6 +78,8 @@ const useBiometricAuth = (): BiometricAuthResult => {
       console.error('Erro durante a autenticação biométrica:', error);
       toast.error(`Erro na autenticação: ${error.message}`);
       return false;
+    } finally {
+      setAuthenticating(false);
     }
   };
 
@@ -75,6 +87,8 @@ const useBiometricAuth = (): BiometricAuthResult => {
     isSupported,
     isEnrolled,
     authenticate,
+    biometricAvailable,
+    authenticating
   };
 };
 

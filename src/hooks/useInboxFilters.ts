@@ -1,162 +1,165 @@
 
-import { useState, useEffect, useMemo } from 'react';
-import { getConnectedAccounts, type InboxFilters, type ConnectedAccount } from '@/services/inbox/conversationQueries';
+import { useState, useCallback } from 'react';
 import { Conversation } from '@/types/conversation';
 
-export const useInboxFilters = (conversations: Conversation[] = []) => {
-  const [filters, setFilters] = useState<InboxFilters>({});
-  const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
-  const [availableChannels, setAvailableChannels] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTab, setSelectedTab] = useState('all');
+// Define types for filters
+export interface InboxFilters {
+  searchTerm: string;
+  channels: string[];
+  statuses: string[];
+  priorities: string[];
+  dateRange: {
+    from: Date | null;
+    to: Date | null;
+  };
+  assignmentFilter: string;
+  unreadOnly: boolean;
+}
 
-  // Fetch connected accounts on component mount
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        setLoading(true);
-        const accounts = await getConnectedAccounts();
-        setConnectedAccounts(accounts);
-        
-        // Extract unique channels from accounts
-        const channels = [...new Set(accounts.map(account => account.canal))];
-        setAvailableChannels(channels);
-      } catch (error) {
-        console.error('Error fetching connected accounts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+// Default filter values
+const defaultFilters: InboxFilters = {
+  searchTerm: '',
+  channels: [],
+  statuses: [],
+  priorities: [],
+  dateRange: {
+    from: null,
+    to: null,
+  },
+  assignmentFilter: 'all',
+  unreadOnly: false,
+};
 
-    fetchAccounts();
+// Hook for managing inbox filters
+export const useInboxFilters = (initialConversations: Conversation[] = []) => {
+  const [filters, setFilters] = useState<InboxFilters>(defaultFilters);
+  const [filteredConversations, setFilteredConversations] = useState<Conversation[]>(initialConversations);
+
+  // Handlers for each filter type
+  const setSearchTerm = useCallback((term: string) => {
+    setFilters(prev => ({ ...prev, searchTerm: term }));
   }, []);
 
-  // Update filters
-  const updateFilters = (newFilters: Partial<InboxFilters>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters
-    }));
-  };
+  const setChannelFilter = useCallback((channels: string[]) => {
+    setFilters(prev => ({ ...prev, channels }));
+  }, []);
 
-  // Clear all filters
-  const clearFilters = () => {
-    setFilters({});
-    setSearchTerm('');
-  };
-  
-  // Filter conversations based on current filters
-  const filteredConversations = useMemo(() => {
-    return conversations.filter(conv => {
-      // Filter by search term
-      if (searchTerm && !conv.lead_nome?.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
-      
-      // Filter by channel
-      if (filters.canais?.length && !filters.canais.includes(conv.canal)) {
-        return false;
-      }
-      
-      // Filter by status
-      if (filters.status?.length && !filters.status.includes(conv.status)) {
-        return false;
-      }
-      
-      // Filter by priority
-      if (filters.priority && conv.priority !== filters.priority) {
-        return false;
-      }
-      
-      // Filter by account
-      if (filters.accountId && conv.account_id !== filters.accountId) {
-        return false;
-      }
-      
-      // Filter by date range
-      if (filters.dateRange) {
-        const convDate = new Date(conv.created_at);
-        if (convDate < filters.dateRange.from || convDate > filters.dateRange.to) {
-          return false;
+  const setStatusFilter = useCallback((statuses: string[]) => {
+    setFilters(prev => ({ ...prev, statuses }));
+  }, []);
+
+  const setPriorityFilter = useCallback((priorities: string[]) => {
+    setFilters(prev => ({ ...prev, priorities }));
+  }, []);
+
+  const setDateRangeFilter = useCallback((from: Date | null, to: Date | null) => {
+    setFilters(prev => ({ ...prev, dateRange: { from, to } }));
+  }, []);
+
+  const setAssignmentFilter = useCallback((assignmentFilter: string) => {
+    setFilters(prev => ({ ...prev, assignmentFilter }));
+  }, []);
+
+  const setUnreadFilter = useCallback((unreadOnly: boolean) => {
+    setFilters(prev => ({ ...prev, unreadOnly }));
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setFilters(defaultFilters);
+  }, []);
+
+  // Apply filters to conversations
+  const applyFilters = useCallback((conversations: Conversation[]) => {
+    let result = [...conversations];
+
+    // Search term filter
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      result = result.filter(conv => 
+        conv.customer_name?.toLowerCase().includes(searchLower) || 
+        conv.last_message?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Channel filter
+    if (filters.channels.length > 0) {
+      result = result.filter(conv => filters.channels.includes(conv.channel));
+    }
+
+    // Status filter
+    if (filters.statuses.length > 0) {
+      result = result.filter(conv => filters.statuses.includes(conv.status));
+    }
+
+    // Priority filter (if implemented in the Conversation type)
+    if (filters.priorities.length > 0 && 'priority' in result[0]) {
+      result = result.filter(conv => 
+        filters.priorities.includes((conv as any).priority)
+      );
+    }
+
+    // Account filter (if implemented)
+    if (filters.channels.includes('whatsapp') && 'account_id' in result[0]) {
+      result = result.filter(conv => 
+        (conv as any).account_id
+      );
+    }
+
+    // Date range filter
+    if (filters.dateRange.from || filters.dateRange.to) {
+      result = result.filter(conv => {
+        const createdAt = 'created_at' in conv ? 
+          new Date((conv as any).created_at) : 
+          null;
+          
+        if (!createdAt) return true;
+        
+        if (filters.dateRange.from && filters.dateRange.to) {
+          return createdAt >= filters.dateRange.from && createdAt <= filters.dateRange.to;
+        } else if (filters.dateRange.from) {
+          return createdAt >= filters.dateRange.from;
+        } else if (filters.dateRange.to) {
+          return createdAt <= filters.dateRange.to;
         }
-      }
-      
-      // Filter by tab
-      if (selectedTab === 'unread' && !conv.unread) {
-        return false;
-      } else if (selectedTab === 'assigned' && !conv.assigned_to) {
-        return false;
-      } else if (selectedTab === 'resolved' && conv.status !== 'resolved') {
-        return false;
-      }
-      
-      return true;
-    });
-  }, [conversations, filters, searchTerm, selectedTab]);
+        
+        return true;
+      });
+    }
 
-  // Count active filters
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    
-    if (filters.search && filters.search.trim()) count++;
-    if (filters.canais && filters.canais.length) count++;
-    if (filters.status && filters.status.length) count++;
-    if (filters.priority) count++;
-    if (filters.dateRange) count++;
-    
-    return count;
+    // Unread filter
+    if (filters.unreadOnly) {
+      result = result.filter(conv => 'unread' in conv && (conv as any).unread);
+    }
+
+    // Assignment filter
+    if (filters.assignmentFilter === 'assigned' && 'assigned_to' in result[0]) {
+      result = result.filter(conv => (conv as any).assigned_to);
+    } else if (filters.assignmentFilter === 'unassigned' && 'assigned_to' in result[0]) {
+      result = result.filter(conv => !(conv as any).assigned_to);
+    }
+
+    return result;
   }, [filters]);
-  
-  // Handler functions
-  const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
-    updateFilters({ search: term });
-  };
-  
-  const handleChannelFilterChange = (channels: string[]) => {
-    updateFilters({ canais: channels });
-  };
-  
-  const handleStatusFilterChange = (statuses: string[]) => {
-    updateFilters({ status: statuses });
-  };
-  
-  const handleDateRangeChange = (dateRange: { from: Date; to: Date } | null) => {
-    updateFilters({ dateRange: dateRange || undefined });
-  };
-  
-  const handlePriorityChange = (priority: string | null) => {
-    updateFilters({ priority: priority || undefined });
-  };
-  
-  const handleAccountFilterChange = (accountId: string | null) => {
-    updateFilters({ accountId: accountId || undefined });
-  };
-  
-  const handleClearFilters = () => {
-    clearFilters();
-  };
+
+  // Update filtered conversations when filters or conversations change
+  const updateFilteredConversations = useCallback((conversations: Conversation[]) => {
+    const filtered = applyFilters(conversations);
+    setFilteredConversations(filtered);
+    return filtered;
+  }, [applyFilters]);
 
   return {
     filters,
-    updateFilters,
-    clearFilters,
-    connectedAccounts,
-    availableChannels,
-    loading,
-    activeFilterCount,
     filteredConversations,
-    searchTerm,
-    selectedTab,
-    setSelectedTab,
-    handleSearchChange,
-    handleChannelFilterChange,
-    handleStatusFilterChange,
-    handleDateRangeChange,
-    handlePriorityChange,
-    handleAccountFilterChange,
-    handleClearFilters,
-    activeFilters: filters
+    setSearchTerm,
+    setChannelFilter, 
+    setStatusFilter,
+    setPriorityFilter,
+    setDateRangeFilter,
+    setAssignmentFilter,
+    setUnreadFilter,
+    resetFilters,
+    updateFilteredConversations,
+    applyFilters
   };
 };

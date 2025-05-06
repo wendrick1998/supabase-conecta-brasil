@@ -4,41 +4,18 @@ importScripts('./sw-modules/cache-strategies.js');
 importScripts('./sw-modules/routes.js');
 importScripts('./sw-modules/offline-sync.js');
 importScripts('./sw-modules/notifications.js');
-
-const CACHE_NAME = 'vendah-plus-v1';
+importScripts('./sw-modules/sw-utils.js');
+importScripts('./sw-modules/update-handler.js');
+importScripts('./sw-modules/lifecycle-events.js');
 
 // Install event - precache static assets
 self.addEventListener('install', event => {
-  // Skip waiting forces the waiting service worker to become the active one
-  self.skipWaiting();
-  
-  // Precache static assets
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(self.STATIC_ASSETS);
-      })
-  );
+  self.handleInstallEvent(event);
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      // Take control of all clients/tabs immediately
-      return self.clients.claim();
-    })
-  );
+  self.handleActivateEvent(event);
 });
 
 // Fetch event - with different strategies
@@ -49,18 +26,18 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
   // Skip some cross-origin requests but make sure Supabase is handled
-  if (url.origin !== self.location.origin && !url.href.includes('supabase.co')) {
+  if (url.origin !== self.location.origin && !self.isApiRequest(url.href)) {
     return;
   }
 
   const strategy = self.getCacheStrategy(url);
   
   if (strategy === 'network-first') {
-    event.respondWith(self.networkFirstStrategy(event, CACHE_NAME));
+    event.respondWith(self.networkFirstStrategy(event, self.getCurrentCacheName()));
   } else if (strategy === 'stale-while-revalidate') {
-    event.respondWith(self.staleWhileRevalidateStrategy(event, CACHE_NAME));
+    event.respondWith(self.staleWhileRevalidateStrategy(event, self.getCurrentCacheName()));
   } else {
-    event.respondWith(self.cacheFirstStrategy(event, CACHE_NAME));
+    event.respondWith(self.cacheFirstStrategy(event, self.getCurrentCacheName()));
   }
 });
 
@@ -88,4 +65,9 @@ self.addEventListener('periodicsync', event => {
   if (event.tag === 'cache-cleanup') {
     event.waitUntil(self.cleanupCache());
   }
+});
+
+// Listen for messages from clients
+self.addEventListener('message', event => {
+  self.handleMessageEvent(event);
 });
